@@ -58,7 +58,7 @@
                 android:layout_marginRight="60dp"
                 android:background="@drawable/rounded_b"
                 android:text="Iniciar Sesión"
-                android:textColor="#e82332 "
+                android:textColor="@color/rojoT"
                 android:textSize="18sp" />
 
             <LinearLayout

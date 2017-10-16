@@ -4,6 +4,6 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="amarilloT">#f8eb32</color>
-    <color name="rojoT">#e89396</color>
-
+    <color name="rojosoftT">#e89396</color>
+    <color name="rojoT">#e82332</color>
 </resources>
