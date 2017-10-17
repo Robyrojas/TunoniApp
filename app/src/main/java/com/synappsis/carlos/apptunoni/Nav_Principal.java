@@ -3,6 +3,7 @@ package com.synappsis.carlos.apptunoni;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -79,19 +80,22 @@ public class Nav_Principal extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
-
+        Fragment fragmento = null;
+        boolean seleccion = false;
         if (id == R.id.nav_camera) {
-            // Handle the camera action
+            fragmento = new EntregaProceso();
+            seleccion=true;
         } else if (id == R.id.nav_gallery) {
-
+            fragmento = new ViajesAsignados();
+            seleccion=true;
         } else if (id == R.id.nav_slideshow) {
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        }
+        if(seleccion)
+        {
+            getSupportFragmentManager().beginTransaction().replace(R.id.Contenedor,fragmento).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
