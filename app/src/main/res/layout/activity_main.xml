@@ -21,7 +21,8 @@
             <ImageView
                 android:id="@+id/imageView"
                 android:layout_width="wrap_content"
-                android:layout_height="229dp"
+                android:layout_height="220dp"
+                android:layout_marginBottom="15dp"
                 app:srcCompat="@drawable/logo" />
 
             <EditText
@@ -51,11 +52,12 @@
                 android:textSize="24sp" />
 
             <Button
-                android:id="@+id/button"
+                android:id="@+id/initSesion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="60dp"
                 android:layout_marginRight="60dp"
+                android:layout_marginTop="15dp"
                 android:background="@drawable/rounded_b"
                 android:text="Iniciar Sesión"
                 android:textColor="@color/rojoT"
