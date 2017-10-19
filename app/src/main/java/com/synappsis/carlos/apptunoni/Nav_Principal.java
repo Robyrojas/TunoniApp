@@ -32,11 +32,11 @@ public class Nav_Principal extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nav__principal);
         /*MAPAS*/
-        SupportMapFragment fragmentoMaps;
+        /*SupportMapFragment fragmentoMaps;
         fragmentoMaps = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         fragmentoMaps.getMapAsync(this);
-
+        */
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

@@ -4,9 +4,16 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
+import org.ksoap2.SoapEnvelope;
+import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapSerializationEnvelope;
+import org.ksoap2.transport.HttpTransportSE;
 
 
 /**
@@ -26,13 +33,20 @@ public class EntregaProceso extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    //Conexion
+    private static String tag="EntregaProceso";
+    private static String SOAP_ACTION = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto";
+
+    private static String NAMESPACE = "http://148.204.186.243:8080/";
+    private static String METHOD_NAME = "BuscarProducto";
+
+    private static String URL = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto?wsdl";
 
     private OnFragmentInteractionListener mListener;
 
     public EntregaProceso() {
         // Required empty public constructor
     }
-
     /**
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
@@ -50,13 +64,45 @@ public class EntregaProceso extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+        //Initialize soap request + add parameters
+        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
+        Log.e(tag, "LLego aqui");
+        //Use this to add parameters
+        //request.addProperty("Parameter","Value");
+
+        //Declare the version of the SOAP request
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.setOutputSoapObject(request);
+        Log.e(tag, "envelope init");
+        //Needed to make the internet call
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        try {
+            //this is the actual part that will call the webservice
+            androidHttpTransport.call(SOAP_ACTION, envelope);
+            Log.e(tag, "envelope");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Get the SoapResult from the envelope body.
+        SoapObject result = (SoapObject)envelope.bodyIn;
+        //Log.d("myTag", "SOAP response:\n\n" + result.getProperty(0).toString());
+        if(result != null){
+            TextView testo =  (TextView) getView().findViewById(R.id.prueba);
+            //Get the first property and change the label text
+            String soap = "SOAP response:\n\n" + result.getProperty(0).toString();
+            Log.e(tag,soap);
+            testo.setText(soap);
+        }
+        else{
+            Log.e(tag,"No hay result");
         }
     }
 
