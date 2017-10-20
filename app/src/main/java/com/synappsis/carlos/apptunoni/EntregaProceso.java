@@ -2,6 +2,7 @@ package com.synappsis.carlos.apptunoni;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -11,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.ksoap2.SoapEnvelope;
+import org.ksoap2.SoapFault;
+import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
@@ -37,15 +40,18 @@ public class EntregaProceso extends Fragment {
     //Conexion
     private static String tag="EntregaProceso";
 
+
     private static String SOAP_ACTION = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto";
     private static String NAMESPACE = "http://WebServices/";
     private static String METHOD_NAME = "BuscarProducto";
     private static String URL = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto?wsdl";
+
     private SoapObject request=null;
     private SoapSerializationEnvelope envelope=null;
     private SoapPrimitive resultsRequestSOAP=null;
-
+    TextView text;
     private OnFragmentInteractionListener mListener;
+
 
     public EntregaProceso() {
         // Required empty public constructor
@@ -70,45 +76,49 @@ public class EntregaProceso extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //text = (TextView) getView().findViewById(R.id.prueba);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        //se crea un nuevo Soap Request
-        SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
-        //Se agrega propiedad
-        request.addProperty("id", "1" );
+        new CallWebService().execute("1");
 
-        //llamada al Servicio Web
-        try {
-            Log.e(tag, "adentr del try");
-            //se extiende de SoapEnvelope con funcionalidades de serializacion
-            SoapSerializationEnvelope envelope =  new SoapSerializationEnvelope(SoapEnvelope.VER11);
-            //asigna el objeto SoapObject al envelope
-            envelope.setOutputSoapObject(request);
-            //capa de transporte http basada en J2SE
-            Log.e(tag, "se envi0");
-            //crea nueva instancia -> URL: destino de datos SOAP POST
-            HttpTransportSE ht = new HttpTransportSE(URL);
-            Log.e(tag, "cabecera");
-            //estable cabecera para la accion
-            //SOAP_ACTION: accion a ejecutar
-            //envelope: contiene informacion para realizar la llamada
-            ht.call(SOAP_ACTION, envelope);
-            Log.e(tag, "adentr del xCALL");
-            //clase para encapsular datos primitivos representados por una cadena en serialización XML
-            SoapPrimitive response = (SoapPrimitive)envelope.getResponse();
-            StringBuffer result = new StringBuffer(response.toString());
-            Log.e(tag, result.toString());
-        }
-        catch (Exception e)
-        {
-            Log.e(tag, "bye");
-            e.printStackTrace();
-            Log.e(tag, String.valueOf(e));
-        }
     }
 
+    class CallWebService extends AsyncTask<String, Void, String> {
+        @Override
+        protected void onPostExecute(String s) {
+            //text.setText("Result = " + s);
+            Log.e(tag, "Result = " + s);
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            String result = "";
+            SoapObject soapObject = new SoapObject(NAMESPACE, METHOD_NAME);
+            soapObject.addProperty("id", "1");
+            //propertyInfo.setType(PropertyInfo.OBJECT_TYPE);
+            Log.e(tag, "adentr del parametros");
+            //soapObject.addProperty(propertyInfo);
+            SoapSerializationEnvelope envelope =  new SoapSerializationEnvelope(SoapEnvelope.VER11);
+            //envelope.dotNet=true;
+            envelope.setOutputSoapObject(soapObject);
+            Log.e(tag, "objeto envuelto");
+            HttpTransportSE httpTransportSE = new HttpTransportSE(URL);
+            try {
+                Log.e(tag, "adentr del try");
+                httpTransportSE.call(SOAP_ACTION, envelope);
+                Log.e(tag, "envolvio");
+                SoapPrimitive soapPrimitive = (SoapPrimitive)envelope.getResponse();
+                result = soapPrimitive.toString();
+                Log.e(tag, "respuetaaaaa" + result.toString());
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.e(tag, String.valueOf(e));
+            }
+            return result;
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
