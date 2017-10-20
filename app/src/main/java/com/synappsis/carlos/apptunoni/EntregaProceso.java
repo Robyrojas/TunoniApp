@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -35,12 +36,14 @@ public class EntregaProceso extends Fragment {
     private String mParam2;
     //Conexion
     private static String tag="EntregaProceso";
+
     private static String SOAP_ACTION = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto";
-
-    private static String NAMESPACE = "http://148.204.186.243:8080/";
+    private static String NAMESPACE = "http://WebServices/";
     private static String METHOD_NAME = "BuscarProducto";
-
     private static String URL = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto?wsdl";
+    private SoapObject request=null;
+    private SoapSerializationEnvelope envelope=null;
+    private SoapPrimitive resultsRequestSOAP=null;
 
     private OnFragmentInteractionListener mListener;
 
@@ -71,38 +74,38 @@ public class EntregaProceso extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        //Initialize soap request + add parameters
+        //se crea un nuevo Soap Request
         SoapObject request = new SoapObject(NAMESPACE, METHOD_NAME);
-        Log.e(tag, "LLego aqui");
-        //Use this to add parameters
-        //request.addProperty("Parameter","Value");
+        //Se agrega propiedad
+        request.addProperty("id", "1" );
 
-        //Declare the version of the SOAP request
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.setOutputSoapObject(request);
-        Log.e(tag, "envelope init");
-        //Needed to make the internet call
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        //llamada al Servicio Web
         try {
-            //this is the actual part that will call the webservice
-            androidHttpTransport.call(SOAP_ACTION, envelope);
-            Log.e(tag, "envelope");
-        } catch (Exception e) {
+            Log.e(tag, "adentr del try");
+            //se extiende de SoapEnvelope con funcionalidades de serializacion
+            SoapSerializationEnvelope envelope =  new SoapSerializationEnvelope(SoapEnvelope.VER11);
+            //asigna el objeto SoapObject al envelope
+            envelope.setOutputSoapObject(request);
+            //capa de transporte http basada en J2SE
+            Log.e(tag, "se envi0");
+            //crea nueva instancia -> URL: destino de datos SOAP POST
+            HttpTransportSE ht = new HttpTransportSE(URL);
+            Log.e(tag, "cabecera");
+            //estable cabecera para la accion
+            //SOAP_ACTION: accion a ejecutar
+            //envelope: contiene informacion para realizar la llamada
+            ht.call(SOAP_ACTION, envelope);
+            Log.e(tag, "adentr del xCALL");
+            //clase para encapsular datos primitivos representados por una cadena en serialización XML
+            SoapPrimitive response = (SoapPrimitive)envelope.getResponse();
+            StringBuffer result = new StringBuffer(response.toString());
+            Log.e(tag, result.toString());
+        }
+        catch (Exception e)
+        {
+            Log.e(tag, "bye");
             e.printStackTrace();
-        }
-
-        // Get the SoapResult from the envelope body.
-        SoapObject result = (SoapObject)envelope.bodyIn;
-        //Log.d("myTag", "SOAP response:\n\n" + result.getProperty(0).toString());
-        if(result != null){
-            TextView testo =  (TextView) getView().findViewById(R.id.prueba);
-            //Get the first property and change the label text
-            String soap = "SOAP response:\n\n" + result.getProperty(0).toString();
-            Log.e(tag,soap);
-            testo.setText(soap);
-        }
-        else{
-            Log.e(tag,"No hay result");
+            Log.e(tag, String.valueOf(e));
         }
     }
 
