@@ -7,4 +7,8 @@
     <color name="rojosoftT">#e89396</color>
     <color name="rojoT">#e82332</color>
     <color name="grisT">#c6c6c6</color>
+    <color name="transparent">#0fff</color>
+    <color name="white">#fff</color>
+    <color name="gray">#333</color>
+    <color name="gray_light">#dfdfdf</color>
 </resources>

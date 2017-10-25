@@ -38,7 +38,7 @@
                     tools:layout_editor_absoluteY="8dp">
 
                     <LinearLayout
-                        android:id="@+id/linearLayout2"
+                        android:id="@+id/linearLayout1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
@@ -52,7 +52,7 @@
                         android:orientation="vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toLeftOf="@+id/linearLayout"
+                        app:layout_constraintRight_toLeftOf="@+id/linearLayout2"
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
@@ -76,7 +76,7 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/linearLayout"
+                        android:id="@+id/linearLayout2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
@@ -90,7 +90,7 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
-                            android:id="@+id/textView"
+                            android:id="@+id/prueba2"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -143,7 +143,7 @@
                     tools:layout_editor_absoluteY="8dp">
 
                     <LinearLayout
-                        android:id="@+id/linearLayout2"
+                        android:id="@+id/linearLayout3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
@@ -157,10 +157,11 @@
                         android:orientation="vertical"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintLeft_toLeftOf="parent"
-                        app:layout_constraintRight_toLeftOf="@+id/linearLayout"
+                        app:layout_constraintRight_toLeftOf="@+id/linearLayout4"
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
+                            android:id="@+id/prueba3"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
@@ -180,7 +181,7 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/linearLayout"
+                        android:id="@+id/linearLayout4"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="8dp"
@@ -194,7 +195,7 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <TextView
-                            android:id="@+id/textView"
+                            android:id="@+id/prueba4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
