@@ -68,19 +68,20 @@ public class ViajesAsignados extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        //listViewVar =(ExpandableListView) .findViewById(R.id.listview);
-        // preparing list data rootView
-        //prepareListData();
-        //listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
-        // setting list adapter
-        //listViewVar.setAdapter(listAdapter);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_viajes_asignados, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_viajes_asignados, container, false);
+        listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
+        // preparing list data rootView
+        prepareListData();
+        listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
+        // setting list adapter
+        listViewVar.setAdapter(listAdapter);
+        return rootView;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -129,34 +130,40 @@ public class ViajesAsignados extends Fragment {
         listDataChild = new HashMap<String, List<String>>();
 
         // Adding child data
-        listDataHeader.add("Top 250");
-        listDataHeader.add("Now Showing");
-        listDataHeader.add("Coming Soon..");
+        listDataHeader.add("Entrega F001 07/11/2017");
+        listDataHeader.add("Entrega F002 10/11/2017");
+        listDataHeader.add("Entrega F003 11/11/2017");
 
         // Adding child data
         List<String> top250 = new ArrayList<String>();
-        top250.add("The Shawshank Redemption");
-        top250.add("The Godfather");
-        top250.add("The Godfather: Part II");
-        top250.add("Pulp Fiction");
-        top250.add("The Good, the Bad and the Ugly");
-        top250.add("The Dark Knight");
-        top250.add("12 Angry Men");
+        top250.add("Estatus: En Proceso");
+        top250.add("Dirección de Origen: Origen");
+        top250.add("Fecha de Origen: #");
+        top250.add("Nombre: Name");
+        top250.add("Dirección de Destino: Destino");
+        top250.add("Fecha de Destino: #");
+        top250.add("Nombre Receptor: Name");
+        top250.add("Información Adicional: ---");
 
         List<String> nowShowing = new ArrayList<String>();
-        nowShowing.add("The Conjuring");
-        nowShowing.add("Despicable Me 2");
-        nowShowing.add("Turbo");
-        nowShowing.add("Grown Ups 2");
-        nowShowing.add("Red 2");
-        nowShowing.add("The Wolverine");
+        nowShowing.add("Estatus: En Proceso");
+        nowShowing.add("Dirección de Origen: Origen");
+        nowShowing.add("Fecha de Origen: #");
+        nowShowing.add("Nombre: Name");
+        nowShowing.add("Dirección de Destino: Destino");
+        nowShowing.add("Fecha de Destino: #");
+        nowShowing.add("Nombre Receptor: Name");
+        nowShowing.add("Información Adicional: ---");
 
         List<String> comingSoon = new ArrayList<String>();
-        comingSoon.add("2 Guns");
-        comingSoon.add("The Smurfs 2");
-        comingSoon.add("The Spectacular Now");
-        comingSoon.add("The Canyons");
-        comingSoon.add("Europa Report");
+        comingSoon.add("Estatus: En Proceso");
+        comingSoon.add("Dirección de Origen: Origen");
+        comingSoon.add("Fecha de Origen: #");
+        comingSoon.add("Nombre: Name");
+        comingSoon.add("Dirección de Destino: Destino");
+        comingSoon.add("Fecha de Destino: #");
+        comingSoon.add("Nombre Receptor: Name");
+        comingSoon.add("Información Adicional: ---");
 
         listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
         listDataChild.put(listDataHeader.get(1), nowShowing);
