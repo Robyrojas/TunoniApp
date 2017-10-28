@@ -1,12 +1,8 @@
 package com.synappsis.carlos.apptunoni;
 
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -16,27 +12,15 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-
 public class Nav_Principal extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, EntregaProceso.OnFragmentInteractionListener, ViajesAsignados.OnFragmentInteractionListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, ViajesAsignados.OnFragmentInteractionListener {
 
-    GoogleMap map;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nav__principal);
-        /*MAPAS*/
-        /*SupportMapFragment fragmentoMaps;
-        fragmentoMaps = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        fragmentoMaps.getMapAsync(this);
-        */
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -112,13 +96,6 @@ public class Nav_Principal extends AppCompatActivity
     @Override
     public void onFragmentInteraction(Uri uri) {
 
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        map = googleMap;
-        LatLng NYCity = new LatLng(40.7127837,-74.00594130000002);
-        map.moveCamera(CameraUpdateFactory.newLatLng(NYCity));
     }
 
 }

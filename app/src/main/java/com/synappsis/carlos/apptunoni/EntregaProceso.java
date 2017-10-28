@@ -5,15 +5,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+
 import org.ksoap2.SoapEnvelope;
-import org.ksoap2.SoapFault;
-import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
@@ -28,7 +33,7 @@ import org.ksoap2.transport.HttpTransportSE;
  * Use the {@link EntregaProceso#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EntregaProceso extends Fragment {
+public class EntregaProceso extends Fragment implements OnMapReadyCallback {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -85,6 +90,12 @@ public class EntregaProceso extends Fragment {
 
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+    }
+
+
     class CallWebService extends AsyncTask<String, Void, String> {
         @Override
         protected void onPostExecute(String s) {
@@ -122,8 +133,13 @@ public class EntregaProceso extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        View rootview = inflater.inflate(R.layout.fragment_entrega_proceso, container, false);
+        /*SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);*/
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_entrega_proceso, container, false);
+
     }
 
     // TODO: Rename method, update argument and hook method into UI event
