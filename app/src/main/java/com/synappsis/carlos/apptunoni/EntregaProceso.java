@@ -168,7 +168,7 @@ public class EntregaProceso extends Fragment{
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(spinnerOpc.getSelectedItemPosition() == 2)
                 {
-                    //createAndShowAlertDialog();
+                    createAndShowAlertDialog();
                 }
                 else if(spinnerOpc.getSelectedItemPosition() == 1)
                 {
