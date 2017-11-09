@@ -3,6 +3,7 @@ package com.synappsis.carlos.apptunoni;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -181,20 +182,20 @@ public class EntregaProceso extends Fragment{
 
             }
         });
-        Log.e(tag, "Se lleno list");
+        //Log.e(tag, "Se lleno list");
         mSupportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         //mSupportMapFragment = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (mSupportMapFragment == null) {
-            Log.e(tag, "Es nulo y vacio");
+            //Log.e(tag, "Es nulo y vacio");
             FragmentManager fragmentManager = getFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             mSupportMapFragment = SupportMapFragment.newInstance();
             fragmentTransaction.replace(R.id.map, mSupportMapFragment).commit();
-            Log.e(tag, "se lleno");
+            //Log.e(tag, "se lleno");
         }
 
         if (mSupportMapFragment != null) {
-            Log.e(tag, "fragment no nulo");
+            //Log.e(tag, "fragment no nulo");
             mSupportMapFragment.getMapAsync(new OnMapReadyCallback() {
                 @Override
                 public void onMapReady(GoogleMap googleMap) {
@@ -235,6 +236,8 @@ public class EntregaProceso extends Fragment{
                 //TODO
                 Log.e(tag, "SI");
                 dialog.dismiss();
+                Intent intent =  new Intent(getActivity(), entregaProductos.class);
+                startActivity(intent);
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
