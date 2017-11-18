@@ -236,7 +236,7 @@ public class EntregaProceso extends Fragment{
                 //TODO
                 Log.e(tag, "SI");
                 dialog.dismiss();
-                Intent intent =  new Intent(getActivity(), entregaProductos.class);
+                Intent intent =  new Intent(getActivity(), productos.class);
                 startActivity(intent);
             }
         });

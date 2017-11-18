@@ -7,31 +7,31 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TableLayout;
 import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
-public class entregaProductos extends AppCompatActivity {
-
+public class productos extends AppCompatActivity {
     private final String ruta_fotos = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Tunoni/";
     private File file = new File(ruta_fotos);
     private Button boton;
-    private static String tag="entregaProductos";
+    private Button dialog;
+    private static String tag="Productos";
     /*VARIABLES DE CAMERA*/
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -42,10 +42,22 @@ public class entregaProductos extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_entrega_productos);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
+        setContentView(R.layout.activity_productos);
+        /*DrawingView mDrawingView=new DrawingView(this);
+        LinearLayout mDrawingPad=(LinearLayout)findViewById(R.id.firma);
+        mDrawingPad.addView(mDrawingView);*/
+        Tabla tabla = new Tabla(this, (TableLayout)findViewById(R.id.listTable));
+        tabla.agregarCabecera(R.array.cabecera_tabla);
+        for(int i = 0; i < 15; i++)
+        {
+            ArrayList<String> elementos = new ArrayList<String>();
+            elementos.add(Integer.toString(i));
+            elementos.add("Casilla [" + i + ", 0]");
+            elementos.add("Casilla [" + i + ", 1]");
+            elementos.add("Casilla [" + i + ", 2]");
+            elementos.add("Casilla [" + i + ", 3]");
+            tabla.agregarFilaTabla(elementos);
+        }
         /*codigo foto*/
         boton = (Button) findViewById(R.id.btnFoto);
         file.mkdirs();
@@ -59,8 +71,35 @@ public class entregaProductos extends AppCompatActivity {
                 }
             }
         });
+        dialog = (Button) findViewById(R.id.btnFirma);
+        dialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder firmaBuilder = new AlertDialog.Builder(productos.this);
+                View vistaFirma = getLayoutInflater().inflate(R.layout.dialog_firma,null);
+                DrawingView mDrawingView=new DrawingView(vistaFirma.getContext());
+                LinearLayout mDrawingPad=(LinearLayout) vistaFirma.findViewById(R.id.firma);
+                mDrawingPad.addView(mDrawingView);
+                Button mFirma = (Button) vistaFirma.findViewById(R.id.btnSave);
+                Button mLimpiar = (Button) vistaFirma.findViewById(R.id.bntLimpiar);
+                mFirma.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getApplicationContext(),"Se ha guardado la Firma",Toast.LENGTH_SHORT).show();
+                    }
+                });
+                mLimpiar.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(getApplicationContext(),"Puedes volver a poner la Firma",Toast.LENGTH_SHORT).show();
+                    }
+                });
+                firmaBuilder.setView(vistaFirma);
+                AlertDialog dialog = firmaBuilder.create();
+                dialog.show();
+            }
+        });
     }
-
     private boolean revisarPermisos() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             Toast.makeText(this, "Es una versión anterior del API 23 " + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
@@ -173,7 +212,6 @@ public class entregaProductos extends AppCompatActivity {
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
     }
-
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if(REQUEST_CODE_ASK_PERMISSIONS == requestCode) {
@@ -193,16 +231,5 @@ public class entregaProductos extends AppCompatActivity {
             handleBigCameraPhoto();
         }
     }
-    /**
-     * Metodo privado que genera un codigo unico segun la hora y fecha del sistema
-     * @return photoCode
-     * */
-    @SuppressLint("SimpleDateFormat")
-    private String getCode()
-    {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyymmddhhmmss");
-        String date = dateFormat.format(new Date() );
-        String photoCode = "pic_" + date;
-        return photoCode;
-    }
+
 }

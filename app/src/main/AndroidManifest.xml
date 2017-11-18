@@ -10,8 +10,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" android:maxSdkVersion="18"/>
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <!--
      The following two permissions are not required to use
@@ -53,10 +55,7 @@
             android:name=".Nav_Principal"
             android:label="@string/title_activity_nav__principal"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".entregaProductos"
-            android:label="@string/title_activity_entrega_productos"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.synappsis.carlos.apptunoni.fileprovider"
@@ -64,8 +63,10 @@
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/provider_paths"/>
+                android:resource="@xml/provider_paths" />
         </provider>
+
+        <activity android:name=".productos"></activity>
     </application>
 
 </manifest>
