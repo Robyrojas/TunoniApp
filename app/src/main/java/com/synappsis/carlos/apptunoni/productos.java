@@ -55,7 +55,7 @@ public class productos extends AppCompatActivity {
             elementos.add("Casilla [" + i + ", 0]");
             elementos.add("Casilla [" + i + ", 1]");
             elementos.add("Casilla [" + i + ", 2]");
-            elementos.add("Casilla [" + i + ", 3]");
+            //elementos.add("Casilla [" + i + ", 3]");
             tabla.agregarFilaTabla(elementos);
         }
         /*codigo foto*/
@@ -71,6 +71,7 @@ public class productos extends AppCompatActivity {
                 }
             }
         });
+        /*codigo firma*/
         dialog = (Button) findViewById(R.id.btnFirma);
         dialog.setOnClickListener(new View.OnClickListener() {
             @Override

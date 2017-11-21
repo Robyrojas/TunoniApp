@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="cabecera_tabla">
-        <item>Id de la fila</item>
-        <item>Valor</item>
-        <item>Valor 2</item>
-        <item>Valor 3</item>
-        <item>Valor 4</item>
+        <item>Faltante</item>
+        <item>Cantidad</item>
+        <item>Producto</item>
+        <item>Estado</item>
     </string-array>
 </resources>

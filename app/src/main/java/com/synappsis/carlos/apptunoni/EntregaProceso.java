@@ -74,7 +74,8 @@ public class EntregaProceso extends Fragment{
     TextView text;
     private OnFragmentInteractionListener mListener;
     private GoogleMap mapa;
-    private Marker mMarcadorActual;
+    private Marker mMarcadorActual1;
+    private Marker mMarcadorActual2;
     private SupportMapFragment mSupportMapFragment;
     Spinner spinnerOpc;
     String [] contenido;
@@ -204,13 +205,31 @@ public class EntregaProceso extends Fragment{
                         mapa = googleMap;
                         mapa.getUiSettings().setAllGesturesEnabled(true);
                         mapa.getUiSettings().setZoomControlsEnabled(true);
-                        LatLng sydney = new LatLng(-33.87365, 151.20689);
-                        mMarcadorActual = mapa.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+                        //LatLng sydney = new LatLng(-33.87365, 151.20689);
+                        LatLng origen = new LatLng(19.430464, -99.135046);
+                        LatLng destino = new LatLng(19.026809, -98.178635);
+                        mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
+                        mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
                         Log.e(tag,mapa.toString());
                         //CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(15.0f).build();
                         //CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
                         //mapa.moveCamera(cameraUpdate);
-                        mapa.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+                        //mapa.moveCamera(CameraUpdateFactory.newLatLng(origen));
+                        // Move the camera instantly to Sydney with a zoom of 15.
+                        mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(origen, 15));
+                        // Zoom in, animating the camera.
+                        mapa.animateCamera(CameraUpdateFactory.zoomIn());
+                        // Zoom out to zoom level 10, animating with a duration of 2 seconds.
+                        mapa.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
+                        // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
+                        CameraPosition cameraPosition = new CameraPosition.Builder()
+                                .target(destino)      // Sets the center of the map to Mountain View
+                                .zoom(17)                   // Sets the zoom
+                                .bearing(90)                // Sets the orientation of the camera to east
+                                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
+                                .build();                   // Creates a CameraPosition from the builder
+                        mapa.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
 
                     }
 

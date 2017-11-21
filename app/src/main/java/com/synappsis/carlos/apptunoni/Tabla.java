@@ -5,7 +5,8 @@ import android.app.Activity;
         import android.graphics.Paint;
         import android.graphics.Rect;
         import android.view.Gravity;
-        import android.widget.TableLayout;
+import android.widget.Button;
+import android.widget.TableLayout;
         import android.widget.TableRow;
         import android.widget.TextView;
 
@@ -82,15 +83,34 @@ public class Tabla
 
         for(int i = 0; i< elementos.size(); i++)
         {
-            TextView texto = new TextView(actividad);
-            texto.setText(String.valueOf(elementos.get(i)));
-            texto.setGravity(Gravity.CENTER_HORIZONTAL);
-            //texto.setTextAppearance(actividad, R.style.estilo_celda);
-            //texto.setBackgroundResource(R.drawable.tabla_celda);
-            layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(texto.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
-            texto.setLayoutParams(layoutCelda);
-
-            fila.addView(texto);
+           /* if(i==0)
+            {
+                Button button = new Button(actividad);
+                button.setText(String.valueOf(elementos.get(i)));
+                button.setGravity(Gravity.CENTER_HORIZONTAL);
+                layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(button.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
+                button.setLayoutParams(layoutCelda);
+                fila.addView(button);
+            }
+            else if(i==3)
+            {
+                Button button = new Button(actividad);
+                button.setText(String.valueOf(elementos.get(i)));
+                button.setGravity(Gravity.CENTER_HORIZONTAL);
+                layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(button.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
+                button.setLayoutParams(layoutCelda);
+                fila.addView(button);
+            }
+            else {*/
+                TextView texto = new TextView(actividad);
+                texto.setText(String.valueOf(elementos.get(i)));
+                texto.setGravity(Gravity.CENTER_HORIZONTAL);
+                //texto.setTextAppearance(actividad, R.style.estilo_celda);
+                //texto.setBackgroundResource(R.drawable.tabla_celda);
+                layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(texto.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
+                texto.setLayoutParams(layoutCelda);
+                fila.addView(texto);
+            //}
         }
 
         tabla.addView(fila);
