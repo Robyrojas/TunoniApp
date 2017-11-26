@@ -22,7 +22,7 @@ public class Tabla
     private Activity actividad;
     private Resources rs;
     private int FILAS, COLUMNAS;        // Filas y columnas de nuestra tabla
-    String[] letra = {"A","B","C","D","E"};
+    String[] letra = {"A","B","C","D","E","F"};
 
     /**
      * Constructor de la tabla
