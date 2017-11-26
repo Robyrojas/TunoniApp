@@ -22,6 +22,7 @@ public class Tabla
     private Activity actividad;
     private Resources rs;
     private int FILAS, COLUMNAS;        // Filas y columnas de nuestra tabla
+    String[] letra = {"A","B","C","D","E"};
 
     /**
      * Constructor de la tabla
@@ -94,7 +95,8 @@ public class Tabla
             }
             else if(i==3)
             {
-                Button button = new Button(actividad);
+                Spinner button = new Spinner(actividad);
+
                 button.setText(String.valueOf(elementos.get(i)));
                 button.setGravity(Gravity.CENTER_HORIZONTAL);
                 layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(button.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
