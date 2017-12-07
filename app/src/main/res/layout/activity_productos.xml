@@ -15,6 +15,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -60,7 +61,7 @@
                 android:text="Agregar Foto" />
 
             <ImageView
-                android:id="@+id/imageView2"
+                android:id="@+id/imageViewFoto"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:srcCompat="@color/transparent" />
@@ -79,27 +80,24 @@
                 android:text="Agregar Firma" />
 
             <ImageView
-                android:id="@+id/imageView3"
+                android:id="@+id/imageViewFirma"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:srcCompat="@color/transparent" />
 
             <EditText
-                android:id="@+id/editText3"
+                android:id="@+id/comentario"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:ems="10"
                 android:hint="Agregar un Comentario"
                 android:inputType="textPersonName"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp" />
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp" />
 
             <Button
                 android:id="@+id/btnGuardar"
-                android:layout_width="match_parent"
+                android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="40dp"
-                android:layout_marginRight="40dp"
                 android:text="Aceptar" />
 
         </LinearLayout>

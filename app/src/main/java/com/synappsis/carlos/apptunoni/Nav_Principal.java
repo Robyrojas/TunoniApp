@@ -1,5 +1,6 @@
 package com.synappsis.carlos.apptunoni;
 
+import android.app.Activity;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,19 +20,15 @@ import android.view.MenuItem;
 
 public class Nav_Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, EntregaProceso.OnFragmentInteractionListener, ViajesAsignados.OnFragmentInteractionListener {
-
+    public static Activity firtsA;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nav__principal);
-        /*MAPAS*/
-        /*SupportMapFragment fragmentoMaps;
-        fragmentoMaps = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        fragmentoMaps.getMapAsync(this);
-        */
+        firtsA = this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         Fragment fragmento = new EntregaProceso();
         getSupportFragmentManager().beginTransaction().replace(R.id.Contenedor,fragmento).commit();

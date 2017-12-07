@@ -4,8 +4,11 @@ import android.app.Activity;
         import android.content.res.Resources;
         import android.graphics.Paint;
         import android.graphics.Rect;
-        import android.view.Gravity;
+import android.util.DisplayMetrics;
+import android.view.Gravity;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.TableLayout;
         import android.widget.TableRow;
         import android.widget.TextView;
@@ -22,8 +25,8 @@ public class Tabla
     private Activity actividad;
     private Resources rs;
     private int FILAS, COLUMNAS;        // Filas y columnas de nuestra tabla
-    String[] letra = {"A","B","C","D","E","F"};
-
+    String[] lista1 = {"Completo","Faltante","No entregado"};
+    String[] lista2 = {"Excelente","Regular","Malo"};
     /**
      * Constructor de la tabla
      * @param actividad Actividad donde va a estar la tabla
@@ -84,35 +87,41 @@ public class Tabla
 
         for(int i = 0; i< elementos.size(); i++)
         {
-           /* if(i==0)
+            if(i==0)
             {
-                Button button = new Button(actividad);
-                button.setText(String.valueOf(elementos.get(i)));
-                button.setGravity(Gravity.CENTER_HORIZONTAL);
-                layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(button.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
-                button.setLayoutParams(layoutCelda);
-                fila.addView(button);
+                Spinner list1 = new Spinner(actividad);
+                list1.setAdapter(new ArrayAdapter<String>(actividad, android.R.layout.simple_spinner_dropdown_item, lista1));
+                list1.setGravity(Gravity.CENTER_HORIZONTAL);
+                layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
+                list1.setLayoutParams(layoutCelda);
+                fila.addView(list1);
             }
             else if(i==3)
             {
-                Spinner button = new Spinner(actividad);
-
-                button.setText(String.valueOf(elementos.get(i)));
-                button.setGravity(Gravity.CENTER_HORIZONTAL);
-                layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(button.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
-                button.setLayoutParams(layoutCelda);
-                fila.addView(button);
+                Spinner list2 = new Spinner(actividad);
+                list2.setAdapter(new ArrayAdapter<String>(actividad, android.R.layout.simple_spinner_dropdown_item, lista2));
+                list2.setGravity(Gravity.CENTER_HORIZONTAL);
+                layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
+                list2.setLayoutParams(layoutCelda);
+                fila.addView(list2);
+                /*Button  btnEstado = new Button (actividad);
+                btnEstado.setText("Seleccionar");
+                btnEstado.setGravity(Gravity.CENTER_HORIZONTAL);
+                layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
+                btnEstado.setLayoutParams(layoutCelda);
+                fila.addView(btnEstado);*/
             }
-            else {*/
+            else {
                 TextView texto = new TextView(actividad);
                 texto.setText(String.valueOf(elementos.get(i)));
                 texto.setGravity(Gravity.CENTER_HORIZONTAL);
                 //texto.setTextAppearance(actividad, R.style.estilo_celda);
                 //texto.setBackgroundResource(R.drawable.tabla_celda);
-                layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(texto.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
+                //layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(texto.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
+                layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
                 texto.setLayoutParams(layoutCelda);
                 fila.addView(texto);
-            //}
+            }
         }
 
         tabla.addView(fila);
@@ -175,4 +184,13 @@ public class Tabla
         p.getTextBounds(texto, 0, texto.length(), bounds);
         return bounds.width();
     }
+    private int sizeSpinner()
+    {
+        DisplayMetrics metrics = new DisplayMetrics();
+        actividad.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int width = metrics.widthPixels; // ancho absoluto en pixels ;
+        width=width/4;
+        return width;
+    }
+
 }

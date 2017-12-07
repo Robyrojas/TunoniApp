@@ -31,7 +31,7 @@ class DrawingView extends View {
         mPaint.setStyle(Paint.Style.STROKE);
         mPaint.setStrokeJoin(Paint.Join.ROUND);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-        mPaint.setStrokeWidth(18);
+        mPaint.setStrokeWidth(16);
 
         mPath = new Path();
         mBitmapPaint = new Paint();
@@ -77,7 +77,20 @@ class DrawingView extends View {
         mPath.reset();
         // mPath= new Path();
     }
-
+    public Bitmap getBitmap()
+    {
+        //this.measure(100, 100);
+        //this.layout(0, 0, 100, 100);
+        this.setDrawingCacheEnabled(true);
+        this.buildDrawingCache();
+        Bitmap bmp = Bitmap.createBitmap(this.getDrawingCache());
+        this.setDrawingCacheEnabled(false);
+        return bmp;
+    }
+    public void limpiar(){
+        mBitmap.eraseColor(Color.TRANSPARENT);
+        mPath.reset();
+    }
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         float x = event.getX();

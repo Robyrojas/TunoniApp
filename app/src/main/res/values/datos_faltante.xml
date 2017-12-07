@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="faltante_prompt">Seleccionar</string>
+
+    <string-array name="faltante_arrays">
+        <item>Completo</item>
+        <item>Faltante</item>
+        <item>No Entregado</item>
+    </string-array>
+</resources>

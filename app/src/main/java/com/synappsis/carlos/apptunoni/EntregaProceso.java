@@ -30,6 +30,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -210,27 +211,18 @@ public class EntregaProceso extends Fragment{
                         LatLng destino = new LatLng(19.026809, -98.178635);
                         mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
                         mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
-                        Log.e(tag,mapa.toString());
                         //CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(15.0f).build();
                         //CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
                         //mapa.moveCamera(cameraUpdate);
                         //mapa.moveCamera(CameraUpdateFactory.newLatLng(origen));
                         // Move the camera instantly to Sydney with a zoom of 15.
-                        mapa.moveCamera(CameraUpdateFactory.newLatLngZoom(origen, 15));
-                        // Zoom in, animating the camera.
-                        mapa.animateCamera(CameraUpdateFactory.zoomIn());
-                        // Zoom out to zoom level 10, animating with a duration of 2 seconds.
-                        mapa.animateCamera(CameraUpdateFactory.zoomTo(10), 2000, null);
-                        // Construct a CameraPosition focusing on Mountain View and animate the camera to that position.
-                        CameraPosition cameraPosition = new CameraPosition.Builder()
-                                .target(destino)      // Sets the center of the map to Mountain View
-                                .zoom(17)                   // Sets the zoom
-                                .bearing(90)                // Sets the orientation of the camera to east
-                                .tilt(30)                   // Sets the tilt of the camera to 30 degrees
-                                .build();                   // Creates a CameraPosition from the builder
-                        mapa.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
-
+                        LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                        builder.include(mMarcadorActual1.getPosition());
+                        builder.include(mMarcadorActual2.getPosition());
+                        LatLngBounds bounds = builder.build();
+                        int padding = 100; // offset from edges of the map in pixels
+                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        googleMap.moveCamera(cu);
                     }
 
                 }
