@@ -48,6 +48,25 @@
             </TableLayout>
 
             <TextView
+                android:id="@+id/textView9"
+                style="@style/tituloRojo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Firma Electrónica" />
+
+            <Button
+                android:id="@+id/btnFirma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Agregar Firma" />
+
+            <ImageView
+                android:id="@+id/imageViewFirma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@color/transparent" />
+
+            <TextView
                 android:id="@+id/textView8"
                 style="@style/tituloRojo"
                 android:layout_width="match_parent"
@@ -67,27 +86,15 @@
                 app:srcCompat="@color/transparent" />
 
             <TextView
-                android:id="@+id/textView9"
+                android:id="@+id/textView4"
                 style="@style/tituloRojo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Firma Electrónica" />
-
-            <Button
-                android:id="@+id/btnFirma"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Agregar Firma" />
-
-            <ImageView
-                android:id="@+id/imageViewFirma"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:srcCompat="@color/transparent" />
+                android:text="Comentarios" />
 
             <EditText
                 android:id="@+id/comentario"
-                android:layout_width="match_parent"
+                android:layout_width="300dp"
                 android:layout_height="wrap_content"
                 android:hint="Agregar un Comentario"
                 android:inputType="textPersonName"

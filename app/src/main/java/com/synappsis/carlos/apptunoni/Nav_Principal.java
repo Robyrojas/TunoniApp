@@ -30,7 +30,9 @@ public class Nav_Principal extends AppCompatActivity
         setSupportActionBar(toolbar);
 
 
-        Fragment fragmento = new EntregaProceso();
+        Fragment fragmento = new ViajesAsignados
+
+                ();
         getSupportFragmentManager().beginTransaction().replace(R.id.Contenedor,fragmento).commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(

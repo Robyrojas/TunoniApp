@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -63,39 +64,55 @@ public class productos extends AppCompatActivity {
         {
             ArrayList<String> elementos = new ArrayList<String>();
             elementos.add(Integer.toString(i));
-            elementos.add("Casilla [" + i + ", 0]");
-            elementos.add("Casilla [" + i + ", 1]");
-            elementos.add("Casilla [" + i + ", 2]");
-            elementos.add("Casilla [" + i + ", 3]");
+            elementos.add("" + i);
+            elementos.add("Producto [" + i + ", 2]");
+            elementos.add("3");
             tabla.agregarFilaTabla(elementos);
         }
-        /*codigo selecion de tablas*/
-        /*btnestados = (Button) findViewById(R.id.btnFirma);
-        btnestados.setOnClickListener(new View.OnClickListener() {
+        /*codigo aceptar*/
+        aceptar = (Button) findViewById(R.id.btnGuardar);
+        aceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AlertDialog.Builder estadoBuilder = new AlertDialog.Builder(productos.this);
-                View vistaDialog = getLayoutInflater().inflate(R.layout.dialog_estado,null);
-                Button mOK1 = (Button) vistaDialog.findViewById(R.id.btnok_estado);
-                Button mCancel1 = (Button) vistaDialog.findViewById(R.id.btnok_estado);
-                estadoBuilder.setView(vistaDialog);
-                AlertDialog alertdialog = estadoBuilder.create();
-                mOK1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast.makeText(getApplicationContext(),"Guardado",Toast.LENGTH_SHORT).show();
+                if(!list.isEmpty()){
+                    if(list.size()==2){
+                        AlertDialog.Builder aceptBuilder = new AlertDialog.Builder(productos.this);
+                        View vistaAcept = getLayoutInflater().inflate(R.layout.dialog_cliente,null);
+                        final EditText userU = (EditText) vistaAcept.findViewById(R.id.userName);
+                        final EditText userC = (EditText) vistaAcept.findViewById(R.id.passUser);
+                        Button mAcept = (Button) vistaAcept.findViewById(R.id.userAcept);
+                        Button mCancel = (Button) vistaAcept.findViewById(R.id.userCancel);
+                        aceptBuilder.setView(vistaAcept);
+                        final AlertDialog dialog = aceptBuilder.create();
+                        dialog.show();
+                        mAcept.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
+                                {
+                                    Toast.makeText(getApplicationContext(),"Enviando Captura",Toast.LENGTH_SHORT).show();
+                                    dialog.dismiss();
+                                    finish();
+                                }
+                                else {
+                                    Toast.makeText(getApplicationContext(),"Faltan datos",Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+                        mCancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                            }
+                        });
+                    }else{
+                        Toast.makeText(getApplicationContext(),"Te falta agregar foto y/o firma",Toast.LENGTH_SHORT).show();
                     }
-                });
-                mCancel1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dismiss();
-                    }
-                });
-
-                alertdialog.show();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
+                }
             }
-        });*/
+        });
         /*codigo foto*/
         boton = (Button) findViewById(R.id.btnFoto);
         file.mkdirs();
@@ -173,22 +190,6 @@ public class productos extends AppCompatActivity {
             }
         });
 
-        aceptar = (Button) findViewById(R.id.btnGuardar);
-        aceptar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(!list.isEmpty()){
-                    if(list.size()==2){
-                        //android.os.Process.killProcess(android.os.Process.myPid()); //using this you can exit from the whole activity  for both Eclipse and Android studio
-                        finish();
-                    }else{
-                        Toast.makeText(getApplicationContext(),"Te falta agregar foto y/o firma",Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-                    Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
     }
     private void setSign(){
         int targetW = 300;
