@@ -2,13 +2,14 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single" >
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Entrega en Proceso" />
-        <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Viajes Asignados" />
+        <item
+            android:id="@+id/nav_camera"
+            android:icon="@drawable/ic_menu_send"
+            android:title="Entrega en Proceso" />
+
     </group>
 
 </menu>
