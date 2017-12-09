@@ -48,25 +48,6 @@
             </TableLayout>
 
             <TextView
-                android:id="@+id/textView9"
-                style="@style/tituloRojo"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Firma Electrónica" />
-
-            <Button
-                android:id="@+id/btnFirma"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Agregar Firma" />
-
-            <ImageView
-                android:id="@+id/imageViewFirma"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:srcCompat="@color/transparent" />
-
-            <TextView
                 android:id="@+id/textView8"
                 style="@style/tituloRojo"
                 android:layout_width="match_parent"
@@ -81,6 +62,25 @@
 
             <ImageView
                 android:id="@+id/imageViewFoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:srcCompat="@color/transparent" />
+
+            <TextView
+                android:id="@+id/textView9"
+                style="@style/tituloRojo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Firma Electrónica" />
+
+            <Button
+                android:id="@+id/btnFirma"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Agregar Firma" />
+
+            <ImageView
+                android:id="@+id/imageViewFirma"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:srcCompat="@color/transparent" />

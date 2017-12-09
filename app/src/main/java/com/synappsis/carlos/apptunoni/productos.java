@@ -191,6 +191,7 @@ public class productos extends AppCompatActivity {
         });
 
     }
+
     private void setSign(){
         int targetW = 300;
         int targetH = 400;
@@ -259,6 +260,7 @@ public class productos extends AppCompatActivity {
                 Uri photoURI = FileProvider.getUriForFile(this,getPackageName()+".fileprovider",photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                Log.e(tag, "empezando activity");
             }
         }
     }
@@ -279,16 +281,22 @@ public class productos extends AppCompatActivity {
         Log.e(tag, "URL: "+mCurrentPhotoPath);
         return image;
     }
+
     private void handleBigCameraPhoto() {
 
         if (mCurrentPhotoPath != null) {
-            setPic();
             galleryAddPic();
+            Log.e(tag, "despues galleryaddpi: ");
+            setPic();
+            Log.e(tag, "despues de setpic: ");
             mCurrentPhotoPath = null;
             list.add(0,"2");
         }
+        else{
 
+        }
     }
+
     private void setPic() {
 
 		/* There isn't enough memory to open up more than a couple camera photos */
@@ -325,6 +333,7 @@ public class productos extends AppCompatActivity {
         fotoimg.setImageBitmap(bitmap);
         //mVideoUri = null;
         fotoimg.setVisibility(View.VISIBLE);
+        Log.e(tag, "Colocando");
         //mVideoView.setVisibility(View.INVISIBLE);
     }
 
@@ -333,6 +342,7 @@ public class productos extends AppCompatActivity {
         File f = new File(mCurrentPhotoPath);
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
+        Log.e(tag, "Guardando ");
         this.sendBroadcast(mediaScanIntent);
     }
     @Override
@@ -351,8 +361,11 @@ public class productos extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+            Log.e(tag, "buen resultado");
             handleBigCameraPhoto();
         }
+        else
+            Log.e(tag, "mal resultado");
     }
 
 }
