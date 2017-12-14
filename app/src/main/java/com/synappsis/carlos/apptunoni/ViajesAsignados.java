@@ -122,9 +122,9 @@ public class ViajesAsignados extends Fragment {
         listDataChild = new HashMap<String, List<String>>();
 
         // Adding child data
-        listDataHeader.add("Entrega F001 07/11/2017");
-        listDataHeader.add("Entrega F002 10/11/2017");
-        listDataHeader.add("Entrega F003 11/11/2017");
+        listDataHeader.add("Entrega F001 07/12/2017");
+        listDataHeader.add("Entrega F002 10/12/2017");
+        listDataHeader.add("Entrega F003 11/12/2017");
 
         // Adding child data
         List<String> top250 = new ArrayList<String>();

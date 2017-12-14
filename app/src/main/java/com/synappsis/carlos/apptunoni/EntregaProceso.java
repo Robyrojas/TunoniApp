@@ -155,6 +155,7 @@ public class EntregaProceso extends Fragment{
             return result;
         }
     }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

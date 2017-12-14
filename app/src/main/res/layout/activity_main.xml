@@ -78,6 +78,13 @@
                     android:textColor="@color/rojoT"
                     android:textSize="18sp" />
 
+                <ProgressBar
+                    android:id="@+id/progressBar2"
+                    style="?android:attr/progressBarStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
@@ -90,22 +97,10 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="¿No tienes cuenta?"
-                        android:textAlignment="textEnd"
+                        android:textAlignment="center"
                         android:textColor="@android:color/white"
                         android:textSize="18sp" />
 
-                    <Button
-                        android:id="@+id/button2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:background="@android:color/transparent"
-                        android:paddingLeft="10dp"
-                        android:text="Regístrate"
-                        android:textAlignment="textStart"
-                        android:textColor="@color/amarilloT"
-                        android:textSize="18sp" />
                 </LinearLayout>
 
 
