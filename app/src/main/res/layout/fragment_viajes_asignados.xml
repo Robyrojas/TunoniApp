@@ -30,6 +30,12 @@
             android:textColor="@android:color/white"
             android:textSize="24dp" />
 
+        <Button
+            android:id="@+id/asignarViaje"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Asignar Viaje" />
+
         <ExpandableListView
             android:id="@+id/listview"
             android:layout_width="match_parent"

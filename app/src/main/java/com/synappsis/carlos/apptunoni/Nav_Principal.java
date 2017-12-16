@@ -1,6 +1,8 @@
 package com.synappsis.carlos.apptunoni;
 
 import android.app.Activity;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -17,6 +19,11 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.synappsis.carlos.apptunoni.entidades.Utilidades;
+import com.synappsis.carlos.apptunoni.entidades.conexionSQL;
+
+import static com.synappsis.carlos.apptunoni.entidades.Utilidades.campo_usuario;
+
 
 public class Nav_Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, EntregaProceso.OnFragmentInteractionListener, ViajesAsignados.OnFragmentInteractionListener {
@@ -28,11 +35,7 @@ public class Nav_Principal extends AppCompatActivity
         firtsA = this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-        Fragment fragmento = new ViajesAsignados
-
-                ();
+        Fragment fragmento = new ViajesAsignados();
         getSupportFragmentManager().beginTransaction().replace(R.id.Contenedor,fragmento).commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -42,6 +45,32 @@ public class Nav_Principal extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+        /*base da datos*/
+        registrarTunoni();
+
+
+    }
+
+    private void registrarTunoni() {
+        conexionSQL conn = new conexionSQL(this,"bd_tunoni", null, 1);
+        SQLiteDatabase db = conn.getWritableDatabase();
+        ContentValues valores = new ContentValues();
+        valores.put(Utilidades.campo_usuario, "USER 1");
+        valores.put(Utilidades.campo_pass, "USER 1");
+        valores.put(Utilidades.campo_folio, "USER 1");
+        valores.put(Utilidades.campo_estatus, "USER 1");
+        valores.put(Utilidades.campo_origen, "USER 1");
+        valores.put(Utilidades.campo_fechaOrigen, "USER 1");
+        valores.put(Utilidades.campo_nombre, "USER 1");
+        valores.put(Utilidades.campo_destino, "USER 1");
+        valores.put(Utilidades.campo_fechaDestino, "USER 1");
+        valores.put(Utilidades.campo_nombreReceptor, "USER 1");
+        valores.put(Utilidades.campo_infoAdicional, "USER 1");
+        valores.put(Utilidades.campo_foto, "USER 1");
+        valores.put(Utilidades.campo_firma, "USER 1");
+
+        Long idResultante = db.insert(Utilidades.TABLA_TUNONI,Utilidades.campo_usuario, valores);
+
 
     }
 
