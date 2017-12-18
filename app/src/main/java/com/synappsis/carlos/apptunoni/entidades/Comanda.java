@@ -42,22 +42,22 @@ public class Comanda {
     }
     public static class Entrega implements ColumnasEntrega {
         public static String generarIdEntrega() {
-            return "CP-" + UUID.randomUUID().toString();
+            return "E-" + UUID.randomUUID().toString();
         }
     }
     public static class Usuario implements ColumnasUsuario {
         public static String generarIdUsuario() {
-            return "CP-" + UUID.randomUUID().toString();
+            return "U-" + UUID.randomUUID().toString();
         }
     }
     public static class Producto implements ColumnasProducto {
         public static String generarIdProducto() {
-            return "CP-" + UUID.randomUUID().toString();
+            return "P-" + UUID.randomUUID().toString();
         }
     }
     public static class Documentos implements ColumnasDocumentos {
         public static String generarIdDocumentos() {
-            return "CP-" + UUID.randomUUID().toString();
+            return "D-" + UUID.randomUUID().toString();
         }
     }
     private Comanda() {

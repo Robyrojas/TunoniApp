@@ -1,6 +1,7 @@
 package com.synappsis.carlos.apptunoni;
 
 import android.content.Intent;
+import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,11 +12,19 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.synappsis.carlos.apptunoni.entidades.Documentos;
+import com.synappsis.carlos.apptunoni.entidades.Entrega;
+import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
+import com.synappsis.carlos.apptunoni.entidades.Producto;
+import com.synappsis.carlos.apptunoni.entidades.Usuario;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
+
+import java.util.Calendar;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     String editTextUsername;
     boolean loginStatus;
     String editTextPassword;
+    OperacionesBaseDatos datos = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,9 +74,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        getApplicationContext().deleteDatabase("pedidos.db");
+        datos = OperacionesBaseDatos
+                .obtenerInstancia(getApplicationContext());
+        new TareaPruebaDatos().execute();
     }
 
-    /*clase nueva*/
+    /*CLASE PARA CONEXION AL WEB SERVICE*/
 
     private class AsyncCallWS extends AsyncTask<String, Void, Void> {
         @Override
@@ -111,5 +125,41 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*TEST DE BASE DE DATOS*/
+    public class TareaPruebaDatos extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+
+            // [INSERCIONES]
+            String fechaActual = Calendar.getInstance().getTime().toString();
+            try {
+                datos.getDb().beginTransaction();
+                // Inserción USER
+                String cliente1 = datos.insertarUser(new Usuario("admin","4321"));
+                // Inserción ENTREGA
+                String user="admin";
+                //String formaPago1 = datos.insertarEntrega(new Entrega("F-001","Salida","dir1",fechaActual, "Armand","dir2", fechaActual, "juan","prueba",user));
+                // Inserción Productos
+                //String producto1 = datos.insertarProducto(new Producto(null, "Completo", 2, "Manzana unidad", "exlente", user));
+                //String producto2 = datos.insertarProducto(new Producto(null, "Completo", 3, "Pera unidad", "exlente", user));
+                //String producto3 = datos.insertarProducto(new Producto(null, "Completo", 8, "Pan unidad", "exlente", user));
+                // Inserción D0cument0s
+                //String pedido1 = datos.insertarDocumentos(new Documentos(null, "f0t01","f0t02","f0t03","firma", null, user));
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+            }
+            // [QUERIES]
+            Log.d("USER","USER");
+            DatabaseUtils.dumpCursor(datos.obtenerUser());
+            //Log.d("Formas de pago", "Formas de pago");
+            //DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
+            //Log.d("Productos", "Productos");
+            //DatabaseUtils.dumpCursor(datos.obtenerEntregas("admin"));
+            //Log.d("obtenerDocumentos", "obtenerDocumentos");
+            //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
+            return null;
+        }
+    }
 
 }

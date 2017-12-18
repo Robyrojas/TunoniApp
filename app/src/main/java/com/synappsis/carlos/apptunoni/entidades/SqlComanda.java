@@ -25,8 +25,8 @@ public class SqlComanda extends SQLiteOpenHelper{
 
     interface Referencias {
 
-        String ID_TABLE_ENTREGAS = String.format("REFERENCES %s(%s) ON DELETE CASCADE",
-                Tablas.TABLE_USUARIO, Comanda.Entrega.USUARIO_NOMBRE);
+        String ID_TABLE_ENTREGAS = String.format("REFERENCES %s(%s)",//"REFERENCES %s(%s) ON DELETE CASCADE"
+                Tablas.TABLE_ENTREGA, Comanda.Entrega.USUARIO_NOMBRE);
 
         String ID_TABLE_DOCUMENTOS = String.format("REFERENCES %s(%s)",
                 Tablas.TABLE_DOCUMENTOS, Comanda.Documentos.USUARIO_NOMBRE);
@@ -44,17 +44,24 @@ public class SqlComanda extends SQLiteOpenHelper{
     public void onCreate(SQLiteDatabase db) {
 
         db.execSQL(String.format("CREATE TABLE %s (%s TEXT PRIMARY KEY," +
-                        "%s TEXT NOT NULL,%s TEXT NOT NULL," +
-                        "%s INTEGER NOT NULL)",
-                Tablas.TABLE_USUARIO, BaseColumns._ID,
+                        "%s TEXT NOT NULL)",
+                Tablas.TABLE_USUARIO,
                 Comanda.Usuario.NOMBRE,
                 Comanda.Usuario.PASS
         ));
 
-        db.execSQL(String.format("CREATE TABLE %s ( %s INTEGER PRIMARY KEY," +
-                        "%s TEXT NOT NULL UNIQUE,%s TEXT NOT NULL,%s REAL NOT NULL," +
-                        "%s INTEGER NOT NULL CHECK(%s>=0) )",
-                Tablas.TABLE_ENTREGA, BaseColumns._ID,
+        db.execSQL(String.format("CREATE TABLE %s ( %s TEXT PRIMARY KEY," +//FOLI0
+                        "%s TEXT NOT NULL," +//ESTATUS
+                        "%s TEXT NOT NULL," +//DIR0
+                        "%s TEXT NOT NULL," +//FECHA
+                        "%s TEXT NOT NULL," +//NOMBRE
+                        "%s TEXT NOT NULL," +//DRIDE
+                        "%s TEXT NOT NULL," +//FECHA DES
+                        "%s TEXT NOT NULL," +//N0MBRE RECEPT0R
+                        "%s TEXT," +//INF0
+                        "%s TEXT NOT NULL %s" +//user n0mbre
+                        ")",
+                Tablas.TABLE_ENTREGA,
                 Comanda.Entrega.FOLIO,
                 Comanda.Entrega.ESTATUS,
                 Comanda.Entrega.DIRORIGEN,
@@ -67,9 +74,14 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Entrega.USUARIO_NOMBRE, Referencias.ID_TABLE_ENTREGAS
         ));
 
-        db.execSQL(String.format("CREATE TABLE %s ( %s INTEGER PRIMARY KEY AUTOINCREMENT," +
-                        "%s TEXT NOT NULL UNIQUE,%s TEXT NOT NULL,%s TEXT NOT NULL,%s )",
-                Tablas.TABLE_PRODUCTO, BaseColumns._ID,
+        db.execSQL(String.format("CREATE TABLE %s ( %s INTEGER PRIMARY KEY," +//FOLI0
+                        "%s TEXT NOT NULL," +//FALTANTE
+                        "%s TEXT NOT NULL," +//CANTIDAD
+                        "%s TEXT NOT NULL," +//PRODUCTO
+                        "%s TEXT NOT NULL," +//ESTADO
+                        "%s TEXT NOT NULL %s" +//user n0mbre
+                        ")",
+                Tablas.TABLE_PRODUCTO, //BaseColumns._ID,
                 Comanda.Producto.IDPRODUCTO,
                 Comanda.Producto.FALTANTE,
                 Comanda.Producto.CANTIDAD,
@@ -78,9 +90,15 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Producto.USUARIO_NOMBRE, Referencias.ID_TABLE_PRODUCTOS
                 ));
 
-        db.execSQL(String.format("CREATE TABLE %s ( %s INTEGER PRIMARY KEY AUTOINCREMENT," +
-                        "%s TEXT NOT NULL UNIQUE,%s TEXT NOT NULL )",
-                Tablas.TABLE_DOCUMENTOS, BaseColumns._ID,
+        /*db.execSQL(String.format("CREATE TABLE %s ( %s TEXT PRIMARY KEY," +
+                        "%s TEXT NOT NULL," +
+                        "%s TEXT NOT NULL," +
+                        "%s TEXT NOT NULL," +
+                        "%s TEXT NOT NULL," +
+                        "%s TEXT," +
+                        "%s TEXT NOT NULL %s" +
+                        ")",
+                Tablas.TABLE_DOCUMENTOS,
                 Comanda.Documentos.IDDOCUMENTOS,
                 Comanda.Documentos.FOTO1,
                 Comanda.Documentos.FOTO2,
@@ -89,7 +107,16 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Documentos.COMENTARIOS,
                 Comanda.Documentos.USUARIO_NOMBRE, Referencias.ID_TABLE_DOCUMENTOS
                 ));
-
+        */
+        db.execSQL(String.format("CREATE TABLE "+Tablas.TABLE_DOCUMENTOS +"("+
+                Comanda.Documentos.IDDOCUMENTOS + " TEXT PRIMARY KEY," +
+                Comanda.Documentos.FOTO1 + " TEXT NOT NULL," +
+                Comanda.Documentos.FOTO2 + " TEXT NOT NULL," +
+                Comanda.Documentos.FOTO3 + " TEXT NOT NULL," +
+                Comanda.Documentos.FIRMA + " TEXT NOT NULL," +
+                Comanda.Documentos.COMENTARIOS + " TEXT," +
+                "REFERENCES "+Comanda.Documentos.USUARIO_NOMBRE+"("+Referencias.ID_TABLE_DOCUMENTOS+")"+
+                ");"));
     }
     @Override
     public void onOpen(SQLiteDatabase db) {

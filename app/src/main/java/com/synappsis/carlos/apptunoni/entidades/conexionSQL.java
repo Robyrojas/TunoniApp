@@ -16,7 +16,7 @@ public class conexionSQL extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
-        sqLiteDatabase.execSQL(Utilidades.CREAR_TABLA_TUNONI);
+        //sqLiteDatabase.execSQL(Utilidades.CREAR_TABLA_TUNONI);
     }
 
     @Override
