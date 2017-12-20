@@ -79,7 +79,7 @@ public class OperacionesBaseDatos {
         valores.put(Comanda.Entrega.FECHAORIGEN, entrega.fechaorigen);
         valores.put(Comanda.Entrega.NOMBRE, entrega.nombre);
         valores.put(Comanda.Entrega.DIRDESTINO, entrega.dirdestino);
-        valores.put(Comanda.Entrega.FECHAORIGEN, entrega.fechadestino);
+        valores.put(Comanda.Entrega.FECHADESTINO, entrega.fechadestino);
         valores.put(Comanda.Entrega.NOMBRERECEPTOR, entrega.nombrereceptor);
         valores.put(Comanda.Entrega.INFO, entrega.info);
         valores.put(Comanda.Entrega.USUARIO_NOMBRE, entrega.usuario_nombre);
@@ -100,6 +100,7 @@ public class OperacionesBaseDatos {
         //return db.rawQuery(sql, null);
         String query = "select * from " + Tablas.TABLE_ENTREGA + " WHERE usuario_nombre=?";
         Cursor res = db.rawQuery(query, new String[]{id});
+        Log.d("QUERY", res.toString());
         return res;
     }
 

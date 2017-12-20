@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().deleteDatabase("pedidos.db");
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getApplicationContext());
-        //new TareaPruebaDatos().execute();
+        new TareaPruebaDatos().execute();
     }
 
     /*CLASE PARA CONEXION AL WEB SERVICE*/
@@ -136,9 +136,11 @@ public class MainActivity extends AppCompatActivity {
                 datos.getDb().beginTransaction();
                 // Inserción USER
                 String cliente1 = datos.insertarUser(new Usuario("admin","4321"));
+                Log.d("USER","AGRAGO USER");
                 // Inserción ENTREGA
                 String user="admin";
-                //String formaPago1 = datos.insertarEntrega(new Entrega("F-001","Salida","dir1",fechaActual, "Armand","dir2", fechaActual, "juan","prueba",user));
+                String formaPago1 = datos.insertarEntrega(new Entrega("F-001","Salida","dir1",fechaActual, "Armand","dir2", fechaActual, "juan","prueba",user));
+                Log.d("USER","ENTREGA");
                 // Inserción Productos
                 //String producto1 = datos.insertarProducto(new Producto(null, "Completo", 2, "Manzana unidad", "exlente", user));
                 //String producto2 = datos.insertarProducto(new Producto(null, "Completo", 3, "Pera unidad", "exlente", user));
@@ -148,12 +150,13 @@ public class MainActivity extends AppCompatActivity {
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
+
             }
             // [QUERIES]
             Log.d("USER","USER");
             DatabaseUtils.dumpCursor(datos.obtenerUser());
-            //Log.d("Formas de pago", "Formas de pago");
-            //DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
+            Log.d("Formas de pago", "Formas de pago");
+            DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
             //Log.d("Productos", "Productos");
             //DatabaseUtils.dumpCursor(datos.obtenerEntregas("admin"));
             //Log.d("obtenerDocumentos", "obtenerDocumentos");

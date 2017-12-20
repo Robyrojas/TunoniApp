@@ -27,7 +27,6 @@ public class SqlComanda extends SQLiteOpenHelper{
 
         String ID_TABLE_ENTREGAS = String.format("REFERENCES %s(%s)",//"REFERENCES %s(%s) ON DELETE CASCADE"
                 Tablas.TABLE_USUARIO, Comanda.Usuario.NOMBRE);
-
         String ID_TABLE_DOCUMENTOS = String.format("REFERENCES %s(%s)",
                 Tablas.TABLE_ENTREGA, Comanda.Entrega.FOLIO);
         String ID_TABLE_DOCUMENTOS2 = String.format("REFERENCES %s(%s)",
@@ -45,15 +44,15 @@ public class SqlComanda extends SQLiteOpenHelper{
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
-
-        db.execSQL(String.format("CREATE TABLE %s (%s TEXT PRIMARY KEY," +
+        /*user*/
+        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s (%s TEXT NOT NULL PRIMARY KEY," +
                         "%s TEXT NOT NULL)",
                 Tablas.TABLE_USUARIO,
                 Comanda.Usuario.NOMBRE,
                 Comanda.Usuario.PASS
         ));
-
-        db.execSQL(String.format("CREATE TABLE %s ( %s TEXT PRIMARY KEY," +//FOLI0
+        /*entrega*/
+        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s ( %s TEXT PRIMARY KEY," +//FOLI0
                         "%s TEXT NOT NULL," +//ESTATUS
                         "%s TEXT NOT NULL," +//DIR0
                         "%s TEXT NOT NULL," +//FECHA
@@ -63,7 +62,7 @@ public class SqlComanda extends SQLiteOpenHelper{
                         "%s TEXT NOT NULL," +//N0MBRE RECEPT0R
                         "%s TEXT," +//INF0
                         "%s TEXT NOT NULL," +//USER NAME
-                        "FOREIGN KEY %s TEXT NOT NULL %s" +//FOREIGN / REFERENCES
+                        "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES
                         ")",
                 Tablas.TABLE_ENTREGA,
                 Comanda.Entrega.FOLIO,
@@ -78,15 +77,16 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Entrega.USUARIO_NOMBRE,
                 Comanda.Entrega.USUARIO_NOMBRE, Referencias.ID_TABLE_ENTREGAS
         ));
-
-        db.execSQL(String.format("CREATE TABLE %s ( %s INTEGER PRIMARY KEY," +//FOLI0
+        /*producto*/
+        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s ( %s INTEGER PRIMARY KEY," +//FOLI0
                         "%s TEXT NOT NULL," +//FALTANTE
                         "%s TEXT NOT NULL," +//CANTIDAD
                         "%s TEXT NOT NULL," +//PRODUCTO
                         "%s TEXT NOT NULL," +//ESTADO
                         "%s TEXT NOT NULL," +//user n0mbre
-                        "FOREIGN KEY %s TEXT NOT NULL %s" +//FOREIGN / REFERENCES
-                        "FOREIGN KEY %s TEXT NOT NULL %s" +//FOREIGN / REFERENCES
+                        "%s TEXT NOT NULL," +//entregafolio
+                        "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES
+                        "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES
                         ")",
                 Tablas.TABLE_PRODUCTO, //BaseColumns._ID,
                 Comanda.Producto.IDPRODUCTO,
@@ -95,11 +95,12 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Producto.PRODUCTO,
                 Comanda.Producto.ESTADO,
                 Comanda.Producto.USUARIO_NOMBRE,
+                Comanda.Producto.ENTREGA_FOLIO,
                 Comanda.Producto.USUARIO_NOMBRE, Referencias.ID_TABLE_PRODUCTOS2,
                 Comanda.Producto.ENTREGA_FOLIO, Referencias.ID_TABLE_PRODUCTOS
                 ));
-
-        db.execSQL(String.format("CREATE TABLE %s ( %s INTEGER PRIMARY KEY," +//FOLI0
+        /*documentacion*/
+        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s ( %s INTEGER PRIMARY KEY," +//FOLI0
                         "%s TEXT NOT NULL," +//F1
                         "%s TEXT NOT NULL," +//F2
                         "%s TEXT NOT NULL," +//F3
@@ -107,8 +108,8 @@ public class SqlComanda extends SQLiteOpenHelper{
                         "%s TEXT NOT NULL," +//c0mentari0
                         "%s TEXT NOT NULL," +//USER
                         "%s TEXT NOT NULL," +//F0LI0
-                        "FOREIGN KEY %s TEXT NOT NULL %s" +//FOREIGN / REFERENCES
-                        "FOREIGN KEY %s TEXT NOT NULL %s" +//FOREIGN / REFERENCES
+                        "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES
+                        "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES
                         ")",
                 Tablas.TABLE_DOCUMENTOS,
                 Comanda.Documentos.IDDOCUMENTOS,
@@ -130,7 +131,7 @@ public class SqlComanda extends SQLiteOpenHelper{
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 db.setForeignKeyConstraintsEnabled(true);
             } else {
-                db.execSQL("PRAGMA foreign_keys=ON");
+                db.execSQL("PRAGMA foreign_keys=1");
             }
         }
     }
