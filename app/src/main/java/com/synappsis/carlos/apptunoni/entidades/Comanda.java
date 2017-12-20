@@ -30,6 +30,7 @@ public class Comanda {
         String PRODUCTO = "producto";
         String ESTADO = "estado";
         String USUARIO_NOMBRE = "Usuario_nombre";
+        String ENTREGA_FOLIO = "Entrega_folio";
     }
     interface ColumnasDocumentos {
         String IDDOCUMENTOS = "idDocumentos";
@@ -39,6 +40,7 @@ public class Comanda {
         String FIRMA = "firma";
         String COMENTARIOS = "comentarios";
         String USUARIO_NOMBRE = "Usuario_nombre";
+        String ENTREGA_FOLIO = "Entrega_folio";
     }
     public static class Entrega implements ColumnasEntrega {
         public static String generarIdEntrega() {

@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().deleteDatabase("pedidos.db");
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getApplicationContext());
-        new TareaPruebaDatos().execute();
+        //new TareaPruebaDatos().execute();
     }
 
     /*CLASE PARA CONEXION AL WEB SERVICE*/
