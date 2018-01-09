@@ -60,9 +60,12 @@ public class MainActivity extends AppCompatActivity {
                         editTextPassword = passWordET.getText().toString();
                         statusTV.setText("");
                         //Create instance for AsyncCallWS
-                        AsyncCallWS task = new AsyncCallWS();
+                        /*AsyncCallWS task = new AsyncCallWS();
                         //Call execute
-                        task.execute();
+                        task.execute();*/
+                        //sin web service
+                        Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
+                        startActivity(intObj);
                     }
                     //If Password text control is empty
                     else{
@@ -134,17 +137,19 @@ public class MainActivity extends AppCompatActivity {
             String fechaActual = Calendar.getInstance().getTime().toString();
             try {
                 datos.getDb().beginTransaction();
-                // Inserción USER
-                String cliente1 = datos.insertarUser(new Usuario("admin","4321"));
-                Log.d("USER","AGRAGO USER");
-                // Inserción ENTREGA
                 String user="admin";
-                String formaPago1 = datos.insertarEntrega(new Entrega("F-001","Salida","dir1",fechaActual, "Armand","dir2", fechaActual, "juan","prueba",user));
-                Log.d("USER","ENTREGA");
+                String folio="F-001";
+                // Inserción USER
+                String cliente1 = datos.insertarUser(new Usuario(user,"4321"));
+                // Inserción ENTREGA
+                String entrega1 = datos.insertarEntrega(new Entrega(folio,"Salida","dir1",fechaActual, "Armand","dir2", fechaActual, "juan","prueba",user));
                 // Inserción Productos
-                //String producto1 = datos.insertarProducto(new Producto(null, "Completo", 2, "Manzana unidad", "exlente", user));
-                //String producto2 = datos.insertarProducto(new Producto(null, "Completo", 3, "Pera unidad", "exlente", user));
-                //String producto3 = datos.insertarProducto(new Producto(null, "Completo", 8, "Pan unidad", "exlente", user));
+                String producto1 = datos.insertarProducto(new Producto(null, "Completo", 2, "Manzana unidad", "excelente", user, folio));
+                //Log.d("USER",producto1);
+                //String producto2 = datos.insertarProducto(new Producto(null, "Completo", 3, "Pera unidad", "excelente", user,folio));
+                //Log.d("USER",producto2);
+                //String producto3 = datos.insertarProducto(new Producto(null, "Completo", 8, "Pan unidad", "excelente", user,folio));
+                //Log.d("USER",producto3);
                 // Inserción D0cument0s
                 //String pedido1 = datos.insertarDocumentos(new Documentos(null, "f0t01","f0t02","f0t03","firma", null, user));
                 datos.getDb().setTransactionSuccessful();
@@ -153,12 +158,12 @@ public class MainActivity extends AppCompatActivity {
 
             }
             // [QUERIES]
-            Log.d("USER","USER");
+            Log.d("USER","----------------Obtencion de base de datos");
             DatabaseUtils.dumpCursor(datos.obtenerUser());
-            Log.d("Formas de pago", "Formas de pago");
-            DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
+            //Log.d("ENTREGA", "ENTREGA");
+            DatabaseUtils.dumpCursor(datos.obtenerEntregas("admin"));
             //Log.d("Productos", "Productos");
-            //DatabaseUtils.dumpCursor(datos.obtenerEntregas("admin"));
+            //DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
             //Log.d("obtenerDocumentos", "obtenerDocumentos");
             //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
             return null;

@@ -1,15 +1,26 @@
 package com.synappsis.carlos.apptunoni;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ExpandableListView;
 
+import com.synappsis.carlos.apptunoni.entidades.Entrega;
+import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
+import com.synappsis.carlos.apptunoni.entidades.Producto;
+import com.synappsis.carlos.apptunoni.entidades.Usuario;
+
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
@@ -36,6 +47,7 @@ public class ViajesAsignados extends Fragment {
     ExpandableListAdapter listAdapter;
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
+    OperacionesBaseDatos datos = null;
 
     private OnFragmentInteractionListener mListener;
 
@@ -70,9 +82,30 @@ public class ViajesAsignados extends Fragment {
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
         prepareListData();
+        datos = OperacionesBaseDatos
+                .obtenerInstancia(getContext());
+        //new TareaPruebaDatos().execute();
         listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
         // setting list adapter
         listViewVar.setAdapter(listAdapter);
+        listViewVar.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long l) {
+                Log.d("list","entreç");
+                String country = Integer.toString(groupPosition);
+                Log.d("list", country);
+                return false;
+            }
+        });
+        /*listViewVar.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long id) {
+
+                String test = (String)listAdapter.getChild(groupPosition, childPosition);
+                Log.d("list",test);
+                return false;
+            }
+        });*/
         return rootView;
     }
 
@@ -160,5 +193,38 @@ public class ViajesAsignados extends Fragment {
         listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
         listDataChild.put(listDataHeader.get(1), nowShowing);
         listDataChild.put(listDataHeader.get(2), comingSoon);
+    }
+    /*TEST DE BASE DE DATOS*/
+    public class TareaPruebaDatos extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            // [INSERCIONES]
+            try {
+                datos.getDb().beginTransaction();
+                //Consultar BD
+                String user = "admin";
+                List<String> results = new ArrayList<String>();
+                Cursor test = datos.obtenerProducto(user);
+                if (test != null ) {
+                    if  (test.moveToFirst()) {
+                        do {
+                            String nameP = test.getString(test.getColumnIndex("Producto"));
+                            int cantidad = test.getInt(test.getColumnIndex("Cantidad"));
+                            results.add("" + nameP + ",Cantidad: " + cantidad);
+                        }while (test.moveToNext());
+                    }
+                }
+                Log.d("list", results.toString());
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+
+            }
+            // [QUERIES]
+            //DatabaseUtils.dumpCursor(datos.obtenerProducto("F-001"));
+            //Log.d("obtenerDocumentos", "obtenerDocumentos");
+            DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
+            return null;
+        }
     }
 }
