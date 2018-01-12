@@ -169,6 +169,7 @@ public class ViajesAsignados extends Fragment {
         top250.add("Fecha de Destino: #");
         top250.add("Nombre Receptor: Name");
         top250.add("Información Adicional: ---");
+        top250.add("boton");
 
         List<String> nowShowing = new ArrayList<String>();
         nowShowing.add("Estatus: En Proceso");
@@ -179,6 +180,7 @@ public class ViajesAsignados extends Fragment {
         nowShowing.add("Fecha de Destino: #");
         nowShowing.add("Nombre Receptor: Name");
         nowShowing.add("Información Adicional: ---");
+        nowShowing.add("boton");
 
         List<String> comingSoon = new ArrayList<String>();
         comingSoon.add("Estatus: En Proceso");
@@ -189,6 +191,7 @@ public class ViajesAsignados extends Fragment {
         comingSoon.add("Fecha de Destino: #");
         comingSoon.add("Nombre Receptor: Name");
         comingSoon.add("Información Adicional: ---");
+        comingSoon.add("boton");
 
         listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
         listDataChild.put(listDataHeader.get(1), nowShowing);

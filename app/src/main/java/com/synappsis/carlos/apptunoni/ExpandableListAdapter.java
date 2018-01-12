@@ -1,5 +1,6 @@
 package com.synappsis.carlos.apptunoni;
 
+import android.util.Log;
 import android.widget.BaseExpandableListAdapter;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +21,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private List<String> _listDataHeader; // header titles
     // child data in format of header title, child title
     private HashMap<String, List<String>> _listDataChild;
+    private int memory = -1; private boolean checkbottom = false;
 
     public ExpandableListAdapter(Context context, List<String> listDataHeader,
                                  HashMap<String, List<String>> listChildData) {
@@ -88,18 +90,31 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
         final String childText = (String) getChild(groupPosition, childPosition);
-
+        Log.d("Grupo: ",""+groupPosition);
+        Log.d("Child: ",""+childText);
+        //Log.d("Anterior: ",""+);
         if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) this._context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.list_item, null);
+            if(true) { //!childText.equals("boton")
+                LayoutInflater infalInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = infalInflater.inflate(R.layout.list_item, null);
+            }
+            else{
+                LayoutInflater infalInflater = (LayoutInflater) this._context
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = infalInflater.inflate(R.layout.list_item_bottom, null);
+            }
         }
-
-        TextView txtListChild = (TextView) convertView
-                .findViewById(R.id.lblListItem);
-
-        txtListChild.setText(childText);
-        return convertView;
+        if(true) {
+            TextView txtListChild = (TextView) convertView
+                    .findViewById(R.id.lblListItem);
+            txtListChild.setText(childText);
+            return convertView;
+        }
+        else
+        {
+            return convertView;
+        }
     }
 
     @Override

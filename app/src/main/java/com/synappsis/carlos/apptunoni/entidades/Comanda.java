@@ -39,6 +39,7 @@ public class Comanda {
         String FOTO3 = "foto3";
         String FIRMA = "firma";
         String COMENTARIOS = "comentarios";
+        String STATUS = "status";
         String USUARIO_NOMBRE = "Usuario_nombre";
         String ENTREGA_FOLIO = "Entrega_folio";
     }

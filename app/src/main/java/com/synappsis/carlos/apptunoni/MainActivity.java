@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
                 // Inserción ENTREGA
                 String entrega1 = datos.insertarEntrega(new Entrega(folio,"Salida","dir1",fechaActual, "Armand","dir2", fechaActual, "juan","prueba",user));
                 // Inserción Productos
-                String producto1 = datos.insertarProducto(new Producto(null, "Completo", 2, "Manzana unidad", "excelente", user, folio));
+                String producto1 = datos.insertarProducto(new Producto(null, "Completo", 2, "Manzana", "excelente", user, folio));
                 //Log.d("USER",producto1);
                 //String producto2 = datos.insertarProducto(new Producto(null, "Completo", 3, "Pera unidad", "excelente", user,folio));
                 //Log.d("USER",producto2);
@@ -163,7 +163,7 @@ public class MainActivity extends AppCompatActivity {
             //Log.d("ENTREGA", "ENTREGA");
             DatabaseUtils.dumpCursor(datos.obtenerEntregas("admin"));
             //Log.d("Productos", "Productos");
-            //DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
+            DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
             //Log.d("obtenerDocumentos", "obtenerDocumentos");
             //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
             return null;
