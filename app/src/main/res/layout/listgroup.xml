@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <CheckedTextView
         android:id="@+id/lblListHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -11,7 +11,17 @@
         android:background="@color/grisF"
         android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
         android:textColor="@android:color/white"
-        android:textSize="17dp" />
+        android:textSize="17dp"
+        android:checked="false"
+        android:checkMark="@drawable/uncheck"
+        />
+
+    <!--<CheckedTextView
+        android:id="@+id/checkedTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="CheckedTextView" />-->
 
 
 </LinearLayout>

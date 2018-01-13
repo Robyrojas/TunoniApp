@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.CheckedTextView;
 import android.widget.TextView;
 /**
  * Created by CARLOS on 26/10/2017.
@@ -77,7 +78,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             convertView = infalInflater.inflate(R.layout.listgroup, null);
         }
 
-        TextView lblListHeader = (TextView) convertView
+        CheckedTextView lblListHeader = (CheckedTextView) convertView
                 .findViewById(R.id.lblListHeader);
         lblListHeader.setTypeface(null, Typeface.BOLD);
         lblListHeader.setText(headerTitle);
@@ -85,14 +86,31 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         return convertView;
     }
 
+    public void cambiar_check(int groupPosition, boolean isExpanded,
+                              View convertView){
+        String headerTitle = (String) getGroup(groupPosition);
+        if (convertView == null) {
+            LayoutInflater infalInflater = (LayoutInflater) this._context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = infalInflater.inflate(R.layout.listgroup, null);
+        }
+        CheckedTextView lblListHeader = (CheckedTextView) convertView
+                .findViewById(R.id.lblListHeader);
+        if(isExpanded) {
+            lblListHeader.setCheckMarkDrawable(R.drawable.uncheck);
+            lblListHeader.setChecked(false);
+        }
+        else{
+            lblListHeader.setCheckMarkDrawable(R.drawable.check);
+            lblListHeader.setChecked(true);
+        }
+    }
+
     @Override
     public View getChildView(int groupPosition, final int childPosition,
                              boolean isLastChild, View convertView, ViewGroup parent) {
 
         final String childText = (String) getChild(groupPosition, childPosition);
-        Log.d("Grupo: ",""+groupPosition);
-        Log.d("Child: ",""+childText);
-        //Log.d("Anterior: ",""+);
         if (convertView == null) {
             if(true) { //!childText.equals("boton")
                 LayoutInflater infalInflater = (LayoutInflater) this._context

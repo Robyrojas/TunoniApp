@@ -90,9 +90,11 @@ public class ViajesAsignados extends Fragment {
         listViewVar.setAdapter(listAdapter);
         listViewVar.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
-            public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long l) {
-                Log.d("list","entreç");
+            public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long id) {
+                Log.d("list","entre");
                 String country = Integer.toString(groupPosition);
+                boolean isExpanded = expandableListView.isGroupExpanded(groupPosition);
+                listAdapter.cambiar_check(groupPosition, isExpanded, view);
                 Log.d("list", country);
                 return false;
             }
