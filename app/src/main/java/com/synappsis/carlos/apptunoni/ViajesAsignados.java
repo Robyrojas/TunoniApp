@@ -106,21 +106,20 @@ public class ViajesAsignados extends Fragment {
                 if (lastExpandedPosition != -1
                         && groupPosition != lastExpandedPosition) {
                     listViewVar.collapseGroup(lastExpandedPosition);
-                    listAdapter.disableCheck(listViewVar.getRootView());
+                    //listAdapter.disableCheck(lastExpandedPosition, );
+                    listAdapter.setGroupViewData(lastExpandedPosition,"0");
                 }
                 lastExpandedPosition = groupPosition;
-                listAdapter.enableCheck(listViewVar.getRootView());
+                //listAdapter.enableCheck(groupPosition, );
+                listAdapter.setGroupViewData(groupPosition,"1");
             }
         });
-        /*listViewVar.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        listViewVar.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
             @Override
-            public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition, int childPosition, long id) {
-
-                String test = (String)listAdapter.getChild(groupPosition, childPosition);
-                Log.d("list",test);
-                return false;
+            public void onGroupCollapse(int groupPosition) {
+                listAdapter.setGroupViewData(groupPosition,"0");
             }
-        });*/
+        });
         return rootView;
     }
 
