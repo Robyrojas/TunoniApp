@@ -97,7 +97,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         lblListHeader.setCheckMarkDrawable(R.drawable.uncheck);
         lblListHeader.setChecked(false);
     }
-
+    /*tester*/
     public void enableCheck( View convertView){
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) this._context
