@@ -86,29 +86,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         return convertView;
     }
 
-    /*public void cambiar_check(int groupPosition){
-        if (convertView == null) {
-            LayoutInflater infalInflater = (LayoutInflater) this._context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertView = infalInflater.inflate(R.layout.listgroup, null);
-        }
-        CheckedTextView lblListHeader = (CheckedTextView) convertView
-                .findViewById(R.id.lblListHeader);
-        for(int ver = 0; ver<cantidadGrupos;ver++)
-        {
-            if(ver==groupPosition)
-            {
-                lblListHeader.setCheckMarkDrawable(R.drawable.check);
-                lblListHeader.setChecked(true);
-            }
-            else
-            {
-                lblListHeader.setCheckMarkDrawable(R.drawable.uncheck);
-                lblListHeader.setChecked(false);
-            }
-        }
-    }*/
-
     public void disableCheck(View convertView){
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) this._context
