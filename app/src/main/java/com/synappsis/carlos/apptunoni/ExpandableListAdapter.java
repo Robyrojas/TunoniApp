@@ -86,9 +86,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         return convertView;
     }
 
-    public void cambiar_check(int groupPosition, boolean isExpanded,
-                              View convertView){
-        String headerTitle = (String) getGroup(groupPosition);
+    /*public void cambiar_check(int groupPosition){
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) this._context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -96,14 +94,43 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         }
         CheckedTextView lblListHeader = (CheckedTextView) convertView
                 .findViewById(R.id.lblListHeader);
-        if(isExpanded) {
-            lblListHeader.setCheckMarkDrawable(R.drawable.uncheck);
-            lblListHeader.setChecked(false);
+        for(int ver = 0; ver<cantidadGrupos;ver++)
+        {
+            if(ver==groupPosition)
+            {
+                lblListHeader.setCheckMarkDrawable(R.drawable.check);
+                lblListHeader.setChecked(true);
+            }
+            else
+            {
+                lblListHeader.setCheckMarkDrawable(R.drawable.uncheck);
+                lblListHeader.setChecked(false);
+            }
         }
-        else{
-            lblListHeader.setCheckMarkDrawable(R.drawable.check);
-            lblListHeader.setChecked(true);
+    }*/
+
+    public void disableCheck(View convertView){
+        if (convertView == null) {
+            LayoutInflater infalInflater = (LayoutInflater) this._context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = infalInflater.inflate(R.layout.listgroup, null);
         }
+        CheckedTextView lblListHeader = (CheckedTextView) convertView
+                .findViewById(R.id.lblListHeader);
+        lblListHeader.setCheckMarkDrawable(R.drawable.uncheck);
+        lblListHeader.setChecked(false);
+    }
+
+    public void enableCheck( View convertView){
+        if (convertView == null) {
+            LayoutInflater infalInflater = (LayoutInflater) this._context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = infalInflater.inflate(R.layout.listgroup, null);
+        }
+        CheckedTextView lblListHeader = (CheckedTextView) convertView
+                .findViewById(R.id.lblListHeader);
+        lblListHeader.setCheckMarkDrawable(R.drawable.check);
+        lblListHeader.setChecked(true);
     }
 
     @Override

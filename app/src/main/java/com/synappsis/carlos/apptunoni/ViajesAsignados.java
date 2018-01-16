@@ -48,6 +48,7 @@ public class ViajesAsignados extends Fragment {
     List<String> listDataHeader;
     HashMap<String, List<String>> listDataChild;
     OperacionesBaseDatos datos = null;
+    private int lastExpandedPosition = -1;
 
     private OnFragmentInteractionListener mListener;
 
@@ -88,7 +89,7 @@ public class ViajesAsignados extends Fragment {
         listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
         // setting list adapter
         listViewVar.setAdapter(listAdapter);
-        listViewVar.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+        /*listViewVar.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long id) {
                 Log.d("list","entre");
@@ -97,6 +98,18 @@ public class ViajesAsignados extends Fragment {
                 listAdapter.cambiar_check(groupPosition, isExpanded, view);
                 Log.d("list", country);
                 return false;
+            }
+        });*/
+        listViewVar.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
+                if (lastExpandedPosition != -1
+                        && groupPosition != lastExpandedPosition) {
+                    listViewVar.collapseGroup(lastExpandedPosition);
+                    listAdapter.disableCheck(listViewVar.getRootView());
+                }
+                lastExpandedPosition = groupPosition;
+                listAdapter.enableCheck(listViewVar.getRootView());
             }
         });
         /*listViewVar.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
