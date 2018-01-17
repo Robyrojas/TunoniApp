@@ -89,7 +89,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         lblListHeader.setText(headerTitle);
         String msj = "";
         msj = mMapStuff.get(groupPosition+"");
-        Log.d("tag", "Mensaje: "+msj);
+        //Log.d("tag", "Mensaje: "+msj);
         if(msj!=null)
         {
             if(msj.equals("0")){

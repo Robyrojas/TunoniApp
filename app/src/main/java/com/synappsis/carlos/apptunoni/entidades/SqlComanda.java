@@ -21,6 +21,7 @@ public class SqlComanda extends SQLiteOpenHelper{
         String TABLE_USUARIO = "Usuario";
         String TABLE_PRODUCTO = "Producto";
         String TABLE_DOCUMENTOS = "Documentos";
+        String TABLE_APP = "App";
     }
 
     interface Referencias {
@@ -119,6 +120,15 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Documentos.ENTREGA_FOLIO,
                 Comanda.Documentos.ENTREGA_FOLIO, Referencias.ID_TABLE_DOCUMENTOS
                 ));
+        /*APP*/
+        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s (%s TEXT NOT NULL PRIMARY KEY," +
+                        "%s TEXT NOT NULL,%s TEXT,%s TEXT)",
+                Tablas.TABLE_APP,
+                Comanda.App.FOLIO,
+                Comanda.App.ESTATUS,
+                Comanda.App.ENVIO,
+                Comanda.App.ACTUALIZAR
+        ));
     }
     @Override
     public void onOpen(SQLiteDatabase db) {

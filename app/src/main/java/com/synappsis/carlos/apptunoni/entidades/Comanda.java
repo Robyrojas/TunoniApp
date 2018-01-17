@@ -43,6 +43,13 @@ public class Comanda {
         String USUARIO_NOMBRE = "Usuario_nombre";
         String ENTREGA_FOLIO = "Entrega_folio";
     }
+    interface ColumnasApp {
+        String FOLIO = "folio";
+        String ESTATUS = "estatus";
+        String ENVIO = "envio";
+        String ACTUALIZAR = "actualizar";
+    }
+
     public static class Entrega implements ColumnasEntrega {
         public static String generarIdEntrega() {
             return "E-" + UUID.randomUUID().toString();
@@ -61,6 +68,11 @@ public class Comanda {
     public static class Documentos implements ColumnasDocumentos {
         public static String generarIdDocumentos() {
             return "D-" + UUID.randomUUID().toString();
+        }
+    }
+    public static class App implements ColumnasApp {
+        public static String generarIdApp() {
+            return "A-" + UUID.randomUUID().toString();
         }
     }
     private Comanda() {
