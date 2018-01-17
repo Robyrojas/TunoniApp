@@ -12,7 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.Toast;
 
 import com.synappsis.carlos.apptunoni.entidades.Entrega;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
@@ -49,6 +51,7 @@ public class ViajesAsignados extends Fragment {
     HashMap<String, List<String>> listDataChild;
     OperacionesBaseDatos datos = null;
     private int lastExpandedPosition = -1;
+    private int grupActual = -1;
 
     private OnFragmentInteractionListener mListener;
 
@@ -82,6 +85,7 @@ public class ViajesAsignados extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_viajes_asignados, container, false);
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
+        final Button button = rootView.findViewById(R.id.asignarViaje);
         prepareListData();
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getContext());
@@ -89,17 +93,6 @@ public class ViajesAsignados extends Fragment {
         listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
         // setting list adapter
         listViewVar.setAdapter(listAdapter);
-        /*listViewVar.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
-            @Override
-            public boolean onGroupClick(ExpandableListView expandableListView, View view, int groupPosition, long id) {
-                Log.d("list","entre");
-                String country = Integer.toString(groupPosition);
-                boolean isExpanded = expandableListView.isGroupExpanded(groupPosition);
-                listAdapter.cambiar_check(groupPosition, isExpanded, view);
-                Log.d("list", country);
-                return false;
-            }
-        });*/
         listViewVar.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
             public void onGroupExpand(int groupPosition) {
@@ -110,6 +103,7 @@ public class ViajesAsignados extends Fragment {
                     listAdapter.setGroupViewData(lastExpandedPosition,"0");
                 }
                 lastExpandedPosition = groupPosition;
+                grupActual = groupPosition;
                 //listAdapter.enableCheck(groupPosition, );
                 listAdapter.setGroupViewData(groupPosition,"1");
             }
@@ -118,8 +112,21 @@ public class ViajesAsignados extends Fragment {
             @Override
             public void onGroupCollapse(int groupPosition) {
                 listAdapter.setGroupViewData(groupPosition,"0");
+                grupActual = -1;
             }
         });
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(grupActual<0){
+                    Toast.makeText(getContext(), "No ha seleccionado ninguna entrega", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    Toast.makeText(getContext(), "Ha seleccionado: "+grupActual, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
         return rootView;
     }
 

@@ -34,7 +34,7 @@
             android:id="@+id/asignarViaje"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Asignar Viaje" />
+            android:text="Seleccionar Entrega" />
 
         <ExpandableListView
             android:id="@+id/listview"
