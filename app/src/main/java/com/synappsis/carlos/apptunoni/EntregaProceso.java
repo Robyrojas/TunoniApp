@@ -177,6 +177,7 @@ public class EntregaProceso extends Fragment{
                 else if(spinnerOpc.getSelectedItemPosition() == 1)
                 {
                     Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
+
                 }
             }
 

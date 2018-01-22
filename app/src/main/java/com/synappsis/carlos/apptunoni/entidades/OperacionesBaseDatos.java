@@ -288,21 +288,15 @@ public class OperacionesBaseDatos {
             } while(cursor.moveToNext());
         }
         if(doble != null){
-            Log.d("D0C","Ya existe la documentacion");
+            Log.d("APP","Ya existe el folio");
             return "Ya existe";
         }
         else{
-            Log.d("DOC","D0C Nueva");
             ContentValues valores = new ContentValues();
-            // Generar Pk
-           /* String idProducto = Comanda.Documentos.generarIdDocumentos();
-            valores.put(Comanda.Documentos.IDDOCUMENTOS, idProducto);
-            valores.put(Comanda.Documentos.FOTO1, doc.foto1);
-            valores.put(Comanda.Documentos.FOTO2, doc.foto2);
-            valores.put(Comanda.Documentos.FOTO3, doc.foto3);
-            valores.put(Comanda.Documentos.FIRMA, doc.firma);
-            valores.put(Comanda.Documentos.COMENTARIOS, doc.comentarios);
-            valores.put(Comanda.Documentos.USUARIO_NOMBRE, doc.usuario_nombre);
+            valores.put(Comanda.App.FOLIO, appbase.folio);
+            valores.put(Comanda.App.ENVIO, appbase.envio);
+            valores.put(Comanda.App.ESTATUS, appbase.estatus);
+            valores.put(Comanda.App.ACTUALIZAR, appbase.actualizar);
 
         /*long resultado = db.insertOrThrow(Tablas.TABLE_DOCUMENTOS, null, valores);
         if(resultado == -1) {
@@ -311,26 +305,26 @@ public class OperacionesBaseDatos {
         else {
             return idProducto;
         }*/
-            db.insert(Tablas.TABLE_DOCUMENTOS, null, valores);
-            return "2";
+            db.insert(Tablas.TABLE_APP, null, valores);
+            return appbase.folio;
         }
     }
 
-    public Cursor obtenerApp(String usuario_nombre) {
+    public Cursor obtenerApp(String folio) {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
 
         //String sql = String.format("SELECT * FROM %s", Tablas.TABLE_DOCUMENTOS);
         //b.rawQuery("SELECT body FROM table1 WHERE title IN ('title1', 'title2', 'title3')");
-        String query = "select * from " + Tablas.TABLE_DOCUMENTOS + " WHERE usuario_nombre=?";
-        Cursor res = db.rawQuery(query, new String[]{usuario_nombre});
+        String query = "select * from " + Tablas.TABLE_APP + " WHERE folio=?";
+        Cursor res = db.rawQuery(query, new String[]{folio});
         return res;
     }
 
-    public boolean eliminarApp(String idProducto) {
+    public boolean eliminarApp(String folio) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
 
         String whereClause = String.format("%s=?", Comanda.Documentos.IDDOCUMENTOS);
-        String[] whereArgs = {idProducto};
+        String[] whereArgs = {folio};
 
         int resultado = db.delete(Tablas.TABLE_DOCUMENTOS, whereClause, whereArgs);
 

@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +23,7 @@ import com.synappsis.carlos.apptunoni.entidades.Entrega;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 import com.synappsis.carlos.apptunoni.entidades.Producto;
 import com.synappsis.carlos.apptunoni.entidades.Usuario;
+import com.synappsis.carlos.apptunoni.entidades.App;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -88,6 +90,7 @@ public class ViajesAsignados extends Fragment {
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
+        button.setEnabled(true);
         prepareListData();
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getContext());
@@ -130,7 +133,10 @@ public class ViajesAsignados extends Fragment {
                     dialogo1.setCancelable(false);
                     dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogo1, int id) {
-                            Toast.makeText(getContext(), "Ha seleccionado: "+grupActual, Toast.LENGTH_SHORT).show();
+                            String grupotext = listAdapter.getNameGrup(grupActual);
+                            Toast.makeText(getContext(), "Ha seleccionado: "+ grupotext, Toast.LENGTH_SHORT).show();
+                            button.setEnabled(false);
+                            irEntregaProceso();
                         }
                     });
                     dialogo1.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -145,6 +151,38 @@ public class ViajesAsignados extends Fragment {
         });
 
         return rootView;
+    }
+
+    private void irEntregaProceso() {
+        new TareaPruebaDatos().execute();
+        FragmentTransaction trans = getFragmentManager().beginTransaction();
+        trans.replace(R.id.Contenedor,new EntregaProceso());
+        trans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        trans.addToBackStack(null);
+        trans.commit();
+    }
+
+    /*TEST DE BASE DE DATOS*/
+    public class TareaPruebaDatos extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            // [INSERCIONES]
+            try {
+                datos.getDb().beginTransaction();
+                String folio="F-001";
+                // Inserción D0cument0s
+                String pedido1 = datos.insertarApp(new App(folio,"seleccionada", "base","No"));
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+
+            }
+            // [QUERIES]
+            Log.d("USER","----------------Obtencion de base de datos");
+            //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
+            DatabaseUtils.dumpCursor(datos.obtenerApp("F-001"));
+            return null;
+        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -193,9 +231,9 @@ public class ViajesAsignados extends Fragment {
         listDataChild = new HashMap<String, List<String>>();
 
         // Adding child data
-        listDataHeader.add("Entrega F001 07/12/2017");
-        listDataHeader.add("Entrega F002 10/12/2017");
-        listDataHeader.add("Entrega F003 11/12/2017");
+        listDataHeader.add("F-001");
+        listDataHeader.add("F-002");
+        listDataHeader.add("F-003");
 
         // Adding child data
         List<String> top250 = new ArrayList<String>();
@@ -234,38 +272,5 @@ public class ViajesAsignados extends Fragment {
         listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
         listDataChild.put(listDataHeader.get(1), nowShowing);
         listDataChild.put(listDataHeader.get(2), comingSoon);
-    }
-    /*TEST DE BASE DE DATOS*/
-    public class TareaPruebaDatos extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            // [INSERCIONES]
-            try {
-                datos.getDb().beginTransaction();
-                //Consultar BD
-                String user = "admin";
-                List<String> results = new ArrayList<String>();
-                Cursor test = datos.obtenerProducto(user);
-                if (test != null ) {
-                    if  (test.moveToFirst()) {
-                        do {
-                            String nameP = test.getString(test.getColumnIndex("Producto"));
-                            int cantidad = test.getInt(test.getColumnIndex("Cantidad"));
-                            results.add("" + nameP + ",Cantidad: " + cantidad);
-                        }while (test.moveToNext());
-                    }
-                }
-                Log.d("list", results.toString());
-                datos.getDb().setTransactionSuccessful();
-            } finally {
-                datos.getDb().endTransaction();
-
-            }
-            // [QUERIES]
-            //DatabaseUtils.dumpCursor(datos.obtenerProducto("F-001"));
-            //Log.d("obtenerDocumentos", "obtenerDocumentos");
-            DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
-            return null;
-        }
     }
 }

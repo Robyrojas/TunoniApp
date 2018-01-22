@@ -27,6 +27,7 @@ public class Nav_Principal extends AppCompatActivity
         firtsA = this;
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         Fragment fragmento = new ViajesAsignados();
         getSupportFragmentManager().beginTransaction().replace(R.id.Contenedor,fragmento).commit();
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

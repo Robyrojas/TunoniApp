@@ -34,6 +34,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     public void setGroupViewData(int groupPosition, String valorI){
         mMapStuff.put(groupPosition+"",valorI);
     }
+    public String getNameGrup(int groupPos){
+        String  nombre=(String) getGroup(groupPos);
+        return nombre;
+    }
 
 
     @Override

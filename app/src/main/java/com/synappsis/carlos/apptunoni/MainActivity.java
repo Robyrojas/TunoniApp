@@ -166,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
             DatabaseUtils.dumpCursor(datos.obtenerProducto("admin"));
             //Log.d("obtenerDocumentos", "obtenerDocumentos");
             //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
+            DatabaseUtils.dumpCursor(datos.obtenerApp("F-001"));
             return null;
         }
     }

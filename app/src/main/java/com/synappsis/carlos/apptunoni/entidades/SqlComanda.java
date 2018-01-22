@@ -148,7 +148,7 @@ public class SqlComanda extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + Tablas.TABLE_ENTREGA);
         db.execSQL("DROP TABLE IF EXISTS " + Tablas.TABLE_PRODUCTO);
         db.execSQL("DROP TABLE IF EXISTS " + Tablas.TABLE_USUARIO);
-
+        db.execSQL("DROP TABLE IF EXISTS " + Tablas.TABLE_APP);
         onCreate(db);
     }
 
