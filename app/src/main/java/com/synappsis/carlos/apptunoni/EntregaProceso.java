@@ -135,7 +135,7 @@ public class EntregaProceso extends Fragment{
             String result = "";
             SoapObject soapObject = new SoapObject(NAMESPACE, METHOD_NAME);
             soapObject.addProperty("id", "1");
-            Log.e(tag, "Inicio SOAP");
+            //Log.e(tag, "Inicio SOAP");
             //propertyInfo.setType(PropertyInfo.OBJECT_TYPE);
             //soapObject.addProperty(propertyInfo);
             SoapSerializationEnvelope envelope =  new SoapSerializationEnvelope(SoapEnvelope.VER11);
@@ -144,10 +144,10 @@ public class EntregaProceso extends Fragment{
             HttpTransportSE httpTransportSE = new HttpTransportSE(URL);
             try {
                 httpTransportSE.call(SOAP_ACTION, envelope);
-                Log.e(tag, "envolvio");
+                //Log.e(tag, "envolvio");
                 SoapPrimitive soapPrimitive = (SoapPrimitive)envelope.getResponse();
                 result = soapPrimitive.toString();
-                Log.e(tag, "respuetaaaaa" + result.toString());
+                //Log.e(tag, "respuetaaaaa" + result.toString());
             } catch (Exception e) {
                 e.printStackTrace();
                 Log.e(tag, String.valueOf(e));
