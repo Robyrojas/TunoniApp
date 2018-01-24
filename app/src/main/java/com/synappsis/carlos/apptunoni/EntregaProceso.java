@@ -4,9 +4,11 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -79,8 +81,7 @@ public class EntregaProceso extends Fragment{
     private Marker mMarcadorActual2;
     private SupportMapFragment mSupportMapFragment;
     Spinner spinnerOpc;
-    String [] contenido;
-    ArrayAdapter <String> adaptador;
+    int enCAMINO=0;
 
     public EntregaProceso() {
         // Required empty public constructor
@@ -162,22 +163,75 @@ public class EntregaProceso extends Fragment{
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_entrega_proceso, container, false);
         String [] values =
-                {"Seleccionar","En Camino","Entregado",};
+                {"Selecionar","En Camino","Entregado"};
         spinnerOpc = (Spinner) v.findViewById(R.id.spinnerList);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, values);
-        adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
-        spinnerOpc.setAdapter(adapter);
+        //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, values);
+        final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
+                this.getActivity(),android.R.layout.simple_spinner_item, values){
+            @Override
+            public boolean isEnabled(int position){
+                if(position == 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    return true;
+                }
+            }
+
+            @Nullable
+            @Override
+            public String getItem(int position) {
+                return super.getItem(position);
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView,
+                                        ViewGroup parent) {
+                View view = super.getDropDownView(position, convertView, parent);
+                TextView tv = (TextView) view;
+                if(position==0) {
+                    tv.setTextColor(Color.GRAY);
+                }
+                else {
+                    tv.setTextColor(Color.BLACK);
+                }
+                return view;
+            }
+        };
+
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        spinnerOpc.setAdapter(spinnerArrayAdapter);
         spinnerOpc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(spinnerOpc.getSelectedItemPosition() == 2)
+                if(spinnerOpc.getSelectedItem().toString().equals("Entregado"))
                 {
-                    createAndShowAlertDialog();
+                    //enCAMINO = getStatus();
+                    if(enCAMINO==1) {
+                        createAndShowAlertDialog();
+                    }
+                    else{
+                        Toast.makeText(getActivity(), "Aún no estas en camino", Toast.LENGTH_SHORT).show();
+                        spinnerOpc.setSelection(0);
+                    }
                 }
                 else if(spinnerOpc.getSelectedItemPosition() == 1)
                 {
-                    Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
-
+                    //enCAMINO = getStatus();
+                    if(enCAMINO==0)
+                    {
+                        Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
+                        enCAMINO = 1;
+                    }
+                    //else
+                       // Toast.makeText(getActivity(), "Opción ya seleccionada", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    if(spinnerOpc.getSelectedItem().toString().equals("Entregado")) {
+                        spinnerOpc.setSelection(1);
+                    }
                 }
             }
 
@@ -185,7 +239,9 @@ public class EntregaProceso extends Fragment{
             public void onNothingSelected(AdapterView<?> adapterView) {
 
             }
+
         });
+
         //Log.e(tag, "Se lleno list");
         mSupportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         //mSupportMapFragment = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -258,11 +314,13 @@ public class EntregaProceso extends Fragment{
                 //TODO
                 Log.e(tag, "NO");
                 dialog.dismiss();
+                spinnerOpc.setSelection(1);
             }
         });
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
 
     @Override
     public void onAttach(Context context) {
