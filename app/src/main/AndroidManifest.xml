@@ -44,7 +44,8 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -54,6 +55,7 @@
         <activity
             android:name=".Nav_Principal"
             android:label="@string/title_activity_nav__principal"
+            android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
@@ -66,7 +68,9 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity android:name=".productos"></activity>
+        <activity android:name=".productos"
+            android:screenOrientation="portrait">
+        </activity>
     </application>
 
 </manifest>

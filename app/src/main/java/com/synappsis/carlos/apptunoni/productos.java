@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
@@ -39,7 +40,7 @@ public class productos extends AppCompatActivity {
     private Button boton;
     private Button dialog;
     private Button aceptar;
-    private Button btnestados;
+    private ImageButton img1, img2, img3, fotoFinal;
     private ImageView fotoimg;
     private static String tag="Productos";
     List<String> list;
@@ -50,6 +51,7 @@ public class productos extends AppCompatActivity {
     boolean checkPermission = false;
     private static final int REQUEST_CODE_ASK_PERMISSIONS = 1 ;
     private String Folio = "C001-";
+    private int bandera = 0;
     /*Variable firma*/
     String mCurrentSignPath;
 
@@ -122,6 +124,49 @@ public class productos extends AppCompatActivity {
                 checkPermission = revisarPermisos();
                 if(checkPermission)
                 {
+                    bandera = 0;
+                    dispatchTakePictureIntent();
+                }
+            }
+        });
+        /*codigo foto 1*/
+        img1 = (ImageButton) findViewById(R.id.foto1);
+        file.mkdirs();
+        img1.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                checkPermission = revisarPermisos();
+                if(checkPermission)
+                {
+                    bandera=1;
+                    dispatchTakePictureIntent();
+                }
+            }
+        });
+        /*codigo foto 1*/
+        img2 = (ImageButton) findViewById(R.id.foto2);
+        file.mkdirs();
+        img2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                checkPermission = revisarPermisos();
+                if(checkPermission)
+                {
+                    bandera=2;
+                    dispatchTakePictureIntent();
+                }
+            }
+        });
+        /*codigo foto 1*/
+        img3 = (ImageButton) findViewById(R.id.foto3);
+        file.mkdirs();
+        img3.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                checkPermission = revisarPermisos();
+                if(checkPermission)
+                {
+                    bandera=3;
                     dispatchTakePictureIntent();
                 }
             }
@@ -283,11 +328,15 @@ public class productos extends AppCompatActivity {
     }
 
     private void handleBigCameraPhoto() {
-
         if (mCurrentPhotoPath != null) {
             galleryAddPic();
-            Log.e(tag, "despues galleryaddpi: ");
-            setPic();
+            if(bandera>0)
+            {
+                setPic2();
+            }
+            else{
+                setPic();
+            }
             Log.e(tag, "despues de setpic: ");
             mCurrentPhotoPath = null;
             list.add(0,"2");
@@ -337,6 +386,47 @@ public class productos extends AppCompatActivity {
         //mVideoView.setVisibility(View.INVISIBLE);
     }
 
+    private void setPic2() {
+        /* Get the size of the ImageView */
+        /*int targetW = mImageView.getWidth();
+        int targetH = mImageView.getHeight();*/
+        int targetW = 150;
+        int targetH = 150;
+
+		/* Get the size of the image */
+        BitmapFactory.Options bmOptions = new BitmapFactory.Options();
+        bmOptions.inJustDecodeBounds = true;
+        BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        int photoW = bmOptions.outWidth;
+        int photoH = bmOptions.outHeight;
+
+		/* Figure out which way needs to be reduced less */
+        int scaleFactor = 1;
+        if ((targetW > 0) || (targetH > 0)) {
+            scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+        }
+
+		/* Set bitmap options to scale the image decode target */
+        bmOptions.inJustDecodeBounds = false;
+        bmOptions.inSampleSize = scaleFactor;
+        bmOptions.inPurgeable = true;
+
+		/* Decode the JPEG file into a Bitmap */
+        Bitmap bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath, bmOptions);
+        if(bandera ==1)
+            fotoFinal = (ImageButton) findViewById(R.id.foto1);
+        else if(bandera==2)
+            fotoFinal = (ImageButton) findViewById(R.id.foto2);
+        else
+            fotoFinal = (ImageButton) findViewById(R.id.foto3);
+		/* Associate the Bitmap to the ImageView */
+        fotoFinal.setImageBitmap(bitmap);
+        //mVideoUri = null;
+        fotoFinal.setVisibility(View.VISIBLE);
+        Log.e(tag, "Colocando");
+        //mVideoView.setVisibility(View.INVISIBLE);
+    }
+
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
         File f = new File(mCurrentPhotoPath);
@@ -365,7 +455,8 @@ public class productos extends AppCompatActivity {
             handleBigCameraPhoto();
         }
         else
-            Log.e(tag, "mal resultado");
+        {Log.e(tag, "mal resultado");
+            Toast.makeText(this, "Vuelva a intentar a tomar la foto", Toast.LENGTH_LONG).show();}
     }
 
 }
