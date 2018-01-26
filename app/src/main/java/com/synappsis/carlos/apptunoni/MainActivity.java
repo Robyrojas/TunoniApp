@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                         //sin web service
                         Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
                         startActivity(intObj);
+                        webservicePG.setVisibility(View.INVISIBLE);
                     }
                     //If Password text control is empty
                     else{

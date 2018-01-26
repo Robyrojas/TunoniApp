@@ -79,6 +79,7 @@ public class Nav_Principal extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        //AQUI PARA BLOQUEAR MENU
         int id = item.getItemId();
         Fragment fragmento = null;
         boolean seleccion = false;
@@ -103,6 +104,8 @@ public class Nav_Principal extends AppCompatActivity
     public void onFragmentInteraction(Uri uri) {
 
     }
-
+    public void callParentMethod(){
+        this.onBackPressed();
+    }
 
 }

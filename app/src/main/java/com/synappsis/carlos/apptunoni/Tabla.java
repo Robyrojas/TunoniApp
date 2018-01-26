@@ -5,6 +5,7 @@ import android.app.Activity;
         import android.graphics.Paint;
         import android.graphics.Rect;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -84,7 +85,6 @@ public class Tabla
         TableRow.LayoutParams layoutFila = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
         TableRow fila = new TableRow(actividad);
         fila.setLayoutParams(layoutFila);
-
         for(int i = 0; i< elementos.size(); i++)
         {
             if(i==0)
@@ -104,20 +104,11 @@ public class Tabla
                 layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
                 list2.setLayoutParams(layoutCelda);
                 fila.addView(list2);
-                /*Button  btnEstado = new Button (actividad);
-                btnEstado.setText("Seleccionar");
-                btnEstado.setGravity(Gravity.CENTER_HORIZONTAL);
-                layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
-                btnEstado.setLayoutParams(layoutCelda);
-                fila.addView(btnEstado);*/
             }
             else {
                 TextView texto = new TextView(actividad);
                 texto.setText(String.valueOf(elementos.get(i)));
                 texto.setGravity(Gravity.CENTER_HORIZONTAL);
-                //texto.setTextAppearance(actividad, R.style.estilo_celda);
-                //texto.setBackgroundResource(R.drawable.tabla_celda);
-                //layoutCelda = new TableRow.LayoutParams(obtenerAnchoPixelesTexto(texto.getText().toString()), TableRow.LayoutParams.WRAP_CONTENT);
                 layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
                 texto.setLayoutParams(layoutCelda);
                 fila.addView(texto);
@@ -130,6 +121,31 @@ public class Tabla
         FILAS++;
     }
 
+    public String obtenerDato(int index){
+        String texto = "";
+        TableRow.LayoutParams layoutFila = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT);
+        TableRow fila = new TableRow(actividad);
+        fila.setLayoutParams(layoutFila);
+        fila.getChildAt(1);
+        if(fila!=null){
+            Log.d("LISTA",fila.getChildCount()+"");
+            Spinner mspinner = (Spinner) fila.getChildAt(0);
+            String uno = mspinner.getSelectedItem().toString();
+            TextView mTextView = (TextView) fila.getChildAt(1);
+            String dos = mTextView.getText().toString();
+            TextView mTextView2 = (TextView) fila.getChildAt(2);
+            String tres= mTextView2.getText().toString();
+            Spinner mspinner2 = (Spinner) fila.getChildAt(3);
+            String cuatro = mspinner2.getSelectedItem().toString();
+            //mspinner.getSelectedItem()
+            texto = uno+dos+tres+cuatro;
+        }
+        else{
+            texto="ERROR";
+        }
+                //mspinner.toString()+","+mTextView.toString()+","+mTextView2.toString()+","+mspinner2.toString();
+        return texto;
+    }
     /**
      * Elimina una fila de la tabla
      * @param indicefilaeliminar Indice de la fila a eliminar

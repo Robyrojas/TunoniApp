@@ -60,7 +60,7 @@ public class productos extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_productos);
         list = new ArrayList<String>();
-        Tabla tabla = new Tabla(this, (TableLayout)findViewById(R.id.listTable));
+        final Tabla tabla = new Tabla(this, (TableLayout)findViewById(R.id.listTable));
         tabla.agregarCabecera(R.array.cabecera_tabla);
         for(int i = 0; i < 15; i++)
         {
@@ -71,13 +71,14 @@ public class productos extends AppCompatActivity {
             elementos.add("3");
             tabla.agregarFilaTabla(elementos);
         }
+
         /*codigo aceptar*/
         aceptar = (Button) findViewById(R.id.btnGuardar);
         aceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(!list.isEmpty()){
-                    if(list.size()==2){
+                    if(list.size()>=4){
                         AlertDialog.Builder aceptBuilder = new AlertDialog.Builder(productos.this);
                         View vistaAcept = getLayoutInflater().inflate(R.layout.dialog_cliente,null);
                         final EditText userU = (EditText) vistaAcept.findViewById(R.id.userName);
@@ -112,10 +113,12 @@ public class productos extends AppCompatActivity {
                     }
                 }else{
                     Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
+                    String testo = tabla.obtenerDato(1);
+                    Log.d(tag, testo);
                 }
             }
         });
-        /*codigo foto*/
+        /*codigo foto
         boton = (Button) findViewById(R.id.btnFoto);
         file.mkdirs();
         boton.setOnClickListener(new View.OnClickListener(){
@@ -128,7 +131,7 @@ public class productos extends AppCompatActivity {
                     dispatchTakePictureIntent();
                 }
             }
-        });
+        });*/
         /*codigo foto 1*/
         img1 = (ImageButton) findViewById(R.id.foto1);
         file.mkdirs();
@@ -184,8 +187,8 @@ public class productos extends AppCompatActivity {
                 Button mFirma = (Button) vistaFirma.findViewById(R.id.btnSave);
                 Button mLimpiar = (Button) vistaFirma.findViewById(R.id.bntLimpiar);
                 firmaBuilder.setView(vistaFirma);
-                final AlertDialog dialog = firmaBuilder.create();
-                dialog.show();
+                final AlertDialog dialogAlert = firmaBuilder.create();
+                dialogAlert.show();
                 mFirma.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -220,7 +223,8 @@ public class productos extends AppCompatActivity {
                         setSign();
                         list.add(0,"1");
                         Toast.makeText(getApplicationContext(),"Se ha guardado la Firma",Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
+                        dialog.setEnabled(false);
+                        dialogAlert.dismiss();
                     }
                 });
                 mLimpiar.setOnClickListener(new View.OnClickListener() {
@@ -333,13 +337,20 @@ public class productos extends AppCompatActivity {
             if(bandera>0)
             {
                 setPic2();
+                if(bandera == 1)
+                    img1.setEnabled(false);
+                else if(bandera == 2)
+                    img2.setEnabled(false);
+                else
+                    img3.setEnabled(false);
             }
             else{
                 setPic();
             }
-            Log.e(tag, "despues de setpic: ");
             mCurrentPhotoPath = null;
             list.add(0,"2");
+            Log.e(tag, "despues de setpic: " + list.toString());
+
         }
         else{
 
@@ -457,6 +468,12 @@ public class productos extends AppCompatActivity {
         else
         {Log.e(tag, "mal resultado");
             Toast.makeText(this, "Vuelva a intentar a tomar la foto", Toast.LENGTH_LONG).show();}
+    }
+
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(this, "Aún no terminas el proceso", Toast.LENGTH_LONG).show();
+        return;
     }
 
 }

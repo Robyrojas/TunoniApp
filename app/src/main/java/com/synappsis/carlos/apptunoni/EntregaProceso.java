@@ -13,6 +13,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -115,15 +116,6 @@ public class EntregaProceso extends Fragment{
 
     }
 
-    /*@Override
-    public void onMapReady(GoogleMap googleMap) {
-        mapa = googleMap;
-        //ask for permissions..
-        //mapa.setMyLocationEnabled(true);
-        LatLng sydney = new LatLng(-34, 151);
-        mMarcadorActual = mapa.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-    }*/
-
     class CallWebService extends AsyncTask<String, Void, String> {
         @Override
         protected void onPostExecute(String s) {
@@ -162,6 +154,20 @@ public class EntregaProceso extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_entrega_proceso, container, false);
+        v.setFocusableInTouchMode(true);
+        v.requestFocus();
+        v.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
+                if( keyCode == KeyEvent.KEYCODE_BACK )
+                {
+                    Toast.makeText(getContext(), "Aún no terminas el proceso", Toast.LENGTH_SHORT).show();
+                    //return true;
+                }
+                Log.d(tag,"back");
+                return true;
+            }
+        });
         String [] values =
                 {"Selecionar","En Camino","Entregado"};
         spinnerOpc = (Spinner) v.findViewById(R.id.spinnerList);
@@ -241,7 +247,6 @@ public class EntregaProceso extends Fragment{
             }
 
         });
-
         //Log.e(tag, "Se lleno list");
         mSupportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         //mSupportMapFragment = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.map);
@@ -306,7 +311,9 @@ public class EntregaProceso extends Fragment{
                 Log.e(tag, "SI");
                 dialog.dismiss();
                 Intent intent =  new Intent(getActivity(), productos.class);
+
                 startActivity(intent);
+
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -320,7 +327,6 @@ public class EntregaProceso extends Fragment{
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
 
     @Override
     public void onAttach(Context context) {
@@ -338,6 +344,7 @@ public class EntregaProceso extends Fragment{
         super.onDetach();
         mListener = null;
     }
+
 
     /**
      * This interface must be implemented by activities that contain this
