@@ -109,6 +109,7 @@ public class Tabla
                 TextView texto = new TextView(actividad);
                 texto.setText(String.valueOf(elementos.get(i)));
                 texto.setGravity(Gravity.CENTER_HORIZONTAL);
+
                 layoutCelda = new TableRow.LayoutParams(sizeSpinner(), TableRow.LayoutParams.WRAP_CONTENT);
                 texto.setLayoutParams(layoutCelda);
                 fila.addView(texto);
@@ -120,6 +121,8 @@ public class Tabla
 
         FILAS++;
     }
+
+
 
     public String obtenerDato(int index){
         String texto = "";

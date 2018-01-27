@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -16,13 +17,18 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -52,6 +58,10 @@ public class productos extends AppCompatActivity {
     private static final int REQUEST_CODE_ASK_PERMISSIONS = 1 ;
     private String Folio = "C001-";
     private int bandera = 0;
+    int NUM_COLS = 4;
+    String[] lista1 = {"Completo","Faltante","No entregado"};
+    String[] lista2 = {"Excelente","Regular","Malo"};
+    TableLayout stk;
     /*Variable firma*/
     String mCurrentSignPath;
 
@@ -60,7 +70,8 @@ public class productos extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_productos);
         list = new ArrayList<String>();
-        final Tabla tabla = new Tabla(this, (TableLayout)findViewById(R.id.listTable));
+        init();
+        /*final Tabla tabla = new Tabla(this, (TableLayout)findViewById(R.id.listTable));
         tabla.agregarCabecera(R.array.cabecera_tabla);
         for(int i = 0; i < 15; i++)
         {
@@ -71,7 +82,7 @@ public class productos extends AppCompatActivity {
             elementos.add("3");
             tabla.agregarFilaTabla(elementos);
         }
-
+        */
         /*codigo aceptar*/
         aceptar = (Button) findViewById(R.id.btnGuardar);
         aceptar.setOnClickListener(new View.OnClickListener() {
@@ -113,7 +124,7 @@ public class productos extends AppCompatActivity {
                     }
                 }else{
                     Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
-                    String testo = tabla.obtenerDato(1);
+                    String testo = obtenerDatos(0);
                     Log.d(tag, testo);
                 }
             }
@@ -240,7 +251,77 @@ public class productos extends AppCompatActivity {
         });
 
     }
+    public void init(){
+        stk = (TableLayout) findViewById(R.id.listTable);
+        TableRow tbrow0 = new TableRow(this);
+        tbrow0.setBackgroundColor(Color.DKGRAY);
+        TextView tv0 = new TextView(this);
+        tv0.setText(" Producto ");
+        tv0.setTextColor(Color.WHITE);
+        tbrow0.addView(tv0);
+        TextView tv1 = new TextView(this);
+        tv1.setText(" Cantidad ");
+        tv1.setTextColor(Color.WHITE);
+        tbrow0.addView(tv1);
+        TextView tv2 = new TextView(this);
+        tv2.setText(" Estado ");
+        tv2.setTextColor(Color.WHITE);
+        tbrow0.addView(tv2);
+        TextView tv3 = new TextView(this);
+        tv3.setText(" Faltante ");
+        tv3.setTextColor(Color.WHITE);
+        tbrow0.addView(tv3);
+        stk.addView(tbrow0);
+        for (int i = 0; i < 10; i++) {
+            TableRow tbrow = new TableRow(this);
+            //col 1
+            TextView t1v = new TextView(this);
+            t1v.setText("Product " + i);
+            t1v.setTextColor(Color.BLACK);
+            t1v.setGravity(Gravity.CENTER);
+            tbrow.addView(t1v);
+            //col 2
+            TextView t2v = new TextView(this);
+            t2v.setText("" + i);
+            t2v.setTextColor(Color.BLACK);
+            t2v.setGravity(Gravity.CENTER);
+            tbrow.addView(t2v);
+            //col 3
+            Spinner list1 = new Spinner(this);
+            list1.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lista1));
+            list1.setGravity(Gravity.CENTER_HORIZONTAL);
+            tbrow.addView(list1);
+            //col 4
+            Spinner list2 = new Spinner(this);
+            list2.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lista2));
+            list2.setGravity(Gravity.CENTER_HORIZONTAL);
+            tbrow.addView(list2);
+            Log.d("tabla tbrow",""+tbrow.getChildCount());
+            //
+            stk.addView(tbrow);
+        }
+        Log.d("tabla",""+stk.getChildCount());
+    }
 
+    public String obtenerDatos(int index){
+        String res="";
+        Log.d("tabla",""+stk.getChildCount());
+        View view = stk.getChildAt(index+5);
+        TableRow t = (TableRow)view;
+        Log.d("tabla",""+t.getChildCount());
+        if(t!=null) {
+            TextView firstTextView = (TextView) t.getChildAt(0);
+            TextView secondTextView = (TextView) t.getChildAt(1);
+            Spinner mspinner = (Spinner) t.getChildAt(2);
+            Spinner mspinner2 = (Spinner) t.getChildAt(3);
+            String uno = firstTextView.getText().toString();
+            String dos = secondTextView.getText().toString();
+            String tres = mspinner.getSelectedItem().toString();
+            String cuatro = mspinner2.getSelectedItem().toString();
+            res = uno+"," + dos +"," + tres +"," + cuatro;
+        }
+        return res;
+    }
     private void setSign(){
         int targetW = 300;
         int targetH = 400;
