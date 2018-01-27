@@ -69,6 +69,13 @@ public class OperacionesBaseDatos {
 
         return db.rawQuery(sql, null);
     }
+    public Cursor obtenerUser(String Folio) {
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+
+        String sql = String.format("SELECT * FROM %s", Tablas.TABLE_USUARIO);
+
+        return db.rawQuery(sql, null);
+    }
 
     public boolean eliminarUser(String idProducto) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();

@@ -312,7 +312,7 @@ public class EntregaProceso extends Fragment{
                 dialog.dismiss();
                 Intent intent =  new Intent(getActivity(), productos.class);
                 startActivity(intent);
-                //getActivity().finish();
+                getActivity().finish();
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {

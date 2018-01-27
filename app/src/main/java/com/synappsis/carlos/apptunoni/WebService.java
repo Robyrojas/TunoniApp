@@ -75,4 +75,44 @@ public class WebService {
         list.add("two");
         return list;
     }
+
+    public static String invokeGetComanda(String User, String webMethName) {
+        String datosComanda = "";
+        // Create request
+        SoapObject request = new SoapObject(NAMESPACE, webMethName);
+        // Property which holds input parameters
+        PropertyInfo unamePI = new PropertyInfo();
+        PropertyInfo passPI = new PropertyInfo();
+        // Set Username
+        unamePI.setName("user");
+        // Set Value
+        unamePI.setValue(User);
+        // Set dataType
+        unamePI.setType(String.class);
+
+        request.addProperty(passPI);
+        // Create envelope
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        // Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        // Create HTTP call object
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+
+        try {
+            // Invoke web service
+            androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
+            // Get the response
+            SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+            // Assign it to  boolean variable variable
+            datosComanda = response.toString();
+
+        } catch (Exception e) {
+            //Assign Error Status true in static variable 'errored'
+            ViajesAsignados.errored = true;
+            e.printStackTrace();
+        }
+        //Return booleam to calling object
+        return datosComanda;
+    }
 }

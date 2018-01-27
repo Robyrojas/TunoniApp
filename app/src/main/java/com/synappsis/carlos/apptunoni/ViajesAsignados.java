@@ -2,6 +2,7 @@ package com.synappsis.carlos.apptunoni;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
@@ -19,6 +20,7 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.Toast;
 
+import com.synappsis.carlos.apptunoni.entidades.Comanda;
 import com.synappsis.carlos.apptunoni.entidades.Entrega;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 import com.synappsis.carlos.apptunoni.entidades.Producto;
@@ -30,25 +32,14 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link ViajesAsignados.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link ViajesAsignados#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class ViajesAsignados extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     ExpandableListView listViewVar;
     ExpandableListAdapter listAdapter;
     List<String> listDataHeader;
@@ -56,8 +47,11 @@ public class ViajesAsignados extends Fragment {
     OperacionesBaseDatos datos = null;
     private int lastExpandedPosition = -1;
     private int grupActual = -1;
-
     private OnFragmentInteractionListener mListener;
+    /*base de datos*/
+    static boolean errored = false;
+    private String UserComanda ="";
+    ArrayList<Entrega> datosComanda = new ArrayList<Entrega>();
 
     public ViajesAsignados() {
         // Required empty public constructor
@@ -76,6 +70,8 @@ public class ViajesAsignados extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //new obtenerUser().execute();
+        //new AsyncCallWS().execute();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -91,6 +87,7 @@ public class ViajesAsignados extends Fragment {
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
         button.setEnabled(true);
+        Toast.makeText(getContext(),"Cargando...",Toast.LENGTH_SHORT).show();
         prepareListData();
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getContext());
@@ -154,35 +151,11 @@ public class ViajesAsignados extends Fragment {
     }
 
     private void irEntregaProceso() {
-        new TareaPruebaDatos().execute();
         FragmentTransaction trans = getFragmentManager().beginTransaction();
         trans.replace(R.id.Contenedor,new EntregaProceso());
         trans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         trans.addToBackStack(null);
         trans.commit();
-    }
-
-    /*TEST DE BASE DE DATOS*/
-    public class TareaPruebaDatos extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            // [INSERCIONES]
-            try {
-                datos.getDb().beginTransaction();
-                String folio="F-001";
-                // Inserción D0cument0s
-                String pedido1 = datos.insertarApp(new App(folio,"seleccionada", "base","No"));
-                datos.getDb().setTransactionSuccessful();
-            } finally {
-                datos.getDb().endTransaction();
-
-            }
-            // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos");
-            //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
-            DatabaseUtils.dumpCursor(datos.obtenerApp("F-001"));
-            return null;
-        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -229,7 +202,6 @@ public class ViajesAsignados extends Fragment {
     private void prepareListData() {
         listDataHeader = new ArrayList<String>();
         listDataChild = new HashMap<String, List<String>>();
-
         // Adding child data
         listDataHeader.add("F-001");
         listDataHeader.add("F-002");
@@ -272,5 +244,122 @@ public class ViajesAsignados extends Fragment {
         listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
         listDataChild.put(listDataHeader.get(1), nowShowing);
         listDataChild.put(listDataHeader.get(2), comingSoon);
+    }
+
+    public boolean llenarTabs(){
+        listDataHeader = new ArrayList<String>();
+        listDataChild = new HashMap<String, List<String>>();
+        int conteo = 0;
+        if(datosComanda!=null){
+            for(int tab =0; tab<datosComanda.size();tab++)
+            {
+                Entrega e = datosComanda.get(tab);
+                listDataHeader.add(e.folio);
+                conteo++;
+            }
+            for(int tab =0; tab<conteo;tab++)
+            {
+                Entrega e = datosComanda.get(tab);
+                List<String> top250 = new ArrayList<String>();
+                top250.add("Estatus: "+e.estatus);
+                //top250.add("Dirección de Origen: ");
+                top250.add("Fecha de Origen: "+e.fechaorigen);
+                top250.add("Nombre: "+e.nombre);
+                top250.add("Dirección de Destino: "+e.dirdestino);
+                top250.add("Fecha de Destino: "+e.fechadestino);
+                top250.add("Nombre Receptor: "+e.nombre);
+                //top250.add("Información Adicional: ---");
+                listDataChild.put(listDataHeader.get(tab), top250);
+            }
+        }
+        else
+            return false;
+        return true;
+    }
+
+    /*CLASE PARA CONEXION AL WEB SERVICE*/
+
+    private class AsyncCallWS extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            //Call Web Method
+            String Respuesta = WebService.invokeGetComanda(UserComanda,"Login");
+            String[] parts = Respuesta.split(",");
+            Entrega entrega= new Entrega(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5],parts[6],parts[7],parts[8],UserComanda);
+            datosComanda.add(entrega);
+            try {
+                datos.getDb().beginTransaction();
+                for(int i = 0; i<datosComanda.size();i++){
+                    datos.insertarEntrega(datosComanda.get(i));
+                }
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+
+            }
+            // [QUERIES]
+            Log.d("USER","----------------Obtencion de base de datos");
+            //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
+            DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
+            return null;
+        }
+
+        @Override
+        //Once WebService returns response
+        protected void onPostExecute(Void result) {
+            //Make Progress Bar invisible
+            Intent intObj = new Intent(getContext(), Nav_Principal.class);
+            //Error status is false
+            if(!errored){
+                //Based on Boolean value returned from WebService
+                if(!datosComanda.isEmpty()){
+                    llenarTabs();
+                    //Navigate to Home Screen
+                }else{
+                    //Set Error message
+                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+                }
+                //Error status is true
+            }else{
+                Toast.makeText(getContext(),"Error de conexion al Servidor",Toast.LENGTH_SHORT).show();
+            }
+            //Re-initialize Error Status to False
+            errored = false;
+        }
+
+        @Override
+        //Make Progress Bar visible
+        protected void onPreExecute() {
+            //webservicePG.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+
+    /*TEST DE BASE DE DATOS*/
+    public class obtenerUser extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            // [INSERCIONES]
+            try {
+                datos.getDb().beginTransaction();
+                Cursor cursor =datos.obtenerUser();
+                if (cursor.moveToFirst()) {
+                    UserComanda = cursor.getString(cursor.getColumnIndex("nombre"));
+                }
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+
+            }
+            // [QUERIES]
+            Log.d("USER","----------------Obtencion de base de datos");
+            //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
+            DatabaseUtils.dumpCursor(datos.obtenerApp("F-001"));
+            return null;
+        }
     }
 }
