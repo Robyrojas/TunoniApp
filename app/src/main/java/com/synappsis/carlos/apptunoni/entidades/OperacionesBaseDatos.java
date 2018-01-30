@@ -69,6 +69,7 @@ public class OperacionesBaseDatos {
 
         return db.rawQuery(sql, null);
     }
+
     public Cursor obtenerUser(String Folio) {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
 

@@ -70,8 +70,7 @@ public class ViajesAsignados extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //new obtenerUser().execute();
-        //new AsyncCallWS().execute();
+        new obtenerUser().execute();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -83,18 +82,21 @@ public class ViajesAsignados extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_viajes_asignados, container, false);
+        new AsyncCallWS().execute();
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
         button.setEnabled(true);
         Toast.makeText(getContext(),"Cargando...",Toast.LENGTH_SHORT).show();
-        prepareListData();
+        //prepareListData();
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getContext());
         //new TareaPruebaDatos().execute();
-        listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
-        // setting list adapter
-        listViewVar.setAdapter(listAdapter);
+        if(listDataHeader != null || listDataChild != null) {
+            listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
+            // setting list adapter
+            listViewVar.setAdapter(listAdapter);
+        }
         listViewVar.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
             public void onGroupExpand(int groupPosition) {
@@ -158,6 +160,11 @@ public class ViajesAsignados extends Fragment {
         trans.commit();
     }
 
+    private void refrescar() {
+        listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
+        // setting list adapter
+        listViewVar.setAdapter(listAdapter);
+    }
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -216,8 +223,8 @@ public class ViajesAsignados extends Fragment {
         top250.add("Dirección de Destino: Destino");
         top250.add("Fecha de Destino: #");
         top250.add("Nombre Receptor: Name");
-        top250.add("Información Adicional: ---");
-        top250.add("boton");
+        //top250.add("Información Adicional: ---");
+        //top250.add("boton");
 
         List<String> nowShowing = new ArrayList<String>();
         nowShowing.add("Estatus: En Proceso");
@@ -227,8 +234,8 @@ public class ViajesAsignados extends Fragment {
         nowShowing.add("Dirección de Destino: Destino");
         nowShowing.add("Fecha de Destino: #");
         nowShowing.add("Nombre Receptor: Name");
-        nowShowing.add("Información Adicional: ---");
-        nowShowing.add("boton");
+        //nowShowing.add("Información Adicional: ---");
+        //nowShowing.add("boton");
 
         List<String> comingSoon = new ArrayList<String>();
         comingSoon.add("Estatus: En Proceso");
@@ -238,8 +245,8 @@ public class ViajesAsignados extends Fragment {
         comingSoon.add("Dirección de Destino: Destino");
         comingSoon.add("Fecha de Destino: #");
         comingSoon.add("Nombre Receptor: Name");
-        comingSoon.add("Información Adicional: ---");
-        comingSoon.add("boton");
+        //comingSoon.add("Información Adicional: ---");
+        //comingSoon.add("boton");
 
         listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
         listDataChild.put(listDataHeader.get(1), nowShowing);
@@ -283,15 +290,13 @@ public class ViajesAsignados extends Fragment {
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method
-            String Respuesta = WebService.invokeGetComanda(UserComanda,"Login");
-            String[] parts = Respuesta.split(",");
-            Entrega entrega= new Entrega(parts[0],parts[1],parts[2],parts[3],parts[4],parts[5],parts[6],parts[7],parts[8],UserComanda);
-            datosComanda.add(entrega);
+            Entrega comanda = WebService.invokeGetComanda(UserComanda,"ComandaPendientes");
+            datosComanda.add(comanda);
             try {
                 datos.getDb().beginTransaction();
-                for(int i = 0; i<datosComanda.size();i++){
+                /*for(int i = 0; i<datosComanda.size();i++){
                     datos.insertarEntrega(datosComanda.get(i));
-                }
+                }*/
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
@@ -307,13 +312,12 @@ public class ViajesAsignados extends Fragment {
         @Override
         //Once WebService returns response
         protected void onPostExecute(Void result) {
-            //Make Progress Bar invisible
-            Intent intObj = new Intent(getContext(), Nav_Principal.class);
             //Error status is false
             if(!errored){
                 //Based on Boolean value returned from WebService
                 if(!datosComanda.isEmpty()){
                     llenarTabs();
+                    refrescar();
                     //Navigate to Home Screen
                 }else{
                     //Set Error message
@@ -347,18 +351,17 @@ public class ViajesAsignados extends Fragment {
             try {
                 datos.getDb().beginTransaction();
                 Cursor cursor =datos.obtenerUser();
-                if (cursor.moveToFirst()) {
+                if (cursor.moveToFirst() && cursor!=null) {
                     UserComanda = cursor.getString(cursor.getColumnIndex("nombre"));
                 }
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
-
             }
             // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos");
+            Log.d("USER","----------------Obtencion de base de datos "+ UserComanda);
             //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
-            DatabaseUtils.dumpCursor(datos.obtenerApp("F-001"));
+            //DatabaseUtils.dumpCursor(datos.obtenerApp(UserComanda));
             return null;
         }
     }

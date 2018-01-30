@@ -52,7 +52,7 @@ public class SqlComanda extends SQLiteOpenHelper{
         /*entrega*/
         db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s ( %s TEXT NOT NULL PRIMARY KEY," +//FOLI0
                         "%s TEXT NOT NULL," +//ESTATUS
-                        "%s TEXT NOT NULL," +//DIR0
+                        "%s TEXT," +//DIR0
                         "%s TEXT NOT NULL," +//FECHA
                         "%s TEXT NOT NULL," +//NOMBRE
                         "%s TEXT NOT NULL," +//DRIDE
@@ -78,11 +78,11 @@ public class SqlComanda extends SQLiteOpenHelper{
         ));
         /*producto*/
         db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s ( %s TEXT PRIMARY KEY," +//FOLI0
-                        "%s TEXT NOT NULL," +//FALTANTE
+                        "%s TEXT," +//FALTANTE
                         "%s TEXT NOT NULL," +//CANTIDAD
                         "%s TEXT NOT NULL," +//PRODUCTO
-                        "%s TEXT NOT NULL," +//ESTADO
-                        "%s TEXT NOT NULL," +//user n0mbre
+                        "%s TEXT," +//ESTADO
+                        "%s TEXT," +//user n0mbre
                         "%s TEXT," +//entregafolio
                         "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES
                         ")",
@@ -104,7 +104,7 @@ public class SqlComanda extends SQLiteOpenHelper{
                         "%s TEXT NOT NULL," +//FIRM
                         "%s TEXT NOT NULL," +//c0mentari0
                         "%s TEXT NOT NULL," +//estatus
-                        "%s TEXT NOT NULL," +//USER
+                        "%s TEXT," +//USER
                         "%s TEXT," +//F0LI0
                         "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES
                         ")",

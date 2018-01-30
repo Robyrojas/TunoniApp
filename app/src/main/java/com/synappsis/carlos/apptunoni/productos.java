@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 public class productos extends AppCompatActivity {
     private final String ruta_fotos = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Tunoni/";
@@ -61,6 +62,7 @@ public class productos extends AppCompatActivity {
     int NUM_COLS = 4;
     String[] lista1 = {"Completo","Faltante","No entregado"};
     String[] lista2 = {"Excelente","Regular","Malo"};
+    String[] listaPRO = {"Zanahorias KG","Papas KG","Tortillas KG","Agua LT","Cereal CAJA"};
     TableLayout stk;
     /*Variable firma*/
     String mCurrentSignPath;
@@ -272,17 +274,19 @@ public class productos extends AppCompatActivity {
         tv3.setTextColor(Color.WHITE);
         tbrow0.addView(tv3);
         stk.addView(tbrow0);
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             TableRow tbrow = new TableRow(this);
             //col 1
             TextView t1v = new TextView(this);
-            t1v.setText("Product " + i);
+            t1v.setText(listaPRO[i].toString());
             t1v.setTextColor(Color.BLACK);
             t1v.setGravity(Gravity.CENTER);
             tbrow.addView(t1v);
             //col 2
             TextView t2v = new TextView(this);
-            t2v.setText("" + i);
+            Random rand =null; int max=8, min=1;
+            //int randomNum = rand.nextInt((max - min) + 1) + min;
+            t2v.setText(""+3);
             t2v.setTextColor(Color.BLACK);
             t2v.setGravity(Gravity.CENTER);
             tbrow.addView(t2v);

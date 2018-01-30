@@ -60,13 +60,13 @@ public class MainActivity extends AppCompatActivity {
                         editTextPassword = passWordET.getText().toString();
                         statusTV.setText("");
                         //Create instance for AsyncCallWS
-                        /*AsyncCallWS task = new AsyncCallWS();
+                        AsyncCallWS task = new AsyncCallWS();
                         //Call execute
-                        task.execute();*/
+                        task.execute();
                         //sin web service
-                        Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
+                        /*Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
                         startActivity(intObj);
-                        webservicePG.setVisibility(View.INVISIBLE);
+                        webservicePG.setVisibility(View.INVISIBLE);*/
                     }
                     //If Password text control is empty
                     else{
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method
-            loginStatus = WebService.invokeLoginWS(editTextUsername,editTextPassword,"Login");
+            loginStatus = WebService.invokeLoginWS(editTextUsername,editTextPassword,"LoginApp");
             return null;
         }
 
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 //Error status is true
             }else{
-                statusTV.setText("Error de conexion al Servidor");
+                statusTV.setText("No hay conexión a internet");
             }
             //Re-initialize Error Status to False
             errored = false;

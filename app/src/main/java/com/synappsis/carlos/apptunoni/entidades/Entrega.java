@@ -28,4 +28,5 @@ public class Entrega {
         this.info = info;
         this.usuario_nombre = usuario_nombre;
     }
+    public Entrega(){}
 }
