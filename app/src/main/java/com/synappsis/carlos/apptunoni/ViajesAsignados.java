@@ -52,6 +52,7 @@ public class ViajesAsignados extends Fragment {
     static boolean errored = false;
     private String UserComanda ="";
     ArrayList<Entrega> datosComanda = new ArrayList<Entrega>();
+    String grupotext=null;
 
     public ViajesAsignados() {
         // Required empty public constructor
@@ -70,6 +71,8 @@ public class ViajesAsignados extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        datos = OperacionesBaseDatos
+                .obtenerInstancia(getContext());
         new obtenerUser().execute();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -89,9 +92,7 @@ public class ViajesAsignados extends Fragment {
         button.setEnabled(true);
         Toast.makeText(getContext(),"Cargando...",Toast.LENGTH_SHORT).show();
         //prepareListData();
-        datos = OperacionesBaseDatos
-                .obtenerInstancia(getContext());
-        //new TareaPruebaDatos().execute();
+
         if(listDataHeader != null || listDataChild != null) {
             listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
             // setting list adapter
@@ -132,7 +133,8 @@ public class ViajesAsignados extends Fragment {
                     dialogo1.setCancelable(false);
                     dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogo1, int id) {
-                            String grupotext = listAdapter.getNameGrup(grupActual);
+                            grupotext = listAdapter.getNameGrup(grupActual);
+                            new actualizarStatus().execute();
                             Toast.makeText(getContext(), "Ha seleccionado: "+ grupotext, Toast.LENGTH_SHORT).show();
                             button.setEnabled(false);
                             irEntregaProceso();
@@ -274,7 +276,7 @@ public class ViajesAsignados extends Fragment {
                 top250.add("Nombre: "+e.nombre);
                 top250.add("Dirección de Destino: "+e.dirdestino);
                 top250.add("Fecha de Destino: "+e.fechadestino);
-                top250.add("Nombre Receptor: "+e.nombre);
+                top250.add("Nombre Receptor: "+e.nombrereceptor);
                 //top250.add("Información Adicional: ---");
                 listDataChild.put(listDataHeader.get(tab), top250);
             }
@@ -294,9 +296,10 @@ public class ViajesAsignados extends Fragment {
             datosComanda.add(comanda);
             try {
                 datos.getDb().beginTransaction();
-                /*for(int i = 0; i<datosComanda.size();i++){
-                    datos.insertarEntrega(datosComanda.get(i));
-                }*/
+                for(int i = 0; i<datosComanda.size();i++){
+                    Entrega llenar = datosComanda.get(i);
+                    datos.insertarEntrega(llenar);
+                }
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
@@ -342,7 +345,6 @@ public class ViajesAsignados extends Fragment {
         }
     }
 
-
     /*TEST DE BASE DE DATOS*/
     public class obtenerUser extends AsyncTask<Void, Void, Void> {
         @Override
@@ -350,18 +352,48 @@ public class ViajesAsignados extends Fragment {
             // [INSERCIONES]
             try {
                 datos.getDb().beginTransaction();
+                //int a = 1;
                 Cursor cursor =datos.obtenerUser();
-                if (cursor.moveToFirst() && cursor!=null) {
-                    UserComanda = cursor.getString(cursor.getColumnIndex("nombre"));
+                if(cursor!=null){
+                    if (cursor.moveToFirst()) {
+                        int columna = cursor.getColumnIndex("nombre");
+                        UserComanda = cursor.getString(columna);
+                    }
+                }
+                else{
+                    Log.d("USER","Error algo vacio");
                 }
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
             }
             // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos "+ UserComanda);
-            //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
-            //DatabaseUtils.dumpCursor(datos.obtenerApp(UserComanda));
+            Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
+            return null;
+        }
+    }
+
+    /*TEST DE BASE DE DATOS*/
+    public class actualizarStatus extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            // [INSERCIONES]
+            try {
+                datos.getDb().beginTransaction();
+                //int a = 1;
+                boolean cursor =datos.actualizarApp("Aceptado", grupotext);
+                if(cursor){
+                    Log.d("USER","Se ha actualizado el estado");
+                }
+                else{
+                    Log.d("USER","Error algo vacio");
+                }
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+            }
+            // [QUERIES]
+            Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
             return null;
         }
     }

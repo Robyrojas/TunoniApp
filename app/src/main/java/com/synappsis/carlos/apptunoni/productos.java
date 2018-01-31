@@ -60,7 +60,7 @@ public class productos extends AppCompatActivity {
     private String Folio = "C001-";
     private int bandera = 0;
     int NUM_COLS = 4;
-    String[] lista1 = {"Completo","Faltante","No entregado"};
+    String[] lista1 = {"Completo","Faltante","No Entregado"};
     String[] lista2 = {"Excelente","Regular","Malo"};
     String[] listaPRO = {"Zanahorias KG","Papas KG","Tortillas KG","Agua LT","Cereal CAJA"};
     TableLayout stk;
@@ -253,6 +253,7 @@ public class productos extends AppCompatActivity {
         });
 
     }
+
     public void init(){
         stk = (TableLayout) findViewById(R.id.listTable);
         TableRow tbrow0 = new TableRow(this);
@@ -262,7 +263,7 @@ public class productos extends AppCompatActivity {
         tv0.setTextColor(Color.WHITE);
         tbrow0.addView(tv0);
         TextView tv1 = new TextView(this);
-        tv1.setText(" Cantidad ");
+        tv1.setText(" Unidad ");
         tv1.setTextColor(Color.WHITE);
         tbrow0.addView(tv1);
         TextView tv2 = new TextView(this);
@@ -292,12 +293,12 @@ public class productos extends AppCompatActivity {
             tbrow.addView(t2v);
             //col 3
             Spinner list1 = new Spinner(this);
-            list1.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lista1));
+            list1.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lista2));
             list1.setGravity(Gravity.CENTER_HORIZONTAL);
             tbrow.addView(list1);
             //col 4
             Spinner list2 = new Spinner(this);
-            list2.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lista2));
+            list2.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lista1));
             list2.setGravity(Gravity.CENTER_HORIZONTAL);
             tbrow.addView(list2);
             Log.d("tabla tbrow",""+tbrow.getChildCount());
@@ -326,6 +327,7 @@ public class productos extends AppCompatActivity {
         }
         return res;
     }
+
     private void setSign(){
         int targetW = 300;
         int targetH = 400;

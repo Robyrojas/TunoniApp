@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.synappsis.carlos.apptunoni.entidades.App;
 import com.synappsis.carlos.apptunoni.entidades.Documentos;
 import com.synappsis.carlos.apptunoni.entidades.Entrega;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intObj);
                 }else{
                     //Set Error message
-                    statusTV.setText("Vuelve a intentar, fallo sesión");
+                    statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
                 }
                 //Error status is true
             }else{
@@ -134,22 +135,20 @@ public class MainActivity extends AppCompatActivity {
     public class TareaPruebaDatos extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-
-            // [INSERCIONES]
-            String fechaActual = Calendar.getInstance().getTime().toString();
             try {
                 datos.getDb().beginTransaction();
                 String user=editTextUsername;
                 String pass=editTextPassword;
                 // Inserción USER
-                String cliente1 = datos.insertarUser(new Usuario(user,pass));
+                String cliente1 = datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                String inicio = datos.insertarApp(new App("SF","Sin enviar",null, null));
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
 
             }
             // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos");
+            Log.d("USER","----------------Obtencion de base de datos MAINACTIVITY");
             DatabaseUtils.dumpCursor(datos.obtenerUser());
             return null;
         }

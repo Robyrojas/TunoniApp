@@ -91,7 +91,7 @@ public class WebService {
 
     public static Entrega invokeGetComanda(String UserComanda, String webMethName) {
         //Entrega res = "";
-        UserComanda = "LJ928J";
+        //UserComanda = "LJ928J";
         // Create request
         SoapObject request = new SoapObject(NAMESPACE, webMethName);
         // Property which holds input parameters

@@ -169,7 +169,7 @@ public class EntregaProceso extends Fragment{
             }
         });
         String [] values =
-                {"Selecionar","En Camino","Entregado"};
+                {"Selecionar","En Camino","Entregar"};
         spinnerOpc = (Spinner) v.findViewById(R.id.spinnerList);
         //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, values);
         final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
@@ -212,7 +212,7 @@ public class EntregaProceso extends Fragment{
         spinnerOpc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(spinnerOpc.getSelectedItem().toString().equals("Entregado"))
+                if(spinnerOpc.getSelectedItem().toString().equals("Entregar"))
                 {
                     //enCAMINO = getStatus();
                     if(enCAMINO==1) {
@@ -285,6 +285,7 @@ public class EntregaProceso extends Fragment{
                         LatLngBounds bounds = builder.build();
                         int padding = 100; // offset from edges of the map in pixels
                         CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                        //poner en try
                         googleMap.moveCamera(cu);
                     }
 
