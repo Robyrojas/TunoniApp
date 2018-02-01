@@ -2,8 +2,11 @@ package com.synappsis.carlos.apptunoni;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.design.widget.NavigationView;
@@ -12,14 +15,19 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 
 
 public class Nav_Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, EntregaProceso.OnFragmentInteractionListener, ViajesAsignados.OnFragmentInteractionListener {
     public static Activity firtsA;
+    OperacionesBaseDatos datos = null;
+    int cambiarFragment = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +46,8 @@ public class Nav_Principal extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
+        datos = OperacionesBaseDatos
+                .obtenerInstancia(this);
 
 
     }
@@ -80,15 +89,20 @@ public class Nav_Principal extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         //AQUI PARA BLOQUEAR MENU
+        new obtenerStatus().execute();
         int id = item.getItemId();
         Fragment fragmento = null;
         boolean seleccion = false;
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_camera && cambiarFragment == 1) {
             fragmento = new EntregaProceso();
             seleccion = true;
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_gallery && cambiarFragment==2) {
             fragmento = new ViajesAsignados();
             seleccion=true;
+        }
+        else{
+            Toast.makeText(this, "Continue con el proceso correcto" +cambiarFragment, Toast.LENGTH_SHORT).show();
+            return true;
         }
         if(seleccion)
         {
@@ -106,6 +120,36 @@ public class Nav_Principal extends AppCompatActivity
     }
     public void callParentMethod(){
         this.onBackPressed();
+    }
+
+    /*TEST DE BASE DE DATOS*/
+    public class obtenerStatus extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            // [INSERCIONES]
+            try {
+                datos.getDb().beginTransaction();
+                //int a = 1;
+                Cursor cursor =datos.obtenerEstatus();
+                if(cursor!=null){
+                    if (cursor.moveToFirst()) {
+                        int columna = cursor.getColumnIndex("estatus");
+                        String estado = cursor.getString(columna);
+                        if(estado == "Sin Enviar")
+                            cambiarFragment=0;
+                        else if(estado=="Aceptado")
+                            cambiarFragment=1;
+                        else if(estado=="En Camino")
+                            cambiarFragment=2;
+                    }
+                }
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+            }
+            // [QUERIES]
+            return null;
+        }
     }
 
 }

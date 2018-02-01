@@ -203,6 +203,12 @@ public class OperacionesBaseDatos {
             return false;
         }
     }
+    public Cursor obtenerEstatus() {
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        String query = "select * from " + Tablas.TABLE_APP ;
+        Cursor res = db.rawQuery(query, null);
+        return res;
+    }
 
     public boolean eliminarApp(String folio) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();

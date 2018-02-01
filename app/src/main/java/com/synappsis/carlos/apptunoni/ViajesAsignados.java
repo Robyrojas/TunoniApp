@@ -394,6 +394,7 @@ public class ViajesAsignados extends Fragment {
             }
             // [QUERIES]
             Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
+            DatabaseUtils.dumpCursor(datos.obtenerApp(grupotext));
             return null;
         }
     }
