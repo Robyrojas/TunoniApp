@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
             // [QUERIES]
             Log.d("USER","----------------Obtencion de base de datos MAINACTIVITY");
             DatabaseUtils.dumpCursor(datos.obtenerUser());
-            //DatabaseUtils.dumpCursor(datos.obtenerApp());
+            DatabaseUtils.dumpCursor(datos.obtenerApp());
             return null;
         }
     }

@@ -89,21 +89,31 @@ public class Nav_Principal extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         //AQUI PARA BLOQUEAR MENU
-        new obtenerStatus().execute();
+        consultar();
         int id = item.getItemId();
         Fragment fragmento = null;
         boolean seleccion = false;
-        if (id == R.id.nav_camera && cambiarFragment == 1) {
-            fragmento = new EntregaProceso();
-            seleccion = true;
-        } else if (id == R.id.nav_gallery && cambiarFragment==2) {
-            fragmento = new ViajesAsignados();
-            seleccion=true;
+        if(cambiarFragment != 0){
+            if(cambiarFragment == 1){
+                if (id == R.id.nav_camera) {
+                    fragmento = new EntregaProceso();
+                    seleccion = true;
+                } else if (id == R.id.nav_gallery) {
+                    fragmento = new ViajesAsignados();
+                    seleccion=true;
+                }
+            }else{
+                Toast.makeText(this, "Proceso de entrega en camino", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
         }
-        else{
-            Toast.makeText(this, "Continue con el proceso correcto" +cambiarFragment, Toast.LENGTH_SHORT).show();
-            return true;
+        else
+        {
+            Toast.makeText(this, "El proceso aún no esta terminado", Toast.LENGTH_SHORT).show();
+            return false;
         }
+
         if(seleccion)
         {
             getSupportFragmentManager().beginTransaction().replace(R.id.Contenedor,fragmento).commit();
@@ -114,12 +124,35 @@ public class Nav_Principal extends AppCompatActivity
         return true;
     }
 
+    private void consultar() {
+        try {
+            datos.getDb().beginTransaction();
+            //int a = 1;
+            Cursor cursor =datos.obtenerEstatus();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("estatus");
+                    String estado = cursor.getString(columna);
+                    Log.d("QUERY", "Termine task:" +estado);
+                    if(estado.equals("Sin Enviar"))
+                        cambiarFragment=0;
+                    else if(estado.equals("Aceptado"))
+                        cambiarFragment=1;
+                    else if(estado.equals("En Camino"))
+                        cambiarFragment=2;
+                }
+            }
+            datos.getDb().setTransactionSuccessful();
+            Log.d("QUERY", "Termine task:" +cambiarFragment);
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        return;
+    }
+
     @Override
     public void onFragmentInteraction(Uri uri) {
 
-    }
-    public void callParentMethod(){
-        this.onBackPressed();
     }
 
     /*TEST DE BASE DE DATOS*/
@@ -144,6 +177,7 @@ public class Nav_Principal extends AppCompatActivity
                     }
                 }
                 datos.getDb().setTransactionSuccessful();
+                Log.d("QUERY", "Termine task:" +cambiarFragment);
             } finally {
                 datos.getDb().endTransaction();
             }

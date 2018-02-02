@@ -4,6 +4,8 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -36,6 +38,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -75,7 +78,6 @@ public class EntregaProceso extends Fragment{
     private SoapObject request=null;
     private SoapSerializationEnvelope envelope=null;
     private SoapPrimitive resultsRequestSOAP=null;
-    TextView text;
     private OnFragmentInteractionListener mListener;
     private GoogleMap mapa;
     private Marker mMarcadorActual1;
@@ -83,6 +85,8 @@ public class EntregaProceso extends Fragment{
     private SupportMapFragment mSupportMapFragment;
     Spinner spinnerOpc;
     int enCAMINO=0;
+    OperacionesBaseDatos datos = null;
+    private String UserComanda;
 
     public EntregaProceso() {
         // Required empty public constructor
@@ -112,6 +116,8 @@ public class EntregaProceso extends Fragment{
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        datos = OperacionesBaseDatos
+                .obtenerInstancia(getContext());
         new CallWebService().execute("1");
 
     }
@@ -214,7 +220,6 @@ public class EntregaProceso extends Fragment{
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(spinnerOpc.getSelectedItem().toString().equals("Entregar"))
                 {
-                    //enCAMINO = getStatus();
                     if(enCAMINO==1) {
                         createAndShowAlertDialog();
                     }
@@ -228,6 +233,7 @@ public class EntregaProceso extends Fragment{
                     //enCAMINO = getStatus();
                     if(enCAMINO==0)
                     {
+                        actualizarStatus();
                         Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
                         enCAMINO = 1;
                     }
@@ -274,19 +280,17 @@ public class EntregaProceso extends Fragment{
                         LatLng destino = new LatLng(19.026809, -98.178635);
                         mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
                         mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
-                        //CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(15.0f).build();
-                        //CameraUpdate cameraUpdate = CameraUpdateFactory.newCameraPosition(cameraPosition);
-                        //mapa.moveCamera(cameraUpdate);
-                        //mapa.moveCamera(CameraUpdateFactory.newLatLng(origen));
-                        // Move the camera instantly to Sydney with a zoom of 15.
                         LatLngBounds.Builder builder = new LatLngBounds.Builder();
                         builder.include(mMarcadorActual1.getPosition());
                         builder.include(mMarcadorActual2.getPosition());
                         LatLngBounds bounds = builder.build();
                         int padding = 100; // offset from edges of the map in pixels
-                        CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
-                        //poner en try
-                        googleMap.moveCamera(cu);
+                        try {
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            googleMap.moveCamera(cu);
+                        }catch (Exception e) {
+                            Toast.makeText(getContext(), "Error al cargar el Mapa sin acceso a internet", Toast.LENGTH_SHORT).show();
+                        }
                     }
 
                 }
@@ -294,6 +298,38 @@ public class EntregaProceso extends Fragment{
         }
 
         return v;
+    }
+
+    private void actualizarStatus() {
+        try {
+            Log.e(tag, "Actualizar");
+            datos.getDb().beginTransaction();
+            //int a = 1;
+            Cursor cursor =datos.obtenerEstatus();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("folio");
+                    UserComanda = cursor.getString(columna);
+                }
+                Log.e(tag, "user: "+UserComanda);
+                Cursor cursor2 =datos.actualizarStatus("En Camino", UserComanda);
+                if(cursor2!=null){Log.e(tag, "Si hay actualizar estado");
+                    if (cursor2.moveToFirst()) {
+                        int columna = cursor2.getColumnIndex("folio");
+                        String estado = cursor2.getString(columna);
+                        Log.d("QUERY", estado);
+                    }
+                }
+                else{Log.d("QUERY", "Error en query 2");}
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {Log.e(tag, "errororororororororor");
+            datos.getDb().endTransaction();
+        }
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
 
     // TODO: Rename method, update argument and hook method into UI event

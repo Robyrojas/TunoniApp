@@ -30,7 +30,6 @@ public class WebService {
     //
     static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-
     public static boolean invokeLoginWS(String userName,String passWord, String webMethName) {
         boolean loginStatus = false;
         // Create request
@@ -64,7 +63,6 @@ public class WebService {
 
         try {
             // Invoke web service
-            Log.d("S0AP",SOAP_ACTION+webMethName+"");
             androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
             // Get the response
             SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
@@ -90,8 +88,6 @@ public class WebService {
     }
 
     public static Entrega invokeGetComanda(String UserComanda, String webMethName) {
-        //Entrega res = "";
-        //UserComanda = "LJ928J";
         // Create request
         SoapObject request = new SoapObject(NAMESPACE, webMethName);
         // Property which holds input parameters

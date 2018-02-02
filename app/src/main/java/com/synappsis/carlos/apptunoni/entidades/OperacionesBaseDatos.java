@@ -191,18 +191,38 @@ public class OperacionesBaseDatos {
         Cursor res = db.rawQuery(query, new String[]{folio});
         return res;
     }
-
-    public boolean actualizarApp(String status, String Folio){
+    public Cursor obtenerApp() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
+        String query = "select * from " + Tablas.TABLE_APP ;
+        Cursor res = db.rawQuery(query, null);
+        return res;
+    }
+    public Cursor actualizarFolio(String Folio){
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        Cursor res =null;
         try{
-            String query = "UPDATE " + Tablas.TABLE_APP + "Set estatus = '"+ status +"' WHERE usuario_nombre=?";
-            Cursor res = db.rawQuery(query, new String[]{Folio});
-            Log.d("QUERY", res.toString());
-            return true;
+            String query = "UPDATE " + Tablas.TABLE_APP + " SET folio = '"+ Folio +"' WHERE estatus='Sin enviar'";
+            Log.d("QUERY", query);
+            res = db.rawQuery(query, null);
+            return res;
         }catch (Exception e){
-            return false;
+            return res;
         }
     }
+
+    public Cursor actualizarStatus(String status, String Folioactual){
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        Cursor res =null;
+        try{
+            String query = "UPDATE " + Tablas.TABLE_APP + " SET estatus = '"+ status +"' WHERE folio = '"+Folioactual+"'";
+            Log.d("QUERY", query);
+            res = db.rawQuery(query, null);
+            return res;
+        }catch (Exception e){
+            return res;
+        }
+    }
+
     public Cursor obtenerEstatus() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         String query = "select * from " + Tablas.TABLE_APP ;

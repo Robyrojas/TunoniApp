@@ -381,20 +381,31 @@ public class ViajesAsignados extends Fragment {
             try {
                 datos.getDb().beginTransaction();
                 //int a = 1;
-                boolean cursor =datos.actualizarApp("Aceptado", grupotext);
-                if(cursor){
-                    Log.d("USER","Se ha actualizado el estado");
+                Cursor cursor =datos.actualizarFolio(grupotext);
+                if(cursor!=null){
+                    if (cursor.moveToFirst()) {
+                        int columna = cursor.getColumnIndex("folio");
+                        String estado = cursor.getString(columna);
+                        Log.d("QUERY", estado);
+                    }
                 }
-                else{
-                    Log.d("USER","Error algo vacio");
+                else{Log.d("QUERY", "Error en query 1");}
+                Cursor cursor2 =datos.actualizarStatus("Aceptado", grupotext);
+                if(cursor2!=null){
+                    if (cursor2.moveToFirst()) {
+                        int columna = cursor2.getColumnIndex("folio");
+                        String estado = cursor2.getString(columna);
+                        Log.d("QUERY", estado);
+                    }
                 }
+                else{Log.d("QUERY", "Error en query 2");}
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
             }
             // [QUERIES]
             Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
-            DatabaseUtils.dumpCursor(datos.obtenerApp(grupotext));
+            DatabaseUtils.dumpCursor(datos.obtenerApp());
             return null;
         }
     }
