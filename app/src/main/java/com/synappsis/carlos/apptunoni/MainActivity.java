@@ -1,6 +1,7 @@
 package com.synappsis.carlos.apptunoni;
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -13,10 +14,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.synappsis.carlos.apptunoni.entidades.App;
-import com.synappsis.carlos.apptunoni.entidades.Documentos;
-import com.synappsis.carlos.apptunoni.entidades.Entrega;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
-import com.synappsis.carlos.apptunoni.entidades.Producto;
 import com.synappsis.carlos.apptunoni.entidades.Usuario;
 
 import org.ksoap2.SoapEnvelope;
@@ -25,7 +23,6 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import java.util.Calendar;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -39,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     boolean loginStatus;
     String editTextPassword;
     OperacionesBaseDatos datos = null;
+    String ESTATUS = "";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,7 +104,12 @@ public class MainActivity extends AppCompatActivity {
                 //Based on Boolean value returned from WebService
                 if(loginStatus){
                     //Navigate to Home Screen
-                    new TareaPruebaDatos().execute();
+                    //Navigate to Home Screen
+                    boolean pantalla = obtenerEstado();
+                    if (pantalla)
+                        intObj = new Intent(MainActivity.this, productos.class);
+                    else
+                        new TareaPruebaDatos().execute();
                     startActivity(intObj);
                 }else{
                     //Set Error message
@@ -129,6 +132,37 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Void... values) {
         }
+    }
+
+    private boolean obtenerEstado() {
+        boolean resStatus = false;
+        try {
+            Log.e("ESTAD0", "Actualizar");
+            datos.getDb().beginTransaction();
+            Cursor cursor =datos.obtenerApp();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("estatus");
+                    ESTATUS = cursor.getString(columna);
+                }
+                Log.e("ESTAD0", "ESTATUS: "+ESTATUS);
+                if(ESTATUS.equals("Entregando")){
+                    resStatus = true;
+                }
+                else{
+                    resStatus=false;
+                }
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+                resStatus=false;
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+        return resStatus;
     }
 
     /*TEST DE BASE DE DATOS*/

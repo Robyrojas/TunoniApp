@@ -221,6 +221,7 @@ public class EntregaProceso extends Fragment{
                 if(spinnerOpc.getSelectedItem().toString().equals("Entregar"))
                 {
                     if(enCAMINO==1) {
+                        actualizarStatus("Entregando");
                         createAndShowAlertDialog();
                     }
                     else{
@@ -233,7 +234,7 @@ public class EntregaProceso extends Fragment{
                     //enCAMINO = getStatus();
                     if(enCAMINO==0)
                     {
-                        actualizarStatus();
+                        actualizarStatus("En Camino");
                         Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
                         enCAMINO = 1;
                     }
@@ -300,7 +301,7 @@ public class EntregaProceso extends Fragment{
         return v;
     }
 
-    private void actualizarStatus() {
+    private void actualizarStatus(String statusNew) {
         try {
             Log.e(tag, "Actualizar");
             datos.getDb().beginTransaction();
@@ -312,7 +313,7 @@ public class EntregaProceso extends Fragment{
                     UserComanda = cursor.getString(columna);
                 }
                 Log.e(tag, "user: "+UserComanda);
-                Cursor cursor2 =datos.actualizarStatus("En Camino", UserComanda);
+                Cursor cursor2 =datos.actualizarStatus(statusNew, UserComanda);
                 if(cursor2!=null){Log.e(tag, "Si hay actualizar estado");
                     if (cursor2.moveToFirst()) {
                         int columna = cursor2.getColumnIndex("folio");
@@ -326,7 +327,7 @@ public class EntregaProceso extends Fragment{
                 Log.d("USER","Error algo vacio");
             }
             datos.getDb().setTransactionSuccessful();
-        } finally {Log.e(tag, "errororororororororor");
+        } finally {
             datos.getDb().endTransaction();
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
@@ -347,6 +348,7 @@ public class EntregaProceso extends Fragment{
                 //TODO
                 Log.e(tag, "SI");
                 dialog.dismiss();
+                //actualizarStatus();
                 Intent intent =  new Intent(getActivity(), productos.class);
                 startActivity(intent);
                 getActivity().finish();
