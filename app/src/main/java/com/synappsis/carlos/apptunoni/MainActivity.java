@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.synappsis.carlos.apptunoni.entidades.App;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
@@ -104,20 +105,37 @@ public class MainActivity extends AppCompatActivity {
                 //Based on Boolean value returned from WebService
                 if(loginStatus){
                     //Navigate to Home Screen
-                    //Navigate to Home Screen
-                    boolean pantalla = obtenerEstado();
-                    if (pantalla)
+                    String pantalla = obtenerEstado();
+                    if (pantalla.equals("Entregando"))
                         intObj = new Intent(MainActivity.this, productos.class);
                     else
                         new TareaPruebaDatos().execute();
-                    startActivity(intObj);
+                        startActivity(intObj);
                 }else{
                     //Set Error message
                     statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
                 }
                 //Error status is true
             }else{
-                statusTV.setText("No hay conexión a internet");
+                String base=obtenerUSER();
+                if(!base.equals("Error")) {
+                    String[] parts = base.split(",");
+                    if (editTextUsername.equals(parts[0]) && editTextPassword.equals(parts[1])) {
+                        String ESTADO = obtenerEstado();
+                        if (ESTADO.equals("Entregando")) {
+                            startActivity(new Intent(MainActivity.this, productos.class));
+                        } else if (ESTADO.equals("En Camino")) {
+                            startActivity(new Intent(MainActivity.this, Nav_Principal.class));
+                        } else {
+                            statusTV.setText("No hay conexión a internet");
+                        }
+                    } else {
+                        statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
+                    }
+                }else{
+                    //Set Error message
+                    statusTV.setText("No hay conexión a internet");
+                }
             }
             //Re-initialize Error Status to False
             errored = false;
@@ -134,8 +152,36 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean obtenerEstado() {
-        boolean resStatus = false;
+    private String obtenerUSER() {
+        String resStatus = "";
+        String u1="", p1="";
+        try {
+            Log.e("ESTAD0", "entre a user");
+            datos.getDb().beginTransaction();
+            Cursor cursor =datos.obtenerUser();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("nombre");
+                    u1 = cursor.getString(columna);
+                    columna = cursor.getColumnIndex("pass");
+                    p1 = cursor.getString(columna);
+                }
+                resStatus = u1+","+p1;
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+                resStatus="Error";
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        Log.e("ESTAD0", resStatus);
+        return resStatus;
+    }
+
+    private String obtenerEstado() {
+        String resStatus = "";
         try {
             Log.e("ESTAD0", "Actualizar");
             datos.getDb().beginTransaction();
@@ -146,16 +192,11 @@ public class MainActivity extends AppCompatActivity {
                     ESTATUS = cursor.getString(columna);
                 }
                 Log.e("ESTAD0", "ESTATUS: "+ESTATUS);
-                if(ESTATUS.equals("Entregando")){
-                    resStatus = true;
-                }
-                else{
-                    resStatus=false;
-                }
+                resStatus = ESTATUS;
             }
             else{
                 Log.d("USER","Error algo vacio");
-                resStatus=false;
+                resStatus="Error";
             }
             datos.getDb().setTransactionSuccessful();
         } finally {

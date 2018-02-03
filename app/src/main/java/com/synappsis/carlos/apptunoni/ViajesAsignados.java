@@ -53,6 +53,7 @@ public class ViajesAsignados extends Fragment {
     private String UserComanda ="";
     ArrayList<Entrega> datosComanda = new ArrayList<Entrega>();
     String grupotext=null;
+    String vistaSave=null;
 
     public ViajesAsignados() {
         // Required empty public constructor
@@ -89,8 +90,23 @@ public class ViajesAsignados extends Fragment {
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
-        button.setEnabled(true);
-        Toast.makeText(getContext(),"Cargando...",Toast.LENGTH_SHORT).show();
+        vistaSave = obtenerEstado();
+        if(vistaSave.equals("Aceptado")) {
+            button.setEnabled(false);
+            Cursor folio = datos.obtenerApp();
+            String folioString = "";
+            if(folio!=null){
+                if (folio.moveToFirst()) {
+                    int columna = folio.getColumnIndex("folio");
+                    folioString = folio.getString(columna);
+                }
+                Log.e("ESTAD0", "folio: "+folioString);
+            }
+            Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
+        }else {
+            button.setEnabled(true);
+            Toast.makeText(getContext(), "Cargando...", Toast.LENGTH_SHORT).show();
+        }
         //prepareListData();
 
         if(listDataHeader != null || listDataChild != null) {
@@ -398,5 +414,31 @@ public class ViajesAsignados extends Fragment {
             DatabaseUtils.dumpCursor(datos.obtenerApp());
             return null;
         }
+    }
+
+    private String obtenerEstado() {
+        String resStatus = "";
+        try {
+            Log.e("ESTAD0", "Actualizar");
+            datos.getDb().beginTransaction();
+            Cursor cursor =datos.obtenerApp();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("estatus");
+                    vistaSave = cursor.getString(columna);
+                }
+                Log.e("ESTAD0", "ESTATUS: "+vistaSave);
+                resStatus = vistaSave;
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+                resStatus="Error";
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+        return resStatus;
     }
 }

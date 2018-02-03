@@ -4,16 +4,21 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Color;
+import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -47,7 +52,6 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
-
 
 /**
  * A simple {@link Fragment} subclass.
@@ -87,18 +91,11 @@ public class EntregaProceso extends Fragment{
     int enCAMINO=0;
     OperacionesBaseDatos datos = null;
     private String UserComanda;
+    String vistaSave=null;
 
     public EntregaProceso() {
         // Required empty public constructor
     }
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment EntregaProceso.
-     */
     // TODO: Rename and change types and number of parameters
     public static EntregaProceso newInstance(String param1, String param2) {
         EntregaProceso fragment = new EntregaProceso();
@@ -212,16 +209,28 @@ public class EntregaProceso extends Fragment{
                 return view;
             }
         };
-
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinnerOpc.setAdapter(spinnerArrayAdapter);
+        vistaSave = obtenerEstado();
+        if(vistaSave.equals("En Camino")) {
+            spinnerOpc.setSelection(1);
+            Cursor folio = datos.obtenerApp();
+            String folioString = "";
+            if(folio!=null){
+                if (folio.moveToFirst()) {
+                    int columna = folio.getColumnIndex("folio");
+                    folioString = folio.getString(columna);
+                }
+                Log.e("ESTAD0", "folio: "+folioString);
+            }
+            Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
+        }
         spinnerOpc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 if(spinnerOpc.getSelectedItem().toString().equals("Entregar"))
                 {
                     if(enCAMINO==1) {
-                        actualizarStatus("Entregando");
                         createAndShowAlertDialog();
                     }
                     else{
@@ -277,6 +286,15 @@ public class EntregaProceso extends Fragment{
                         mapa.getUiSettings().setAllGesturesEnabled(true);
                         mapa.getUiSettings().setZoomControlsEnabled(true);
                         //LatLng sydney = new LatLng(-33.87365, 151.20689);
+                        mapa.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener()
+                        {
+                            @Override
+                            public void onMyLocationChange(Location arg0) {
+                                // TODO Auto-generated method stub
+
+                                mapa.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude())).title("It's Me!"));
+                            }
+                        });
                         LatLng origen = new LatLng(19.430464, -99.135046);
                         LatLng destino = new LatLng(19.026809, -98.178635);
                         mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
@@ -285,11 +303,15 @@ public class EntregaProceso extends Fragment{
                         builder.include(mMarcadorActual1.getPosition());
                         builder.include(mMarcadorActual2.getPosition());
                         LatLngBounds bounds = builder.build();
+
+                        int width = getResources().getDisplayMetrics().widthPixels;
+                        int height = getResources().getDisplayMetrics().heightPixels;
                         int padding = 100; // offset from edges of the map in pixels
                         try {
-                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,width,height, padding);
                             googleMap.moveCamera(cu);
                         }catch (Exception e) {
+                            Log.e("Error",e.getMessage().toString());
                             Toast.makeText(getContext(), "Error al cargar el Mapa sin acceso a internet", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -299,6 +321,34 @@ public class EntregaProceso extends Fragment{
         }
 
         return v;
+    }
+
+
+
+    private String obtenerEstado() {
+        String resStatus = "";
+        try {
+            Log.e("ESTAD0", "obtener estado");
+            datos.getDb().beginTransaction();
+            Cursor cursor =datos.obtenerApp();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("estatus");
+                    vistaSave = cursor.getString(columna);
+                }
+                Log.e("ESTAD0", "ESTATUS: "+vistaSave);
+                resStatus = vistaSave;
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+                resStatus="Error";
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+        return resStatus;
     }
 
     private void actualizarStatus(String statusNew) {
@@ -347,8 +397,8 @@ public class EntregaProceso extends Fragment{
             public void onClick(DialogInterface dialog, int id) {
                 //TODO
                 Log.e(tag, "SI");
+                actualizarStatus("Entregando");
                 dialog.dismiss();
-                //actualizarStatus();
                 Intent intent =  new Intent(getActivity(), productos.class);
                 startActivity(intent);
                 getActivity().finish();

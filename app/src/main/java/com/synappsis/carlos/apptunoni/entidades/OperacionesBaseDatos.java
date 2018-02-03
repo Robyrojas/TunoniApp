@@ -191,12 +191,14 @@ public class OperacionesBaseDatos {
         Cursor res = db.rawQuery(query, new String[]{folio});
         return res;
     }
+
     public Cursor obtenerApp() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         String query = "select * from " + Tablas.TABLE_APP ;
         Cursor res = db.rawQuery(query, null);
         return res;
     }
+
     public Cursor actualizarFolio(String Folio){
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         Cursor res =null;
