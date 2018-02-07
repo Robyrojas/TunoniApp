@@ -136,6 +136,13 @@ public class OperacionesBaseDatos {
         return res;
     }
 
+    public Cursor obtenerEntregas() {
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        String query = "select * from " + Tablas.TABLE_ENTREGA + "";
+        Cursor res = db.rawQuery(query, null);
+        return res;
+    }
+
     public boolean eliminarEntregas(String idProducto) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
 
@@ -369,6 +376,19 @@ public class OperacionesBaseDatos {
     }
     /*FIN DOCUMENTOS*/
 
+    public void borrar(String tabla){
+        SQLiteDatabase db = baseDatos.getWritableDatabase();
+        String sql = String.format("DELETE FROM %s", tabla);
+        db.execSQL(sql);
+        //db.execSQL("PRAGMA foreign_keys=1");
+    }
+
+    public Cursor verTablas(){
+        SQLiteDatabase db = baseDatos.getWritableDatabase();
+        String query = "SELECT * FROM sqlite_master where type='table'";
+        Cursor res = db.rawQuery(query, null);
+        return res;
+    }
 
     public SQLiteDatabase getDb() {
         return baseDatos.getWritableDatabase();

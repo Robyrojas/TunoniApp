@@ -226,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("USER","----------------Obtencion de base de datos MAINACTIVITY");
             DatabaseUtils.dumpCursor(datos.obtenerUser());
             DatabaseUtils.dumpCursor(datos.obtenerApp());
+
             return null;
         }
     }

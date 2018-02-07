@@ -4,6 +4,8 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -31,6 +33,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,6 +44,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.StringTokenizer;
 
 public class productos extends AppCompatActivity {
     private final String ruta_fotos = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Tunoni/";
@@ -66,6 +71,7 @@ public class productos extends AppCompatActivity {
     TableLayout stk;
     /*Variable firma*/
     String mCurrentSignPath;
+    OperacionesBaseDatos datos = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +79,8 @@ public class productos extends AppCompatActivity {
         setContentView(R.layout.activity_productos);
         list = new ArrayList<String>();
         init();
+        datos = OperacionesBaseDatos
+                .obtenerInstancia(getApplicationContext());
         /*final Tabla tabla = new Tabla(this, (TableLayout)findViewById(R.id.listTable));
         tabla.agregarCabecera(R.array.cabecera_tabla);
         for(int i = 0; i < 15; i++)
@@ -107,6 +115,7 @@ public class productos extends AppCompatActivity {
                                 if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
                                 {
                                     Toast.makeText(getApplicationContext(),"Enviando Captura",Toast.LENGTH_SHORT).show();
+                                    borrarBase();
                                     dialog.dismiss();
                                     finish();
                                 }
@@ -253,7 +262,34 @@ public class productos extends AppCompatActivity {
         });
 
     }
-
+    public void borrarBase(){
+        datos.getDb().beginTransaction();
+        datos.borrar("App");
+        datos.borrar("Producto");
+        datos.borrar("Documentos");
+        datos.borrar("Entrega");
+        datos.borrar("Usuario");
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+        DatabaseUtils.dumpCursor(datos.obtenerUser());
+        Cursor cursor =datos.obtenerApp();
+        String hola =null;
+        if(cursor!=null){
+            if (cursor.moveToFirst()) {
+                int columna = cursor.getColumnIndex("estatus");
+                hola = cursor.getString(columna);
+            }
+            Log.e("ESTAD0", "BORRAR: "+hola);
+        }
+        cursor =datos.obtenerUser();
+        String hola1 =null;
+        if(cursor!=null){
+            if (cursor.moveToFirst()) {
+                int columna = cursor.getColumnIndex("nonbre");
+                hola1 = cursor.getString(columna);
+            }
+            Log.e("ESTAD0", "BORRAR-U: "+hola1);
+        }
+    }
     public void init(){
         stk = (TableLayout) findViewById(R.id.listTable);
         TableRow tbrow0 = new TableRow(this);
