@@ -78,9 +78,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        getApplicationContext().deleteDatabase("pedidos.db");
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getApplicationContext());
+        DatabaseUtils.dumpCursor(datos.obtenerUser());
 
     }
 
@@ -119,18 +119,23 @@ public class MainActivity extends AppCompatActivity {
             }else{
                 String base=obtenerUSER();
                 if(!base.equals("Error")) {
-                    String[] parts = base.split(",");
-                    if (editTextUsername.equals(parts[0]) && editTextPassword.equals(parts[1])) {
-                        String ESTADO = obtenerEstado();
-                        if (ESTADO.equals("Entregando")) {
-                            startActivity(new Intent(MainActivity.this, productos.class));
-                        } else if (ESTADO.equals("En Camino")) {
-                            startActivity(new Intent(MainActivity.this, Nav_Principal.class));
-                        } else {
-                            statusTV.setText("No hay conexión a internet");
-                        }
-                    } else {
-                        statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
+                    String ESTADO = obtenerEstado();
+                    if(!ESTADO.equals("Error")) {
+                        String[] parts = base.split(",");
+                            if (editTextUsername.equals(parts[0]) && editTextPassword.equals(parts[1])) {
+                                if (ESTADO.equals("Entregando")) {
+                                    startActivity(new Intent(MainActivity.this, productos.class));
+                                } else if (ESTADO.equals("En Camino")) {
+                                    startActivity(new Intent(MainActivity.this, Nav_Principal.class));
+                                } else {
+                                    statusTV.setText("No hay conexión a internet");
+                                }
+                            } else {
+                                statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
+                            }
+                    }else{
+                        //Set Error message
+                        statusTV.setText("No hay conexión a internet");
                     }
                 }else{
                     //Set Error message
@@ -166,7 +171,10 @@ public class MainActivity extends AppCompatActivity {
                     columna = cursor.getColumnIndex("pass");
                     p1 = cursor.getString(columna);
                 }
-                resStatus = u1+","+p1;
+                if(!u1.isEmpty() && !p1.isEmpty())
+                    resStatus = u1+","+p1;
+                else
+                    resStatus="Error";
             }
             else{
                 Log.d("USER","Error algo vacio");
@@ -192,7 +200,10 @@ public class MainActivity extends AppCompatActivity {
                     ESTATUS = cursor.getString(columna);
                 }
                 Log.e("ESTAD0", "ESTATUS: "+ESTATUS);
-                resStatus = ESTATUS;
+                if(!ESTATUS.isEmpty())
+                    resStatus = ESTATUS;
+                else
+                    resStatus="Error";
             }
             else{
                 Log.d("USER","Error algo vacio");
@@ -215,7 +226,29 @@ public class MainActivity extends AppCompatActivity {
                 String user=editTextUsername;
                 String pass=editTextPassword;
                 // Inserción USER
-                String cliente1 = datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                String vistaSave="", resStatus="";
+                Cursor cursor= datos.obtenerUser();
+                if(cursor!=null){
+                    if (cursor.moveToFirst()) {
+                        int columna = cursor.getColumnIndex("nombre");
+                        vistaSave = cursor.getString(columna);
+                    }
+                    if(vistaSave!=null){
+                        if(!vistaSave.isEmpty()){
+                            if(vistaSave.equals(user))
+                                datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                            else{
+                                boolean valu = datos.eliminarUser(vistaSave);
+                                if(valu)
+                                    datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                            }
+                        }else{
+                            datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                        }
+                    }else{
+                        datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                    }
+                }
                 String inicio = datos.insertarApp(new App("SF","Sin enviar",null, null));
                 datos.getDb().setTransactionSuccessful();
             } finally {

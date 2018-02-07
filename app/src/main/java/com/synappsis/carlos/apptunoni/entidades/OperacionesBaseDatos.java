@@ -28,6 +28,7 @@ public class OperacionesBaseDatos {
         }
         return instancia;
     }
+
     /*USUARIOS*/
     public String insertarUser(Usuario user) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
@@ -75,12 +76,9 @@ public class OperacionesBaseDatos {
 
     public boolean eliminarUser(String idProducto) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
-
         String whereClause = String.format("%s=?", Comanda.Usuario.NOMBRE);
         String[] whereArgs = {idProducto};
-
         int resultado = db.delete(Tablas.TABLE_USUARIO, whereClause, whereArgs);
-
         return resultado > 0;
     }
     /*FIN USUARIOS*/
@@ -388,6 +386,10 @@ public class OperacionesBaseDatos {
         String query = "SELECT * FROM sqlite_master where type='table'";
         Cursor res = db.rawQuery(query, null);
         return res;
+    }
+
+    public boolean deleteALL(Context ct){
+        return baseDatos.deleteDatabase(ct);
     }
 
     public SQLiteDatabase getDb() {

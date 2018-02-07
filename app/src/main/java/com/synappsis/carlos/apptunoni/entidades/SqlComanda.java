@@ -130,6 +130,9 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.App.ACTUALIZAR
         ));
     }
+    public static boolean deleteDatabase(Context mContext) {
+        return mContext.deleteDatabase(NOMBRE_BASE_DATOS);
+    }
     @Override
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);

@@ -118,7 +118,9 @@ public class WebService {
         // Set output SOAP object
         envelope.setOutputSoapObject(request);
         // Create HTTP call object
+        int Timeout = 10000;
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+
         Entrega entrega = new Entrega();
         try {
             // Invoke web service
@@ -127,16 +129,17 @@ public class WebService {
             // Get the response
             //SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
             SoapObject resSoap =(SoapObject)envelope.getResponse();
-            entrega.folio = resSoap.getProperty(0).toString();
-            entrega.estatus = resSoap.getProperty(1).toString();
-            entrega.fechadestino = resSoap.getProperty(2).toString();
-            entrega.fechaorigen = resSoap.getProperty(3).toString();
-            entrega.nombre = resSoap.getProperty(4).toString();
-            entrega.dirdestino = resSoap.getProperty(5).toString();
-            entrega.nombrereceptor = resSoap.getProperty(6).toString();
-            entrega.info = resSoap.getProperty(7).toString();
-            entrega.usuario_nombre = UserComanda;
-
+            if(resSoap!=null) {
+                entrega.folio = resSoap.getProperty(0).toString();
+                entrega.estatus = resSoap.getProperty(1).toString();
+                entrega.fechadestino = resSoap.getProperty(2).toString();
+                entrega.fechaorigen = resSoap.getProperty(3).toString();
+                entrega.nombre = resSoap.getProperty(4).toString();
+                entrega.dirdestino = resSoap.getProperty(5).toString();
+                entrega.nombrereceptor = resSoap.getProperty(6).toString();
+                entrega.info = resSoap.getProperty(7).toString();
+                entrega.usuario_nombre = UserComanda;
+            }
         } catch (Exception e) {
             //Assign Error Status true in static variable 'errored'
             MainActivity.errored = true;

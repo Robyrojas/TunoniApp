@@ -291,7 +291,6 @@ public class EntregaProceso extends Fragment{
                             @Override
                             public void onMyLocationChange(Location arg0) {
                                 // TODO Auto-generated method stub
-
                                 mapa.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude())).title("It's Me!"));
                             }
                         });
@@ -337,7 +336,10 @@ public class EntregaProceso extends Fragment{
                     vistaSave = cursor.getString(columna);
                 }
                 Log.e("ESTAD0", "ESTATUS: "+vistaSave);
-                resStatus = vistaSave;
+                if(!vistaSave.isEmpty())
+                    resStatus = vistaSave;
+                else
+                    resStatus="Error";
             }
             else{
                 Log.d("USER","Error algo vacio");

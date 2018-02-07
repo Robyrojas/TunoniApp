@@ -302,9 +302,11 @@ public class ViajesAsignados extends Fragment {
             datosComanda.add(comanda);
             try {
                 datos.getDb().beginTransaction();
-                for(int i = 0; i<datosComanda.size();i++){
-                    Entrega llenar = datosComanda.get(i);
-                    datos.insertarEntrega(llenar);
+                if(datosComanda.get(0).folio!=null){
+                    for(int i = 0; i<datosComanda.size();i++){
+                        Entrega llenar = datosComanda.get(i);
+                        datos.insertarEntrega(llenar);
+                    }
                 }
                 datos.getDb().setTransactionSuccessful();
             } finally {
@@ -325,9 +327,12 @@ public class ViajesAsignados extends Fragment {
             if(!errored){
                 //Based on Boolean value returned from WebService
                 if(!datosComanda.isEmpty()){
-                    llenarTabs();
-                    refrescar();
-                    //Navigate to Home Screen
+                    if(datosComanda.get(0).folio!=null){
+                        llenarTabs();
+                        refrescar();
+                    }
+                    else
+                        Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
                 }else{
                     //Set Error message
                     Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
@@ -427,8 +432,14 @@ public class ViajesAsignados extends Fragment {
                     int columna = cursor.getColumnIndex("estatus");
                     vistaSave = cursor.getString(columna);
                 }
+                if(vistaSave!=null)
+                    if(!vistaSave.isEmpty())
+                        resStatus = vistaSave;
+                    else
+                        resStatus="Error";
+                else
+                    resStatus="Error";
                 Log.e("ESTAD0", "ESTATUS: "+vistaSave);
-                resStatus = vistaSave;
             }
             else{
                 Log.d("USER","Error algo vacio");

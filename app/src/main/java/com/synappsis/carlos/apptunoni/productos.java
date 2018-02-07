@@ -264,6 +264,16 @@ public class productos extends AppCompatActivity {
     }
     public void borrarBase(){
         datos.getDb().beginTransaction();
+        String folioT ="";
+        Cursor cursor =datos.obtenerApp();
+        if(cursor!=null){
+            if (cursor.moveToFirst()) {
+                int columna = cursor.getColumnIndex("folio");
+                folioT = cursor.getString(columna);
+            }
+            Log.e("ESTAD0", "folioT-U: "+folioT);
+        }
+        datos.actualizarStatus("Sin Enviar",folioT);
         datos.borrar("App");
         datos.borrar("Producto");
         datos.borrar("Documentos");
@@ -271,24 +281,25 @@ public class productos extends AppCompatActivity {
         datos.borrar("Usuario");
         DatabaseUtils.dumpCursor(datos.obtenerApp());
         DatabaseUtils.dumpCursor(datos.obtenerUser());
-        Cursor cursor =datos.obtenerApp();
+        Cursor cursor1 =datos.obtenerApp();
         String hola =null;
-        if(cursor!=null){
-            if (cursor.moveToFirst()) {
-                int columna = cursor.getColumnIndex("estatus");
-                hola = cursor.getString(columna);
+        if(cursor1!=null){
+            if (cursor1.moveToFirst()) {
+                int columna = cursor1.getColumnIndex("estatus");
+                hola = cursor1.getString(columna);
             }
             Log.e("ESTAD0", "BORRAR: "+hola);
         }
-        cursor =datos.obtenerUser();
+        cursor1 =datos.obtenerUser();
         String hola1 =null;
-        if(cursor!=null){
-            if (cursor.moveToFirst()) {
-                int columna = cursor.getColumnIndex("nonbre");
-                hola1 = cursor.getString(columna);
+        if(cursor1!=null){
+            if (cursor1.moveToFirst()) {
+                int columna = cursor1.getColumnIndex("nonbre");
+                hola1 = cursor1.getString(columna);
             }
             Log.e("ESTAD0", "BORRAR-U: "+hola1);
         }
+        datos.deleteALL(getApplicationContext());
     }
     public void init(){
         stk = (TableLayout) findViewById(R.id.listTable);
@@ -476,7 +487,8 @@ public class productos extends AppCompatActivity {
 
         }
         else{
-
+            Log.e(tag, "Esta nulo");
+            Toast.makeText(this, "Vuelva a intentar a tomar la foto", Toast.LENGTH_LONG).show();
         }
     }
 
