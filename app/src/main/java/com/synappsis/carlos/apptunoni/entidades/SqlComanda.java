@@ -5,6 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.provider.BaseColumns;
+import android.util.Log;
 
 /**
  * Created by CARLOS on 15/12/2017.
@@ -131,7 +132,9 @@ public class SqlComanda extends SQLiteOpenHelper{
         ));
     }
     public static boolean deleteDatabase(Context mContext) {
-        return mContext.deleteDatabase(NOMBRE_BASE_DATOS);
+        boolean base = mContext.deleteDatabase(NOMBRE_BASE_DATOS);
+        Log.d("BASE", "La base fue =" + base);
+        return base;
     }
     @Override
     public void onOpen(SQLiteDatabase db) {

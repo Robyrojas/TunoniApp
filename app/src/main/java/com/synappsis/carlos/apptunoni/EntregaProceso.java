@@ -115,41 +115,7 @@ public class EntregaProceso extends Fragment{
         }
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getContext());
-        new CallWebService().execute("1");
 
-    }
-
-    class CallWebService extends AsyncTask<String, Void, String> {
-        @Override
-        protected void onPostExecute(String s) {
-            //text.setText("Result = " + s);
-            Log.e(tag, "Result = " + s);
-        }
-
-        @Override
-        protected String doInBackground(String... params) {
-            String result = "";
-            SoapObject soapObject = new SoapObject(NAMESPACE, METHOD_NAME);
-            soapObject.addProperty("id", "1");
-            //Log.e(tag, "Inicio SOAP");
-            //propertyInfo.setType(PropertyInfo.OBJECT_TYPE);
-            //soapObject.addProperty(propertyInfo);
-            SoapSerializationEnvelope envelope =  new SoapSerializationEnvelope(SoapEnvelope.VER11);
-            //envelope.dotNet=true;
-            envelope.setOutputSoapObject(soapObject);
-            HttpTransportSE httpTransportSE = new HttpTransportSE(URL);
-            try {
-                httpTransportSE.call(SOAP_ACTION, envelope);
-                //Log.e(tag, "envolvio");
-                SoapPrimitive soapPrimitive = (SoapPrimitive)envelope.getResponse();
-                result = soapPrimitive.toString();
-                //Log.e(tag, "respuetaaaaa" + result.toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.e(tag, String.valueOf(e));
-            }
-            return result;
-        }
     }
 
     @Override

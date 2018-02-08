@@ -27,7 +27,7 @@ public class WebService {
     private static String URL = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
     private static String SOAP_ACTION = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp";
-    //
+    private static int Timeout = 10000;
     static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public static boolean invokeLoginWS(String userName,String passWord, String webMethName) {
@@ -59,7 +59,7 @@ public class WebService {
         // Set output SOAP object
         envelope.setOutputSoapObject(request);
         // Create HTTP call object
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
 
         try {
             // Invoke web service
@@ -118,8 +118,8 @@ public class WebService {
         // Set output SOAP object
         envelope.setOutputSoapObject(request);
         // Create HTTP call object
-        int Timeout = 10000;
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
+
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
 
         Entrega entrega = new Entrega();
         try {
