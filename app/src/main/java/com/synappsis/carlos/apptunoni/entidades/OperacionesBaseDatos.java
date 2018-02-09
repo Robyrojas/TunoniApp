@@ -134,6 +134,19 @@ public class OperacionesBaseDatos {
         return res;
     }
 
+    public Cursor actualizarOrigen(String dirorigen, String folio){
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        Cursor res =null;
+        try{
+            String query = "UPDATE " + Tablas.TABLE_ENTREGA + " SET dirorigen = '"+ dirorigen +"' WHERE folio='"+folio+"'";
+            Log.d("QUERY", query);
+            res = db.rawQuery(query, null);
+            return res;
+        }catch (Exception e){
+            return res;
+        }
+    }
+
     public Cursor obtenerEntregas() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         String query = "select * from " + Tablas.TABLE_ENTREGA + "";
@@ -240,7 +253,7 @@ public class OperacionesBaseDatos {
     public boolean eliminarApp(String folio) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
 
-        String whereClause = String.format("%s=?", Comanda.Documentos.IDDOCUMENTOS);
+        String whereClause = String.format("%s=?", Comanda.App.FOLIO);
         String[] whereArgs = {folio};
 
         int resultado = db.delete(Tablas.TABLE_DOCUMENTOS, whereClause, whereArgs);

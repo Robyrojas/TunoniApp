@@ -1,5 +1,7 @@
 package com.synappsis.carlos.apptunoni;
 
+import android.*;
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,9 +11,14 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Looper;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -30,6 +37,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -38,20 +46,18 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 
-import org.ksoap2.SoapEnvelope;
-import org.ksoap2.SoapFault;
-import org.ksoap2.serialization.PropertyInfo;
-import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
-import org.ksoap2.serialization.SoapSerializationEnvelope;
-import org.ksoap2.transport.HttpTransportSE;
+import static android.content.Context.LOCATION_SERVICE;
+import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -61,7 +67,7 @@ import org.ksoap2.transport.HttpTransportSE;
  * Use the {@link EntregaProceso#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EntregaProceso extends Fragment{
+public class EntregaProceso extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -71,31 +77,30 @@ public class EntregaProceso extends Fragment{
     private String mParam1;
     private String mParam2;
     //Conexion
-    private static String tag="EntregaProceso";
+    private static String tag = "EntregaProceso";
 
-
-    private static String SOAP_ACTION = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto";
-    private static String NAMESPACE = "http://WebServices/";
-    private static String METHOD_NAME = "BuscarProducto";
-    private static String URL = "http://148.204.186.243:8080/WebservicesPrueba/WebservicesProducto?wsdl";
-
-    private SoapObject request=null;
-    private SoapSerializationEnvelope envelope=null;
-    private SoapPrimitive resultsRequestSOAP=null;
+    private static final int REQUEST_CODE_ASK_PERMISSIONS = 1;
     private OnFragmentInteractionListener mListener;
     private GoogleMap mapa;
     private Marker mMarcadorActual1;
     private Marker mMarcadorActual2;
     private SupportMapFragment mSupportMapFragment;
     Spinner spinnerOpc;
-    int enCAMINO=0;
+    int enCAMINO = 0;
     OperacionesBaseDatos datos = null;
     private String UserComanda;
-    String vistaSave=null;
+    String vistaSave = null;
+    double longitudeGPS = 0, latitudeGPS = 0;
+    /*mapas*/
+    static final int REQUEST_LOCATION = 1;
+    LocationManager locationManager;
+    private long UPDATE_INTERVAL = 10 * 1000;  /* 10 secs */
+    private long FASTEST_INTERVAL = 2000; /* 2 sec */
 
     public EntregaProceso() {
         // Required empty public constructor
     }
+
     // TODO: Rename and change types and number of parameters
     public static EntregaProceso newInstance(String param1, String param2) {
         EntregaProceso fragment = new EntregaProceso();
@@ -105,6 +110,7 @@ public class EntregaProceso extends Fragment{
         fragment.setArguments(args);
         return fragment;
     }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -128,29 +134,27 @@ public class EntregaProceso extends Fragment{
         v.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View view, int keyCode, KeyEvent keyEvent) {
-                if( keyCode == KeyEvent.KEYCODE_BACK )
-                {
+                if (keyCode == KeyEvent.KEYCODE_BACK) {
                     Toast.makeText(getContext(), "Aún no terminas el proceso", Toast.LENGTH_SHORT).show();
                     //return true;
                 }
-                Log.d(tag,"back");
+                Log.d(tag, "back");
                 return true;
             }
         });
-        String [] values =
-                {"Selecionar","En Camino","Entregar"};
+        locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+        getLocation();
+        String[] values =
+                {"Selecionar", "En Camino", "Entregar"};
         spinnerOpc = (Spinner) v.findViewById(R.id.spinnerList);
         //ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), android.R.layout.simple_spinner_item, values);
         final ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<String>(
-                this.getActivity(),android.R.layout.simple_spinner_item, values){
+                this.getActivity(), android.R.layout.simple_spinner_item, values) {
             @Override
-            public boolean isEnabled(int position){
-                if(position == 0)
-                {
+            public boolean isEnabled(int position) {
+                if (position == 0) {
                     return false;
-                }
-                else
-                {
+                } else {
                     return true;
                 }
             }
@@ -166,10 +170,9 @@ public class EntregaProceso extends Fragment{
                                         ViewGroup parent) {
                 View view = super.getDropDownView(position, convertView, parent);
                 TextView tv = (TextView) view;
-                if(position==0) {
+                if (position == 0) {
                     tv.setTextColor(Color.GRAY);
-                }
-                else {
+                } else {
                     tv.setTextColor(Color.BLACK);
                 }
                 return view;
@@ -178,46 +181,40 @@ public class EntregaProceso extends Fragment{
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
         spinnerOpc.setAdapter(spinnerArrayAdapter);
         vistaSave = obtenerEstado();
-        if(vistaSave.equals("En Camino")) {
+        if (vistaSave.equals("En Camino")) {
             spinnerOpc.setSelection(1);
             Cursor folio = datos.obtenerApp();
             String folioString = "";
-            if(folio!=null){
+            if (folio != null) {
                 if (folio.moveToFirst()) {
                     int columna = folio.getColumnIndex("folio");
                     folioString = folio.getString(columna);
                 }
-                Log.e("ESTAD0", "folio: "+folioString);
+                Log.e("ESTAD0", "folio: " + folioString);
             }
-            Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Se eligio el Folio: " + folioString, Toast.LENGTH_SHORT).show();
         }
         spinnerOpc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if(spinnerOpc.getSelectedItem().toString().equals("Entregar"))
-                {
-                    if(enCAMINO==1) {
+                if (spinnerOpc.getSelectedItem().toString().equals("Entregar")) {
+                    if (enCAMINO == 1) {
                         createAndShowAlertDialog();
-                    }
-                    else{
+                    } else {
                         Toast.makeText(getActivity(), "Aún no estas en camino", Toast.LENGTH_SHORT).show();
                         spinnerOpc.setSelection(0);
                     }
-                }
-                else if(spinnerOpc.getSelectedItemPosition() == 1)
-                {
+                } else if (spinnerOpc.getSelectedItemPosition() == 1) {
                     //enCAMINO = getStatus();
-                    if(enCAMINO==0)
-                    {
+                    if (enCAMINO == 0) {
                         actualizarStatus("En Camino");
                         Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
                         enCAMINO = 1;
                     }
                     //else
-                       // Toast.makeText(getActivity(), "Opción ya seleccionada", Toast.LENGTH_SHORT).show();
-                }
-                else{
-                    if(spinnerOpc.getSelectedItem().toString().equals("Entregado")) {
+                    // Toast.makeText(getActivity(), "Opción ya seleccionada", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (spinnerOpc.getSelectedItem().toString().equals("Entregado")) {
                         spinnerOpc.setSelection(1);
                     }
                 }
@@ -229,7 +226,7 @@ public class EntregaProceso extends Fragment{
             }
 
         });
-        //Log.e(tag, "Se lleno list");
+
         mSupportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         //mSupportMapFragment = (SupportMapFragment) getFragmentManager().findFragmentById(R.id.map);
         if (mSupportMapFragment == null) {
@@ -240,7 +237,10 @@ public class EntregaProceso extends Fragment{
             fragmentTransaction.replace(R.id.map, mSupportMapFragment).commit();
             //Log.e(tag, "se lleno");
         }
-
+        obtenerMapa();
+        return v;
+    }
+    public void obtenerMapa(){
         if (mSupportMapFragment != null) {
             //Log.e(tag, "fragment no nulo");
             mSupportMapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -252,16 +252,14 @@ public class EntregaProceso extends Fragment{
                         mapa.getUiSettings().setAllGesturesEnabled(true);
                         mapa.getUiSettings().setZoomControlsEnabled(true);
                         //LatLng sydney = new LatLng(-33.87365, 151.20689);
-                        mapa.setOnMyLocationChangeListener(new GoogleMap.OnMyLocationChangeListener()
-                        {
-                            @Override
-                            public void onMyLocationChange(Location arg0) {
-                                // TODO Auto-generated method stub
-                                mapa.addMarker(new MarkerOptions().position(new LatLng(arg0.getLatitude(), arg0.getLongitude())).title("It's Me!"));
-                            }
-                        });
-                        LatLng origen = new LatLng(19.430464, -99.135046);
-                        LatLng destino = new LatLng(19.026809, -98.178635);
+                        //MarkerOptions marker = new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()));
+                        LatLng origen, destino;
+                        if(longitudeGPS !=0 && latitudeGPS != 0){
+                            origen = new LatLng(latitudeGPS, longitudeGPS);
+                        }else{
+                            origen = new LatLng(19.430464, -99.135046);
+                        }
+                        destino = new LatLng(19.026809, -98.178635);
                         mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
                         mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
                         LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -273,10 +271,11 @@ public class EntregaProceso extends Fragment{
                         int height = getResources().getDisplayMetrics().heightPixels;
                         int padding = 100; // offset from edges of the map in pixels
                         try {
-                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds,width,height, padding);
+                            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
                             googleMap.moveCamera(cu);
-                        }catch (Exception e) {
-                            Log.e("Error",e.getMessage().toString());
+                            Log.e(tag, "mapa terminado");
+                        } catch (Exception e) {
+                            Log.e("Error", e.getMessage().toString());
                             Toast.makeText(getContext(), "Error al cargar el Mapa sin acceso a internet", Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -284,32 +283,27 @@ public class EntregaProceso extends Fragment{
                 }
             });
         }
-
-        return v;
     }
-
-
 
     private String obtenerEstado() {
         String resStatus = "";
         try {
             Log.e("ESTAD0", "obtener estado");
             datos.getDb().beginTransaction();
-            Cursor cursor =datos.obtenerApp();
-            if(cursor!=null){
+            Cursor cursor = datos.obtenerApp();
+            if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     int columna = cursor.getColumnIndex("estatus");
                     vistaSave = cursor.getString(columna);
                 }
-                Log.e("ESTAD0", "ESTATUS: "+vistaSave);
-                if(!vistaSave.isEmpty())
+                Log.e("ESTAD0", "ESTATUS: " + vistaSave);
+                if (!vistaSave.isEmpty())
                     resStatus = vistaSave;
                 else
-                    resStatus="Error";
-            }
-            else{
-                Log.d("USER","Error algo vacio");
-                resStatus="Error";
+                    resStatus = "Error";
+            } else {
+                Log.d("USER", "Error algo vacio");
+                resStatus = "Error";
             }
             datos.getDb().setTransactionSuccessful();
         } finally {
@@ -324,25 +318,26 @@ public class EntregaProceso extends Fragment{
             Log.e(tag, "Actualizar");
             datos.getDb().beginTransaction();
             //int a = 1;
-            Cursor cursor =datos.obtenerEstatus();
-            if(cursor!=null){
+            Cursor cursor = datos.obtenerEstatus();
+            if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     int columna = cursor.getColumnIndex("folio");
                     UserComanda = cursor.getString(columna);
                 }
-                Log.e(tag, "user: "+UserComanda);
-                Cursor cursor2 =datos.actualizarStatus(statusNew, UserComanda);
-                if(cursor2!=null){Log.e(tag, "Si hay actualizar estado");
+                Log.e(tag, "user: " + UserComanda);
+                Cursor cursor2 = datos.actualizarStatus(statusNew, UserComanda);
+                if (cursor2 != null) {
+                    Log.e(tag, "Si hay actualizar estado");
                     if (cursor2.moveToFirst()) {
                         int columna = cursor2.getColumnIndex("folio");
                         String estado = cursor2.getString(columna);
                         Log.d("QUERY", estado);
                     }
+                } else {
+                    Log.d("QUERY", "Error en query 2");
                 }
-                else{Log.d("QUERY", "Error en query 2");}
-            }
-            else{
-                Log.d("USER","Error algo vacio");
+            } else {
+                Log.d("USER", "Error algo vacio");
             }
             datos.getDb().setTransactionSuccessful();
         } finally {
@@ -367,7 +362,7 @@ public class EntregaProceso extends Fragment{
                 Log.e(tag, "SI");
                 actualizarStatus("Entregando");
                 dialog.dismiss();
-                Intent intent =  new Intent(getActivity(), productos.class);
+                Intent intent = new Intent(getActivity(), productos.class);
                 startActivity(intent);
                 getActivity().finish();
             }
@@ -401,7 +396,6 @@ public class EntregaProceso extends Fragment{
         mListener = null;
     }
 
-
     /**
      * This interface must be implemented by activities that contain this
      * fragment to allow an interaction in this fragment to be communicated
@@ -416,4 +410,66 @@ public class EntregaProceso extends Fragment{
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+     void getLocation() {
+        if(checkSelfPermission(getContext(),Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+
+        } else {
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (location != null){
+                double latti = location.getLatitude();
+                double longi = location.getLongitude();
+                Log.e("latidude: ",latti+" ");
+                Log.e("longitude: ",longi+" ");
+                latitudeGPS = latti;
+                longitudeGPS = longi;
+                //obtenerMapa();
+                LatLng origen = new LatLng(latitudeGPS, longitudeGPS);
+                LatLng destino = new LatLng(19.026809, -98.178635);
+                mapa.clear();
+                mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
+                mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(mMarcadorActual1.getPosition());
+                builder.include(mMarcadorActual2.getPosition());
+                LatLngBounds bounds = builder.build();
+
+                int width = getResources().getDisplayMetrics().widthPixels;
+                int height = getResources().getDisplayMetrics().heightPixels;
+                int padding = 100; // offset from edges of the map in pixels
+                try {
+                    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
+                    mapa.moveCamera(cu);
+                    Log.e(tag, "mapa terminado");
+                } catch (Exception e) {
+                    Log.e("Error", e.getMessage().toString());
+                    Toast.makeText(getContext(), "Error al cargar el Mapa sin acceso a internet", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(getContext(), "Desabilitado para encontrar la correcta locación", Toast.LENGTH_LONG).show();
+            }
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if(REQUEST_LOCATION == requestCode) {
+            Log.e("LOCATION: ",REQUEST_LOCATION+" ");
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getLocation();
+            } else {
+                Toast.makeText(getContext(), "Permisos denegados", Toast.LENGTH_LONG).show();
+            }
+        }else{
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
 }

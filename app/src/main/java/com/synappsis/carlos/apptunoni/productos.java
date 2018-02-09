@@ -114,6 +114,7 @@ public class productos extends AppCompatActivity {
                             public void onClick(View view) {
                                 if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
                                 {
+                                    actualizarStatus("Send");
                                     Toast.makeText(getApplicationContext(),"Enviando Captura",Toast.LENGTH_SHORT).show();
                                     borrarBase();
                                     dialog.dismiss();
@@ -301,6 +302,7 @@ public class productos extends AppCompatActivity {
         }
         datos.deleteALL(getApplicationContext());
     }
+
     public void init(){
         stk = (TableLayout) findViewById(R.id.listTable);
         TableRow tbrow0 = new TableRow(this);
@@ -611,4 +613,36 @@ public class productos extends AppCompatActivity {
         return;
     }
 
+    private void actualizarStatus(String statusNew) {
+        try {
+            Log.e(tag, "Actualizar");
+            datos.getDb().beginTransaction();
+            String UserComanda=null;
+            Cursor cursor = datos.obtenerEstatus();
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("folio");
+                    UserComanda = cursor.getString(columna);
+                }
+                Log.e(tag, "user: " + UserComanda);
+                Cursor cursor2 = datos.actualizarStatus(statusNew, UserComanda);
+                if (cursor2 != null) {
+                    Log.e(tag, "Si hay actualizar estado");
+                    if (cursor2.moveToFirst()) {
+                        int columna = cursor2.getColumnIndex("folio");
+                        String estado = cursor2.getString(columna);
+                        Log.d("QUERY", estado);
+                    }
+                } else {
+                    Log.d("QUERY", "Error en query 2");
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+    }
 }
