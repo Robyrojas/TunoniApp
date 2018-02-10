@@ -13,7 +13,6 @@ import com.synappsis.carlos.apptunoni.entidades.SqlComanda.Tablas;
 /**
  * Created by armando on 17/12/17.
  */
-
 public class OperacionesBaseDatos {
     private static SqlComanda baseDatos;
 
@@ -149,9 +148,8 @@ public class OperacionesBaseDatos {
 
     public Cursor obtenerEntregas() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
-        String query = "select * from " + Tablas.TABLE_ENTREGA + "";
-        Cursor res = db.rawQuery(query, null);
-        return res;
+        String sql = String.format("SELECT * FROM %s", Tablas.TABLE_ENTREGA);
+        return db.rawQuery(sql, null);
     }
 
     public boolean eliminarEntregas(String idProducto) {

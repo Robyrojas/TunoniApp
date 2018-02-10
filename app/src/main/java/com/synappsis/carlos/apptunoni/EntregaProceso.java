@@ -89,6 +89,7 @@ public class EntregaProceso extends Fragment {
     int enCAMINO = 0;
     OperacionesBaseDatos datos = null;
     private String UserComanda;
+    private String Foliomaps;
     String vistaSave = null;
     double longitudeGPS = 0, latitudeGPS = 0;
     /*mapas*/
@@ -142,8 +143,6 @@ public class EntregaProceso extends Fragment {
                 return true;
             }
         });
-        locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-        getLocation();
         String[] values =
                 {"Selecionar", "En Camino", "Entregar"};
         spinnerOpc = (Spinner) v.findViewById(R.id.spinnerList);
@@ -237,10 +236,16 @@ public class EntregaProceso extends Fragment {
             fragmentTransaction.replace(R.id.map, mSupportMapFragment).commit();
             //Log.e(tag, "se lleno");
         }
-        obtenerMapa();
+        obtenerfolio();
+        if(!obtenerOrigen()){
+            locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
+            getLocation();
+        }else
+            getMapa();
         return v;
     }
-    public void obtenerMapa(){
+
+    public void getMapa(){
         if (mSupportMapFragment != null) {
             //Log.e(tag, "fragment no nulo");
             mSupportMapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -254,19 +259,19 @@ public class EntregaProceso extends Fragment {
                         //LatLng sydney = new LatLng(-33.87365, 151.20689);
                         //MarkerOptions marker = new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()));
                         LatLng origen, destino;
-                        if(longitudeGPS !=0 && latitudeGPS != 0){
+                        if (longitudeGPS != 0 && latitudeGPS != 0) {
                             origen = new LatLng(latitudeGPS, longitudeGPS);
-                        }else{
-                            origen = new LatLng(19.430464, -99.135046);
+                        } else {
+                            origen = new LatLng(19.430464, -99.135046);//tunoni
                         }
-                        destino = new LatLng(19.026809, -98.178635);
+                        destino = obtenerdestino();
                         mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
                         mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
                         LatLngBounds.Builder builder = new LatLngBounds.Builder();
                         builder.include(mMarcadorActual1.getPosition());
                         builder.include(mMarcadorActual2.getPosition());
                         LatLngBounds bounds = builder.build();
-
+                        imprimirdatos(origen,destino);
                         int width = getResources().getDisplayMetrics().widthPixels;
                         int height = getResources().getDisplayMetrics().heightPixels;
                         int padding = 100; // offset from edges of the map in pixels
@@ -344,6 +349,107 @@ public class EntregaProceso extends Fragment {
             datos.getDb().endTransaction();
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
+    }
+
+    private void obtenerfolio() {
+        try {
+            datos.getDb().beginTransaction();
+            //int a = 1;
+            Cursor cursor = datos.obtenerApp();
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("folio");
+                    Foliomaps = cursor.getString(columna);
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+    }
+
+    private boolean obtenerOrigen() {
+        boolean result=false;
+        try {
+            datos.getDb().beginTransaction();
+            //int a = 1;
+            Cursor cursor = datos.obtenerEntregas(Foliomaps);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("dirorigen");
+                    String geo = cursor.getString(columna);
+                    if(geo!=null){
+                        if(!geo.isEmpty()){
+                            latitudeGPS = Double.parseDouble(geo.split(",")[0]);
+                            longitudeGPS = Double.parseDouble(geo.split(",")[1]);
+                            result= true;
+                        }
+                    }
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        return result;
+    }
+
+    private LatLng obtenerdestino() {
+        LatLng result=null;
+        try {
+            datos.getDb().beginTransaction();
+            //int a = 1;
+            Cursor cursor = datos.obtenerEntregas();
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("dirDestino");
+                    String geo = cursor.getString(columna);
+                    if(geo!=null){
+                        if(!geo.isEmpty()){
+                            LatLng regresoDEstino = new LatLng(Double.parseDouble(geo.split(",")[0]), Double.parseDouble(geo.split(",")[1]));
+                            result= regresoDEstino;
+                        }
+                    }
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        return result;
+    }
+
+    private void guardarLatLong(String s) {
+        try {
+            datos.getDb().beginTransaction();
+            //int a = 1;
+            Cursor cursor = datos.actualizarOrigen(s,Foliomaps);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("dirorigen");
+                    String ac = cursor.getString(columna);
+                    Log.d("UPDATE ORI", ac);
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+    }
+
+    public void imprimirdatos(LatLng ori, LatLng des){
+        ((TextView)getView().findViewById(R.id.dirSalida1)).setText("Lat" + String.valueOf(ori.latitude));
+        ((TextView)getView().findViewById(R.id.dirSalida2)).setText("Lng" +String.valueOf(ori.longitude));
+        ((TextView)getView().findViewById(R.id.dirEntrega1)).setText("Lat" +String.valueOf(des.latitude));
+        ((TextView)getView().findViewById(R.id.dirEntrega2)).setText("Lng" +String.valueOf(des.longitude));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -429,9 +535,11 @@ public class EntregaProceso extends Fragment {
                 Log.e("longitude: ",longi+" ");
                 latitudeGPS = latti;
                 longitudeGPS = longi;
+                guardarLatLong(latti+","+longi);
                 //obtenerMapa();
                 LatLng origen = new LatLng(latitudeGPS, longitudeGPS);
-                LatLng destino = new LatLng(19.026809, -98.178635);
+                LatLng destino = obtenerdestino();
+                getMapa();
                 mapa.clear();
                 mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
                 mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
@@ -439,7 +547,7 @@ public class EntregaProceso extends Fragment {
                 builder.include(mMarcadorActual1.getPosition());
                 builder.include(mMarcadorActual2.getPosition());
                 LatLngBounds bounds = builder.build();
-
+                imprimirdatos(origen,destino);
                 int width = getResources().getDisplayMetrics().widthPixels;
                 int height = getResources().getDisplayMetrics().heightPixels;
                 int padding = 100; // offset from edges of the map in pixels

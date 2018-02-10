@@ -65,11 +65,19 @@
                             android:textColor="@android:color/white" />
 
                         <TextView
-                            android:id="@+id/dirSalida"
+                            android:id="@+id/dirSalida1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Salida"
+                            android:text="Latitud"
+                            android:textAlignment="center"
+                            android:textColor="@android:color/white" />
+                        <TextView
+                            android:id="@+id/dirSalida2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Longitud"
                             android:textAlignment="center"
                             android:textColor="@android:color/white" />
 
@@ -99,11 +107,19 @@
                             android:textColor="@android:color/white" />
 
                         <TextView
-                            android:id="@+id/dirEntrega"
+                            android:id="@+id/dirEntrega1"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
-                            android:text="Entrega"
+                            android:text="Latitud"
+                            android:textAlignment="center"
+                            android:textColor="@android:color/white" />
+                        <TextView
+                            android:id="@+id/dirEntrega2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Longitud"
                             android:textAlignment="center"
                             android:textColor="@android:color/white" />
 
