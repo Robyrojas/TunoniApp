@@ -249,7 +249,18 @@ public class MainActivity extends AppCompatActivity {
                         datos.insertarUser(new Usuario(user,pass));//pass=xcvb
                     }
                 }
-                String inicio = datos.insertarApp(new App("SF","Sin enviar",null, null));
+                Cursor app = datos.obtenerApp();
+                if(app!=null) {
+                    if (app.moveToFirst()) {
+                        int columna = cursor.getColumnIndex("folio");
+                        String appBase = cursor.getString(columna);
+                        Log.d("USER","-----+++----" + appBase);
+                        if(appBase!=null || appBase.isEmpty()){
+                            datos.insertarApp(new App("SF","Sin enviar",null, null));
+                        }
+                    }else
+                        datos.insertarApp(new App("SF","Sin enviar",null, null));
+                }
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();

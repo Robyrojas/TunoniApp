@@ -237,15 +237,7 @@ public class EntregaProceso extends Fragment {
             //Log.e(tag, "se lleno");
         }
         obtenerfolio();
-        if(!obtenerOrigen()){
-            locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
-            getLocation();
-        }else
-            getMapa();
-        return v;
-    }
-
-    public void getMapa(){
+        locationManager = (LocationManager) getContext().getSystemService(LOCATION_SERVICE);
         if (mSupportMapFragment != null) {
             //Log.e(tag, "fragment no nulo");
             mSupportMapFragment.getMapAsync(new OnMapReadyCallback() {
@@ -259,6 +251,10 @@ public class EntregaProceso extends Fragment {
                         //LatLng sydney = new LatLng(-33.87365, 151.20689);
                         //MarkerOptions marker = new MarkerOptions().position(new LatLng(location.getLatitude(), location.getLongitude()));
                         LatLng origen, destino;
+                        if(Foliomaps!=null){
+                            if(Foliomaps.isEmpty())
+                                obtenerOrigen();
+                        }
                         if (longitudeGPS != 0 && latitudeGPS != 0) {
                             origen = new LatLng(latitudeGPS, longitudeGPS);
                         } else {
@@ -283,15 +279,20 @@ public class EntregaProceso extends Fragment {
                             Log.e("Error", e.getMessage().toString());
                             Toast.makeText(getContext(), "Error al cargar el Mapa sin acceso a internet", Toast.LENGTH_SHORT).show();
                         }
+                        if(!obtenerOrigen()){
+                            getLocation();
+                        }
                     }
 
                 }
             });
         }
+
+        return v;
     }
 
     private String obtenerEstado() {
-        String resStatus = "";
+        String resStatus = "Error";
         try {
             Log.e("ESTAD0", "obtener estado");
             datos.getDb().beginTransaction();
@@ -302,13 +303,12 @@ public class EntregaProceso extends Fragment {
                     vistaSave = cursor.getString(columna);
                 }
                 Log.e("ESTAD0", "ESTATUS: " + vistaSave);
-                if (!vistaSave.isEmpty())
-                    resStatus = vistaSave;
-                else
-                    resStatus = "Error";
+                if(vistaSave!=null){
+                    if (!vistaSave.isEmpty())
+                        resStatus = vistaSave;
+                }
             } else {
                 Log.d("USER", "Error algo vacio");
-                resStatus = "Error";
             }
             datos.getDb().setTransactionSuccessful();
         } finally {
@@ -354,12 +354,12 @@ public class EntregaProceso extends Fragment {
     private void obtenerfolio() {
         try {
             datos.getDb().beginTransaction();
-            //int a = 1;
             Cursor cursor = datos.obtenerApp();
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     int columna = cursor.getColumnIndex("folio");
                     Foliomaps = cursor.getString(columna);
+                    Log.d("USER", "Foliomaps: "+Foliomaps);
                 }
             } else {
                 Log.d("USER", "Error algo vacio");
@@ -446,10 +446,10 @@ public class EntregaProceso extends Fragment {
     }
 
     public void imprimirdatos(LatLng ori, LatLng des){
-        ((TextView)getView().findViewById(R.id.dirSalida1)).setText("Lat" + String.valueOf(ori.latitude));
-        ((TextView)getView().findViewById(R.id.dirSalida2)).setText("Lng" +String.valueOf(ori.longitude));
-        ((TextView)getView().findViewById(R.id.dirEntrega1)).setText("Lat" +String.valueOf(des.latitude));
-        ((TextView)getView().findViewById(R.id.dirEntrega2)).setText("Lng" +String.valueOf(des.longitude));
+        ((TextView)getView().findViewById(R.id.dirSalida1)).setText("Lat: " + String.valueOf(ori.latitude));
+        ((TextView)getView().findViewById(R.id.dirSalida2)).setText("Lng: " +String.valueOf(ori.longitude));
+        ((TextView)getView().findViewById(R.id.dirEntrega1)).setText("Lat: " +String.valueOf(des.latitude));
+        ((TextView)getView().findViewById(R.id.dirEntrega2)).setText("Lng: " +String.valueOf(des.longitude));
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -539,7 +539,6 @@ public class EntregaProceso extends Fragment {
                 //obtenerMapa();
                 LatLng origen = new LatLng(latitudeGPS, longitudeGPS);
                 LatLng destino = obtenerdestino();
-                getMapa();
                 mapa.clear();
                 mMarcadorActual1 = mapa.addMarker(new MarkerOptions().position(origen).title("Origen"));
                 mMarcadorActual2 = mapa.addMarker(new MarkerOptions().position(destino).title("Destino"));
