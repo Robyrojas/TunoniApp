@@ -60,7 +60,7 @@ public class WebService {
         envelope.setOutputSoapObject(request);
         // Create HTTP call object
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
-
+        Log.d("Tiempo: ", "time: "+Timeout);
         try {
             // Invoke web service
             androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
@@ -75,7 +75,6 @@ public class WebService {
             e.printStackTrace();
         }
         //Return booleam to calling object
-        Log.d("l0gin",loginStatus+"");
         return loginStatus;
     }
 

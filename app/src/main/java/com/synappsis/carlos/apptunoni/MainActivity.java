@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,12 +18,6 @@ import android.widget.Toast;
 import com.synappsis.carlos.apptunoni.entidades.App;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 import com.synappsis.carlos.apptunoni.entidades.Usuario;
-
-import org.ksoap2.SoapEnvelope;
-import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
-import org.ksoap2.serialization.SoapSerializationEnvelope;
-import org.ksoap2.transport.HttpTransportSE;
 
 
 
@@ -56,13 +51,18 @@ public class MainActivity extends AppCompatActivity {
                 if (userNameET.getText().length() != 0 && userNameET.getText().toString() != "") {
                     if(passWordET.getText().length() != 0 && passWordET.getText().toString() != ""){
                         webservicePG.setVisibility(View.VISIBLE);
+                        Log.d("l0gin","activar l0ad");
                         editTextUsername = userNameET.getText().toString();
                         editTextPassword = passWordET.getText().toString();
                         statusTV.setText("");
                         //Create instance for AsyncCallWS
                         AsyncCallWS task = new AsyncCallWS();
-                        //Call execute
-                        task.execute();
+                        Log.d("l0gin","para el task");
+                        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+                            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        } else {
+                            task.execute();
+                        }
                         //sin web service
                         /*Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
                         startActivity(intObj);
@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method
+
+            Log.d("l0gin","entre al bt0t0n");
             loginStatus = WebService.invokeLoginWS(editTextUsername,editTextPassword,"LoginApp");
             return null;
         }
@@ -100,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
             //Make Progress Bar invisible
             webservicePG.setVisibility(View.INVISIBLE);
             Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
+            Log.d("l0gin","p0st");
             //Error status is false
             if(!errored){
                 //Based on Boolean value returned from WebService
@@ -108,9 +111,14 @@ public class MainActivity extends AppCompatActivity {
                     String pantalla = obtenerEstado();
                     if (pantalla.equals("Entregando"))
                         intObj = new Intent(MainActivity.this, productos.class);
-                    else
-                        new TareaPruebaDatos().execute();
-                        startActivity(intObj);
+                    else{
+                        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+                            new TareaPruebaDatos().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                        } else {
+                            new TareaPruebaDatos().execute();
+                        }
+                    }
+                    startActivity(intObj);
                 }else{
                     //Set Error message
                     statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
@@ -189,7 +197,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private String obtenerEstado() {
-        String resStatus = "";
+        String resStatus = "Error";
         try {
             Log.e("ESTAD0", "Actualizar");
             datos.getDb().beginTransaction();
@@ -200,14 +208,13 @@ public class MainActivity extends AppCompatActivity {
                     ESTATUS = cursor.getString(columna);
                 }
                 Log.e("ESTAD0", "ESTATUS: "+ESTATUS);
-                if(!ESTATUS.isEmpty())
-                    resStatus = ESTATUS;
-                else
-                    resStatus="Error";
+                if(ESTATUS!=null){
+                    if(!ESTATUS.isEmpty())
+                        resStatus = ESTATUS;
+                }
             }
             else{
                 Log.d("USER","Error algo vacio");
-                resStatus="Error";
             }
             datos.getDb().setTransactionSuccessful();
         } finally {
@@ -251,13 +258,16 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Cursor app = datos.obtenerApp();
                 if(app!=null) {
+                    int columna;
                     if (app.moveToFirst()) {
-                        int columna = cursor.getColumnIndex("folio");
-                        String appBase = cursor.getString(columna);
-                        Log.d("USER","-----+++----" + appBase);
-                        if(appBase!=null || appBase.isEmpty()){
-                            datos.insertarApp(new App("SF","Sin enviar",null, null));
-                        }
+                        columna = cursor.getColumnIndex("folio");
+                        Log.d("USER1","-----+++----" + "f0li0");
+                        if(columna>-1){
+                            String appBase = cursor.getString(columna);
+                            Log.d("USER2","-----+++----" + appBase);
+                            if(appBase!=null || appBase.isEmpty()){
+                                datos.insertarApp(new App("SF","Sin enviar",null, null));
+                        }}
                     }else
                         datos.insertarApp(new App("SF","Sin enviar",null, null));
                 }

@@ -18,6 +18,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
@@ -448,6 +449,10 @@ public class productos extends AppCompatActivity {
                 Log.e(tag, "empezando activity");
             }
         }
+    }
+
+    private void convert64(){
+        //String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
     }
 
     private File createImageFile() throws IOException {
