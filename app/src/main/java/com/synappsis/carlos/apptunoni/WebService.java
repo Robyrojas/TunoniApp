@@ -137,8 +137,8 @@ public class WebService {
                 entrega.dirdestino = resSoap.getProperty(5).toString();
                 entrega.nombrereceptor = resSoap.getProperty(6).toString();
                 entrega.info = resSoap.getProperty(7).toString();
-                entrega.usuario_nombre = UserComanda;
-            }
+                entrega.usuario_nombre = UserComanda; Log.d("S0AP","Ya todo "+entrega.folio);
+            }else{ Log.d("S0AP","Error vacío");}
         } catch (Exception e) {
             //Assign Error Status true in static variable 'errored'
             MainActivity.errored = true;

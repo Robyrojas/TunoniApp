@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -74,7 +75,6 @@ public class ViajesAsignados extends Fragment {
         super.onCreate(savedInstanceState);
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getContext());
-        new obtenerUser().execute();
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -86,7 +86,18 @@ public class ViajesAsignados extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_viajes_asignados, container, false);
-        new AsyncCallWS().execute();
+        getUser();
+        /*if(Build.VERSION.SDK_INT >= 11) {
+            new obtenerUser().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            new obtenerUser().execute();
+        }*/
+        Log.d("ViajesAsigandos", "Estoy en el viajes asignados");
+        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+            new AsyncCallWS().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            new AsyncCallWS().execute();
+        }
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
@@ -100,7 +111,7 @@ public class ViajesAsignados extends Fragment {
                     int columna = folio.getColumnIndex("folio");
                     folioString = folio.getString(columna);
                 }
-                Log.e("ESTAD0", "folio: "+folioString);
+                Log.e("ViajesAsigandos", "folio: "+folioString);
             }
             Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
         }else {
@@ -298,16 +309,19 @@ public class ViajesAsignados extends Fragment {
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method
+            Log.d("ViajesAsigandos", "Estoy en el WS");
             Entrega comanda = WebService.invokeGetComanda(UserComanda,"ComandaPendientes");
             datosComanda.add(comanda);
-            try {
+            try { Log.d("ViajesAsigandos", "Estoy en el TRY");
                 datos.getDb().beginTransaction();
+                Log.d("ViajesAsigandos", "begintransacitión");
                 if(datosComanda.get(0).folio!=null){
                     for(int i = 0; i<datosComanda.size();i++){
                         Entrega llenar = datosComanda.get(i);
                         datos.insertarEntrega(llenar);
+                        Log.d("ViajesAsigandos", "Llenar: "+llenar);
                     }
-                }
+                }else{ Log.d("ViajesAsigandos", "datos vacios");}
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
@@ -326,6 +340,7 @@ public class ViajesAsignados extends Fragment {
             //Error status is false
             if(!errored){
                 //Based on Boolean value returned from WebService
+                Log.d("ViajesAsigandos", "Estoy en el POST");
                 if(!datosComanda.isEmpty()){
                     if(datosComanda.get(0).folio!=null){
                         llenarTabs();
@@ -397,19 +412,19 @@ public class ViajesAsignados extends Fragment {
                     if (cursor.moveToFirst()) {
                         int columna = cursor.getColumnIndex("folio");
                         String estado = cursor.getString(columna);
-                        Log.d("QUERY", estado);
+                        Log.d("ViajesAsigandos", estado);
                     }
                 }
-                else{Log.d("QUERY", "Error en query 1");}
+                else{Log.d("ViajesAsigandos", "Error en query 1");}
                 Cursor cursor2 =datos.actualizarStatus("Aceptado", grupotext);
                 if(cursor2!=null){
                     if (cursor2.moveToFirst()) {
                         int columna = cursor2.getColumnIndex("folio");
                         String estado = cursor2.getString(columna);
-                        Log.d("QUERY", estado);
+                        Log.d("ViajesAsigandos", estado);
                     }
                 }
-                else{Log.d("QUERY", "Error en query 2");}
+                else{Log.d("ViajesAsigandos", "Error en query 2");}
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
@@ -424,7 +439,7 @@ public class ViajesAsignados extends Fragment {
     private String obtenerEstado() {
         String resStatus = "";
         try {
-            Log.e("ESTAD0", "Actualizar");
+            Log.e("ViajesAsigandos", "Actualizar");
             datos.getDb().beginTransaction();
             Cursor cursor =datos.obtenerApp();
             if(cursor!=null){
@@ -439,7 +454,7 @@ public class ViajesAsignados extends Fragment {
                         resStatus="Error";
                 else
                     resStatus="Error";
-                Log.e("ESTAD0", "ESTATUS: "+vistaSave);
+                Log.e("ViajesAsigandos", "ESTATUS: "+vistaSave);
             }
             else{
                 Log.d("USER","Error algo vacio");
@@ -447,9 +462,34 @@ public class ViajesAsignados extends Fragment {
             }
             datos.getDb().setTransactionSuccessful();
         } finally {
+
             datos.getDb().endTransaction();
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
         return resStatus;
+    }
+
+    private void getUser(){
+        try {
+            datos.getDb().beginTransaction();
+            //int a = 1;
+            Log.d("ViajesAsigandos","get user()");
+            Cursor cursor =datos.obtenerUser();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("nombre");
+                    UserComanda = cursor.getString(columna);
+                    Log.d("ViajesAsigandos","user: "+UserComanda);
+                }
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        // [QUERIES]
+        Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
     }
 }

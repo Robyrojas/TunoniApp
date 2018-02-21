@@ -481,6 +481,12 @@ public class EntregaProceso extends Fragment {
                 spinnerOpc.setSelection(1);
             }
         });
+        builder.setOnDismissListener(new DialogInterface.OnDismissListener() {
+            @Override
+            public void onDismiss(DialogInterface dialogInterface) {
+                spinnerOpc.setSelection(1);
+            }
+        });
         AlertDialog dialog = builder.create();
         dialog.show();
     }

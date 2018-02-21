@@ -19,8 +19,6 @@ import com.synappsis.carlos.apptunoni.entidades.App;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 import com.synappsis.carlos.apptunoni.entidades.Usuario;
 
-
-
 public class MainActivity extends AppCompatActivity {
     //Set Error Status
     static boolean errored = false;
@@ -44,6 +42,10 @@ public class MainActivity extends AppCompatActivity {
         webservicePG = (ProgressBar) findViewById(R.id.progressBar2);
         webservicePG.setVisibility(View.INVISIBLE);
         Button btn = (Button) findViewById(R.id.initSesion);
+        datos = OperacionesBaseDatos
+                .obtenerInstancia(getApplicationContext());
+        DatabaseUtils.dumpCursor(datos.obtenerUser());
+
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,9 +80,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        datos = OperacionesBaseDatos
-                .obtenerInstancia(getApplicationContext());
-        DatabaseUtils.dumpCursor(datos.obtenerUser());
+
 
     }
 
@@ -90,7 +90,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method
-
             Log.d("l0gin","entre al bt0t0n");
             loginStatus = WebService.invokeLoginWS(editTextUsername,editTextPassword,"LoginApp");
             return null;
@@ -112,11 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     if (pantalla.equals("Entregando"))
                         intObj = new Intent(MainActivity.this, productos.class);
                     else{
-                        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-                            new TareaPruebaDatos().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        } else {
-                            new TareaPruebaDatos().execute();
-                        }
+                        registro();
                     }
                     startActivity(intObj);
                 }else{
@@ -165,6 +160,63 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private void registro() {
+        try {
+            datos.getDb().beginTransaction();
+            String user=editTextUsername;
+            String pass=editTextPassword;
+            // Inserción USER
+            String vistaSave="";
+            Cursor cursor= datos.obtenerUser();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("nombre");
+                    vistaSave = cursor.getString(columna);
+                }
+                if(vistaSave!=null){
+                    if(!vistaSave.isEmpty()){
+                        if(vistaSave.equals(user))
+                            datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                        else{
+                            boolean valu = datos.eliminarUser(vistaSave);
+                            if(valu)
+                                datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                        }
+                    }else{
+                        datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                    }
+                }else{
+                    datos.insertarUser(new Usuario(user,pass));//pass=xcvb
+                }
+            }
+            Cursor app = datos.obtenerApp();
+            if(app!=null) {
+                int columna;
+                if (app.moveToFirst()) {
+                    columna = cursor.getColumnIndex("folio");
+                    Log.d("REGISTRO","-----+++----" + "f0li0");
+                    if(columna>-1){
+                        String appBase = cursor.getString(columna);
+                        Log.d("REGISTRO","-----+++----" + appBase);
+                        if(appBase!=null || appBase.isEmpty()){
+                            datos.insertarApp(new App("SF","Sin enviar",null, null));
+                        }}
+                }else
+                    datos.insertarApp(new App("SF","Sin enviar",null, null));
+            }else{
+                datos.insertarApp(new App("SF","Sin enviar",null, null));
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+
+        }
+        // [QUERIES]
+        Log.d("USER","----------------Obtencion de base de datos MAINACTIVITY");
+        DatabaseUtils.dumpCursor(datos.obtenerUser());
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+    }
+
     private String obtenerUSER() {
         String resStatus = "";
         String u1="", p1="";
@@ -199,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
     private String obtenerEstado() {
         String resStatus = "Error";
         try {
-            Log.e("ESTAD0", "Actualizar");
+            Log.e("ESTAD0", "Actualizar en obtener estado");
             datos.getDb().beginTransaction();
             Cursor cursor =datos.obtenerApp();
             if(cursor!=null){
@@ -222,67 +274,6 @@ public class MainActivity extends AppCompatActivity {
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
         return resStatus;
-    }
-
-    /*TEST DE BASE DE DATOS*/
-    public class TareaPruebaDatos extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            try {
-                datos.getDb().beginTransaction();
-                String user=editTextUsername;
-                String pass=editTextPassword;
-                // Inserción USER
-                String vistaSave="", resStatus="";
-                Cursor cursor= datos.obtenerUser();
-                if(cursor!=null){
-                    if (cursor.moveToFirst()) {
-                        int columna = cursor.getColumnIndex("nombre");
-                        vistaSave = cursor.getString(columna);
-                    }
-                    if(vistaSave!=null){
-                        if(!vistaSave.isEmpty()){
-                            if(vistaSave.equals(user))
-                                datos.insertarUser(new Usuario(user,pass));//pass=xcvb
-                            else{
-                                boolean valu = datos.eliminarUser(vistaSave);
-                                if(valu)
-                                    datos.insertarUser(new Usuario(user,pass));//pass=xcvb
-                            }
-                        }else{
-                            datos.insertarUser(new Usuario(user,pass));//pass=xcvb
-                        }
-                    }else{
-                        datos.insertarUser(new Usuario(user,pass));//pass=xcvb
-                    }
-                }
-                Cursor app = datos.obtenerApp();
-                if(app!=null) {
-                    int columna;
-                    if (app.moveToFirst()) {
-                        columna = cursor.getColumnIndex("folio");
-                        Log.d("USER1","-----+++----" + "f0li0");
-                        if(columna>-1){
-                            String appBase = cursor.getString(columna);
-                            Log.d("USER2","-----+++----" + appBase);
-                            if(appBase!=null || appBase.isEmpty()){
-                                datos.insertarApp(new App("SF","Sin enviar",null, null));
-                        }}
-                    }else
-                        datos.insertarApp(new App("SF","Sin enviar",null, null));
-                }
-                datos.getDb().setTransactionSuccessful();
-            } finally {
-                datos.getDb().endTransaction();
-
-            }
-            // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos MAINACTIVITY");
-            DatabaseUtils.dumpCursor(datos.obtenerUser());
-            DatabaseUtils.dumpCursor(datos.obtenerApp());
-
-            return null;
-        }
     }
 
 }
