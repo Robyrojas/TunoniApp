@@ -73,8 +73,6 @@ public class ViajesAsignados extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        datos = OperacionesBaseDatos
-                .obtenerInstancia(getContext());
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
@@ -86,12 +84,8 @@ public class ViajesAsignados extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_viajes_asignados, container, false);
+        datos = OperacionesBaseDatos.obtenerInstancia(getContext());
         getUser();
-        /*if(Build.VERSION.SDK_INT >= 11) {
-            new obtenerUser().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            new obtenerUser().execute();
-        }*/
         Log.d("ViajesAsigandos", "Estoy en el viajes asignados");
         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
             new AsyncCallWS().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -101,9 +95,11 @@ public class ViajesAsignados extends Fragment {
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
+        final Button actBoton = rootView.findViewById(R.id.actualizar);
         vistaSave = obtenerEstado();
         if(vistaSave.equals("Aceptado")) {
             button.setEnabled(false);
+            actBoton.setEnabled(false);
             Cursor folio = datos.obtenerApp();
             String folioString = "";
             if(folio!=null){
@@ -116,6 +112,7 @@ public class ViajesAsignados extends Fragment {
             Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
         }else {
             button.setEnabled(true);
+            actBoton.setEnabled(true);
             Toast.makeText(getContext(), "Cargando...", Toast.LENGTH_SHORT).show();
         }
         //prepareListData();
@@ -177,7 +174,22 @@ public class ViajesAsignados extends Fragment {
                 }
             }
         });
-
+        actBoton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                listAdapter=null;
+                grupActual = -1;
+                datosComanda.removeAll(datosComanda);
+                listViewVar.setAdapter(listAdapter);
+                Toast.makeText(getContext(), "Actualizando datos", Toast.LENGTH_SHORT).show();
+                datos.getDb().close();
+                if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+                    new AsyncCallWS().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                } else {
+                    new AsyncCallWS().execute();
+                }
+            }
+        });
         return rootView;
     }
 
@@ -310,26 +322,37 @@ public class ViajesAsignados extends Fragment {
         protected Void doInBackground(String... params) {
             //Call Web Method
             Log.d("ViajesAsigandos", "Estoy en el WS");
-            Entrega comanda = WebService.invokeGetComanda(UserComanda,"ComandaPendientes");
-            datosComanda.add(comanda);
+            Entrega[] comanda = WebService.invokeGetComanda(UserComanda,"ComandaPendientes");
+            if(comanda.length == 0){
+                Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+                return null;
+            }
+            for(int i=0;i<comanda.length;i++)
+            {
+                datosComanda.add(comanda[i]);
+            }
+            Log.d("ViajesAsigandos", "Numero de c: "+comanda.length);
+            datos.getDb().beginTransaction();
+            Log.d("ViajesAsigandos", "begintransacitión");
             try { Log.d("ViajesAsigandos", "Estoy en el TRY");
-                datos.getDb().beginTransaction();
-                Log.d("ViajesAsigandos", "begintransacitión");
                 if(datosComanda.get(0).folio!=null){
                     for(int i = 0; i<datosComanda.size();i++){
                         Entrega llenar = datosComanda.get(i);
                         datos.insertarEntrega(llenar);
-                        Log.d("ViajesAsigandos", "Llenar: "+llenar);
+                        Log.d("ViajesAsigandos", "Llenar: "+datosComanda.size());
                     }
                 }else{ Log.d("ViajesAsigandos", "datos vacios");}
                 datos.getDb().setTransactionSuccessful();
-            } finally {
+            }catch (Exception e){
+                e.printStackTrace();Log.d("ViajesAsigandos", "Error" +e.toString());
+                datos.getDb().endTransaction();
+            }
+            finally {
                 datos.getDb().endTransaction();
 
             }
             // [QUERIES]
             Log.d("USER","----------------Obtencion de base de datos");
-            //DatabaseUtils.dumpCursor(datos.obtenerDocumentos("admin"));
             DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
             return null;
         }

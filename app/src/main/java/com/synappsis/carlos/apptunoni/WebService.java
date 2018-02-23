@@ -86,7 +86,7 @@ public class WebService {
         return list;
     }
 
-    public static Entrega invokeGetComanda(String UserComanda, String webMethName) {
+    public static Entrega[] invokeGetComanda(String UserComanda, String webMethName) {
         // Create request
         SoapObject request = new SoapObject(NAMESPACE, webMethName);
         // Property which holds input parameters
@@ -120,30 +120,36 @@ public class WebService {
 
         HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
 
-        Entrega entrega = new Entrega();
+        List<Entrega> entrega = new ArrayList<Entrega>();
         try {
             // Invoke web service
-            Log.d("S0AP",SOAP_ACTION+webMethName+"");
+            //Log.d("S0AP",SOAP_ACTION+webMethName+"");
             androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
             // Get the response
             //SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
-            SoapObject resSoap =(SoapObject)envelope.getResponse();
+            SoapObject resSoap =(SoapObject)envelope.bodyIn;
             if(resSoap!=null) {
-                entrega.folio = resSoap.getProperty(0).toString();
-                entrega.estatus = resSoap.getProperty(1).toString();
-                entrega.fechadestino = resSoap.getProperty(2).toString();
-                entrega.fechaorigen = resSoap.getProperty(3).toString();
-                entrega.nombre = resSoap.getProperty(4).toString();
-                entrega.dirdestino = resSoap.getProperty(5).toString();
-                entrega.nombrereceptor = resSoap.getProperty(6).toString();
-                entrega.info = resSoap.getProperty(7).toString();
-                entrega.usuario_nombre = UserComanda; Log.d("S0AP","Ya todo "+entrega.folio);
+                for(int i = 0;i<resSoap.getPropertyCount();i++) {
+                    SoapObject obj3 =(SoapObject) resSoap.getProperty(i);
+                    Entrega item = new Entrega();
+                    item.folio = obj3.getProperty(0).toString();
+                    item.estatus = obj3.getProperty(1).toString();
+                    item.fechadestino = obj3.getProperty(2).toString();
+                    item.fechaorigen = obj3.getProperty(3).toString();
+                    item.nombre = obj3.getProperty(4).toString();
+                    item.dirdestino = obj3.getProperty(5).toString();
+                    item.nombrereceptor = obj3.getProperty(6).toString();
+                    item.info = obj3.getProperty(7).toString();
+                    item.usuario_nombre = UserComanda; Log.d("S0AP","Ya todo "+item.folio);
+                    entrega.add(item);
+                }
             }else{ Log.d("S0AP","Error vacío");}
         } catch (Exception e) {
             //Assign Error Status true in static variable 'errored'
             MainActivity.errored = true;
             e.printStackTrace();
         }
-        return entrega;
+        Entrega[] array = entrega.toArray(new Entrega[entrega.size()]);
+        return array;
     }
 }

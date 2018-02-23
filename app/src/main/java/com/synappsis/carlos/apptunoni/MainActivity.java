@@ -83,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-
     /*CLASE PARA CONEXION AL WEB SERVICE*/
 
     private class AsyncCallWS extends AsyncTask<String, Void, Void> {

@@ -43,6 +43,7 @@ public class SqlComanda extends SQLiteOpenHelper{
     }
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d("SQLCOMANDA", "CREANDO BASE");
         /*user*/
         db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s (%s TEXT NOT NULL PRIMARY KEY," +
                         "%s TEXT NOT NULL)",
@@ -131,11 +132,13 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.App.ACTUALIZAR
         ));
     }
+
     public static boolean deleteDatabase(Context mContext) {
         boolean base = mContext.deleteDatabase(NOMBRE_BASE_DATOS);
         Log.d("BASE", "La base fue =" + base);
         return base;
     }
+
     @Override
     public void onOpen(SQLiteDatabase db) {
         super.onOpen(db);
@@ -147,6 +150,7 @@ public class SqlComanda extends SQLiteOpenHelper{
             }
         }
     }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 

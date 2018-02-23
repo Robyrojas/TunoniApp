@@ -21,7 +21,7 @@ public class OperacionesBaseDatos {
     private OperacionesBaseDatos() {
     }
 
-    public static OperacionesBaseDatos obtenerInstancia(Context contexto) {
+    public static synchronized OperacionesBaseDatos obtenerInstancia(Context contexto) {
         if (baseDatos == null) {
             baseDatos = new SqlComanda(contexto);
         }
