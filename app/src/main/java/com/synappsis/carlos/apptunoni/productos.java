@@ -119,6 +119,7 @@ public class productos extends AppCompatActivity {
                                     Toast.makeText(getApplicationContext(),"Enviando Captura",Toast.LENGTH_SHORT).show();
                                     borrarBase();
                                     dialog.dismiss();
+                                    datos.getDb().close();
                                     finish();
                                 }
                                 else {
