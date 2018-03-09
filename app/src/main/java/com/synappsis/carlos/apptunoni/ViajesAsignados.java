@@ -324,7 +324,6 @@ public class ViajesAsignados extends Fragment {
             Log.d("ViajesAsigandos", "Estoy en el WS");
             Entrega[] comanda = WebService.invokeGetComanda(UserComanda,"ComandaPendientes");
             if(comanda.length == 0){
-                Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
                 return null;
             }
             for(int i=0;i<comanda.length;i++)

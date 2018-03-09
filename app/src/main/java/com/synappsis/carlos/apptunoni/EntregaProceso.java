@@ -270,7 +270,7 @@ public class EntregaProceso extends Fragment {
                         imprimirdatos(origen,destino);
                         int width = getResources().getDisplayMetrics().widthPixels;
                         int height = getResources().getDisplayMetrics().heightPixels;
-                        int padding = 100; // offset from edges of the map in pixels
+                        int padding = 200; // offset from edges of the map in pixels
                         try {
                             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
                             googleMap.moveCamera(cu);
@@ -555,7 +555,7 @@ public class EntregaProceso extends Fragment {
                 imprimirdatos(origen,destino);
                 int width = getResources().getDisplayMetrics().widthPixels;
                 int height = getResources().getDisplayMetrics().heightPixels;
-                int padding = 100; // offset from edges of the map in pixels
+                int padding = 200; // offset from edges of the map in pixels
                 try {
                     CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, width, height, padding);
                     mapa.moveCamera(cu);
