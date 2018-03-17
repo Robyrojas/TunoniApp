@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -34,12 +35,17 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.synappsis.carlos.apptunoni.entidades.Documentos;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
+import com.synappsis.carlos.apptunoni.entidades.Producto;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -73,6 +79,11 @@ public class productos extends AppCompatActivity {
     /*Variable firma*/
     String mCurrentSignPath;
     OperacionesBaseDatos datos = null;
+    List<String> list64;
+    Documentos doc;
+    static boolean errored = false;
+    boolean status = false;
+    String folioT ="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +127,7 @@ public class productos extends AppCompatActivity {
                                 if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
                                 {
                                     actualizarStatus("Send");
+                                    enviarDoc();
                                     Toast.makeText(getApplicationContext(),"Enviando Captura",Toast.LENGTH_SHORT).show();
                                     borrarBase();
                                     dialog.dismiss();
@@ -265,6 +277,50 @@ public class productos extends AppCompatActivity {
         });
 
     }
+
+    private void enviarDoc() {
+        try {
+            Log.e("PRODUCTO", "GUARDANDO FOTOS");
+            datos.getDb().beginTransaction();
+            Cursor cursor1 =datos.obtenerApp();
+                if(cursor1!=null){
+                    if (cursor1.moveToFirst()) {
+                        int columna = cursor1.getColumnIndex("folio");
+                        folioT = cursor1.getString(columna);
+                    }
+                    Log.e("ESTAD0", "folioT-U: "+folioT);
+                }
+                if(folioT!=null){
+                    if(!folioT.isEmpty()){
+                        doc = new Documentos(null,list64.get(0),list64.get(1),list64.get(2),list64.get(3),null, "Entregado","",folioT);
+                        datos.insertarDocumentos(doc);//pass=xcvb
+                        AsyncWS task = new AsyncWS();
+                        task.execute();
+                    }
+                }
+            /*Cursor cursor =datos.obtenerDocumentos(folioT);
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("nombre");
+                    u1 = cursor.getString(columna);
+                    columna = cursor.getColumnIndex("pass");
+                    p1 = cursor.getString(columna);
+                }
+                if(!u1.isEmpty() && !p1.isEmpty())
+                    resStatus = u1+","+p1;
+                else
+                    resStatus="Error";
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+                resStatus="Error";
+            }*/
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+    }
+
     public void borrarBase(){
         datos.getDb().beginTransaction();
         String folioT ="";
@@ -452,10 +508,6 @@ public class productos extends AppCompatActivity {
         }
     }
 
-    private void convert64(){
-        //String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-    }
-
     private File createImageFile() throws IOException {
         // Create an image file name
         //String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -473,7 +525,7 @@ public class productos extends AppCompatActivity {
         return image;
     }
 
-    private void handleBigCameraPhoto() {
+    private void handleBigCameraPhoto(Intent data) {
         if (mCurrentPhotoPath != null) {
             galleryAddPic();
             if(bandera>0)
@@ -485,10 +537,12 @@ public class productos extends AppCompatActivity {
                     img2.setEnabled(false);
                 else
                     img3.setEnabled(false);
+                convert64(data);
             }
             else{
-                setPic();
+                Toast.makeText(this, "Vuelva a intentar a tomar la foto", Toast.LENGTH_LONG).show();
             }
+
             mCurrentPhotoPath = null;
             list.add(0,"2");
             Log.e(tag, "despues de setpic: " + list.toString());
@@ -581,6 +635,21 @@ public class productos extends AppCompatActivity {
         //mVideoView.setVisibility(View.INVISIBLE);
     }
 
+    private void convert64(Intent data){
+        final Uri imageUri = data.getData();
+        final InputStream imageStream;
+        final Bitmap selectedImage;
+        try {
+            imageStream = getContentResolver().openInputStream(imageUri);
+            selectedImage = BitmapFactory.decodeStream(imageStream);
+            String encodedImage = encodeImage(selectedImage);
+            list64.add(encodedImage);
+            Log.e(tag, "64: "+encodedImage);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void galleryAddPic() {
         Intent mediaScanIntent = new Intent("android.intent.action.MEDIA_SCANNER_SCAN_FILE");
         File f = new File(mCurrentPhotoPath);
@@ -606,7 +675,7 @@ public class productos extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             Log.e(tag, "buen resultado");
-            handleBigCameraPhoto();
+            handleBigCameraPhoto(data);
         }
         else
         {Log.e(tag, "mal resultado");
@@ -651,4 +720,107 @@ public class productos extends AppCompatActivity {
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
+
+    private String encodeImage(Bitmap bm)
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        byte[] b = baos.toByteArray();
+        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+
+        return encImage;
+    }
+
+    private String encodeImage(String path)
+    {
+        File imagefile = new File(path);
+        FileInputStream fis = null;
+        try{
+            fis = new FileInputStream(imagefile);
+        }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        Bitmap bm = BitmapFactory.decodeStream(fis);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        byte[] b = baos.toByteArray();
+        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+        //Base64.de
+        return encImage;
+
+    }
+
+    private class AsyncWS extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            //Call Web Method
+            Log.d("l0gin","entre al bt0t0n");
+            for(int i = 0; i<4;i++){
+                status = WebService.invokeImagenWS(folioT,list64.get(i),"LoginApp");
+            }
+
+            return null;
+        }
+
+        @Override
+        //Once WebService returns response
+        protected void onPostExecute(Void result) {
+            //Make Progress Bar invisible
+            Intent intObj = new Intent(productos.this, Nav_Principal.class);
+            Log.d("l0gin","p0st");
+            //Error status is false
+            if(!errored){
+                //Based on Boolean value returned from WebService
+                /*if(loginStatus){
+                    String pantalla = obtenerEstado();
+                    if (pantalla.equals("Entregando"));
+                    else{
+                    }
+                    startActivity(intObj);
+                }else{
+                    //Set Error message
+                    statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
+                }*/
+                //Error status is true
+            }else{
+                /*String base=obtenerUSER();
+                if(!base.equals("Error")) {
+                    String ESTADO = obtenerEstado();
+                    if(!ESTADO.equals("Error")) {
+                        String[] parts = base.split(",");
+                        if (editTextUsername.equals(parts[0]) && editTextPassword.equals(parts[1])) {
+                            if (ESTADO.equals("Entregando")) {
+                                startActivity(new Intent(MainActivity.this, productos.class));
+                            } else if (ESTADO.equals("En Camino")) {
+                                startActivity(new Intent(MainActivity.this, Nav_Principal.class));
+                            } else {
+                                statusTV.setText("No hay conexión a internet");
+                            }
+                        } else {
+                            statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
+                        }
+                    }else{
+                        //Set Error message
+                        statusTV.setText("No hay conexión a internet");
+                    }
+                }else{
+                    //Set Error message
+                    statusTV.setText("No hay conexión a internet");
+                }*/
+            }
+            //Re-initialize Error Status to False
+            errored = false;
+        }
+
+        @Override
+        //Make Progress Bar visible
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
 }
