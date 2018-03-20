@@ -53,13 +53,13 @@ public class MainActivity extends AppCompatActivity {
                 if (userNameET.getText().length() != 0 && userNameET.getText().toString() != "") {
                     if(passWordET.getText().length() != 0 && passWordET.getText().toString() != ""){
                         webservicePG.setVisibility(View.VISIBLE);
-                        Log.d("l0gin","activar l0ad");
+                        //Log.d("l0gin","activar l0ad");
                         editTextUsername = userNameET.getText().toString();
                         editTextPassword = passWordET.getText().toString();
                         statusTV.setText("");
                         //Create instance for AsyncCallWS
                         AsyncCallWS task = new AsyncCallWS();
-                        Log.d("l0gin","para el task");
+                        //Log.d("l0gin","para el task");
                         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
                             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         } else {
@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             //Make Progress Bar invisible
             webservicePG.setVisibility(View.INVISIBLE);
             Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
-            Log.d("l0gin","p0st");
+            Log.d("l0gin","p0st: "+loginStatus);
             //Error status is false
             if(!errored){
                 //Based on Boolean value returned from WebService
@@ -133,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
                                     statusTV.setText("No hay conexión a internet");
                                 }
                             } else {
-                                statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
+                                statusTV.setText("Error en Usuario y/o contraseña");
                             }
                     }else{
                         //Set Error message

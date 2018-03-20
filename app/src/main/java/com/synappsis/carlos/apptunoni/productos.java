@@ -79,7 +79,7 @@ public class productos extends AppCompatActivity {
     /*Variable firma*/
     String mCurrentSignPath;
     OperacionesBaseDatos datos = null;
-    List<String> list64;
+    List<String> list64 = new ArrayList<>();
     Documentos doc;
     static boolean errored = false;
     boolean status = false;
@@ -258,6 +258,8 @@ public class productos extends AppCompatActivity {
                             Log.d(tag, "Error accessing file: " + e.getMessage());
                         }
                         setSign();
+                        //convert64();
+                        //list64.add("put0 angel");
                         list.add(0,"1");
                         Toast.makeText(getApplicationContext(),"Se ha guardado la Firma",Toast.LENGTH_SHORT).show();
                         dialog.setEnabled(false);
@@ -291,30 +293,14 @@ public class productos extends AppCompatActivity {
                     Log.e("ESTAD0", "folioT-U: "+folioT);
                 }
                 if(folioT!=null){
-                    if(!folioT.isEmpty()){
-                        doc = new Documentos(null,list64.get(0),list64.get(1),list64.get(2),list64.get(3),null, "Entregado","",folioT);
-                        datos.insertarDocumentos(doc);//pass=xcvb
+                    //if(!folioT.isEmpty()){
+                        //doc = new Documentos(null,list64.get(0),list64.get(1),list64.get(2),list64.get(3),null, "Entregado","",folioT);
+                        //datos.insertarDocumentos(doc);//pass=xcvb
                         AsyncWS task = new AsyncWS();
                         task.execute();
-                    }
+                    //}
                 }
-            /*Cursor cursor =datos.obtenerDocumentos(folioT);
-            if(cursor!=null){
-                if (cursor.moveToFirst()) {
-                    int columna = cursor.getColumnIndex("nombre");
-                    u1 = cursor.getString(columna);
-                    columna = cursor.getColumnIndex("pass");
-                    p1 = cursor.getString(columna);
-                }
-                if(!u1.isEmpty() && !p1.isEmpty())
-                    resStatus = u1+","+p1;
-                else
-                    resStatus="Error";
-            }
-            else{
-                Log.d("USER","Error algo vacio");
-                resStatus="Error";
-            }*/
+
             datos.getDb().setTransactionSuccessful();
         } finally {
             datos.getDb().endTransaction();
@@ -464,6 +450,9 @@ public class productos extends AppCompatActivity {
         fotoimg.setImageBitmap(bitmap);
         //mVideoUri = null;
         fotoimg.setVisibility(View.VISIBLE);
+
+        convert64(bitmap);
+        //bandera=3;
     }
 
     private boolean revisarPermisos() {
@@ -537,7 +526,7 @@ public class productos extends AppCompatActivity {
                     img2.setEnabled(false);
                 else
                     img3.setEnabled(false);
-                convert64(data);
+                convert64();
             }
             else{
                 Toast.makeText(this, "Vuelva a intentar a tomar la foto", Toast.LENGTH_LONG).show();
@@ -635,19 +624,23 @@ public class productos extends AppCompatActivity {
         //mVideoView.setVisibility(View.INVISIBLE);
     }
 
-    private void convert64(Intent data){
-        final Uri imageUri = data.getData();
-        final InputStream imageStream;
-        final Bitmap selectedImage;
-        try {
-            imageStream = getContentResolver().openInputStream(imageUri);
-            selectedImage = BitmapFactory.decodeStream(imageStream);
-            String encodedImage = encodeImage(selectedImage);
-            list64.add(encodedImage);
-            Log.e(tag, "64: "+encodedImage);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+    private void convert64(){
+        Bitmap bm = BitmapFactory.decodeFile(mCurrentPhotoPath);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+        byte[] byteArrayImage = baos.toByteArray();
+        String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+        //Log.e(tag, "64 "+encodedImage);
+        list64.add(encodedImage);
+    }
+
+    private void convert64(Bitmap bm){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+        byte[] byteArrayImage = baos.toByteArray();
+        String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+        //Log.e(tag, "64 "+encodedImage);
+        list64.add(encodedImage);
     }
 
     private void galleryAddPic() {
@@ -658,6 +651,7 @@ public class productos extends AppCompatActivity {
         Log.e(tag, "Guardando ");
         this.sendBroadcast(mediaScanIntent);
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if(REQUEST_CODE_ASK_PERMISSIONS == requestCode) {
@@ -671,6 +665,7 @@ public class productos extends AppCompatActivity {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
@@ -721,92 +716,30 @@ public class productos extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
 
-    private String encodeImage(Bitmap bm)
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,100,baos);
-        byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
-
-        return encImage;
-    }
-
-    private String encodeImage(String path)
-    {
-        File imagefile = new File(path);
-        FileInputStream fis = null;
-        try{
-            fis = new FileInputStream(imagefile);
-        }catch(FileNotFoundException e){
-            e.printStackTrace();
-        }
-        Bitmap bm = BitmapFactory.decodeStream(fis);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,100,baos);
-        byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
-        //Base64.de
-        return encImage;
-
-    }
-
     private class AsyncWS extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method
-            Log.d("l0gin","entre al bt0t0n");
+            Log.d("imagen ws", list64.size() +"");
             for(int i = 0; i<4;i++){
                 status = WebService.invokeImagenWS(folioT,list64.get(i),"LoginApp");
+                Log.d("CICL0 ws", list64.get(i));
+                if(!status)
+                    i--;
             }
-
+            Log.d("imagen ws","termine ed enviar");
             return null;
         }
 
         @Override
         //Once WebService returns response
         protected void onPostExecute(Void result) {
-            //Make Progress Bar invisible
-            Intent intObj = new Intent(productos.this, Nav_Principal.class);
-            Log.d("l0gin","p0st");
             //Error status is false
             if(!errored){
-                //Based on Boolean value returned from WebService
-                /*if(loginStatus){
-                    String pantalla = obtenerEstado();
-                    if (pantalla.equals("Entregando"));
-                    else{
-                    }
-                    startActivity(intObj);
-                }else{
-                    //Set Error message
-                    statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
-                }*/
                 //Error status is true
+                Toast.makeText(getApplicationContext(),"Se esta enviando",Toast.LENGTH_SHORT).show();
             }else{
-                /*String base=obtenerUSER();
-                if(!base.equals("Error")) {
-                    String ESTADO = obtenerEstado();
-                    if(!ESTADO.equals("Error")) {
-                        String[] parts = base.split(",");
-                        if (editTextUsername.equals(parts[0]) && editTextPassword.equals(parts[1])) {
-                            if (ESTADO.equals("Entregando")) {
-                                startActivity(new Intent(MainActivity.this, productos.class));
-                            } else if (ESTADO.equals("En Camino")) {
-                                startActivity(new Intent(MainActivity.this, Nav_Principal.class));
-                            } else {
-                                statusTV.setText("No hay conexión a internet");
-                            }
-                        } else {
-                            statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
-                        }
-                    }else{
-                        //Set Error message
-                        statusTV.setText("No hay conexión a internet");
-                    }
-                }else{
-                    //Set Error message
-                    statusTV.setText("No hay conexión a internet");
-                }*/
+                Toast.makeText(getApplicationContext(),"Se ha gmuerto",Toast.LENGTH_SHORT).show();
             }
             //Re-initialize Error Status to False
             errored = false;
