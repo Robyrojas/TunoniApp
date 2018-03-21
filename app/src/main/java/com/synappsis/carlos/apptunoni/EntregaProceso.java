@@ -207,6 +207,7 @@ public class EntregaProceso extends Fragment {
                     //enCAMINO = getStatus();
                     if (enCAMINO == 0) {
                         actualizarStatus("En Camino");
+                        new enviarStatus().execute();
                         Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
                         enCAMINO = 1;
                     }
@@ -467,6 +468,7 @@ public class EntregaProceso extends Fragment {
                 //TODO
                 Log.e(tag, "SI");
                 actualizarStatus("Entregando");
+                new enviarProceso().execute();
                 dialog.dismiss();
                 Intent intent = new Intent(getActivity(), productos.class);
                 startActivity(intent);
@@ -585,4 +587,18 @@ public class EntregaProceso extends Fragment {
         }
     }
 
+    public class enviarStatus extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            boolean status = WebService.invokeComanda(Foliomaps, "En Camino");
+            return null;
+        }
+    }
+    public class enviarProceso extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            boolean status = WebService.invokeComanda(Foliomaps, "Por Entregar");
+            return null;
+        }
+    }
 }

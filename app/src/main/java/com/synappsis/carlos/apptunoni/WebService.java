@@ -23,10 +23,13 @@ import java.util.List;
 public class WebService {
     //Namespace of the Webservice - can be found in WSDL
     private static String NAMESPACE = "http://WebServicesApp/";
-    //Webservice URL - WSDL File location
-    private static String URL = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
+    //Webservice URL - WSDL File location // 192.241.195.227
+    //http://148.204.4.150:8080/SeguimientoTunoni/
+    private static String URL = "http://148.204.4.150:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
-    private static String SOAP_ACTION = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp";
+
+
+    private static String SOAP_ACTION = "http://148.204.4.150:8080/SeguimientoTunoni/ControlApp";
     private static int Timeout = 10000;
     static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -85,6 +88,55 @@ public class WebService {
         list.add("one");
         list.add("two");
         return list;
+    }
+
+    public static boolean invokeComanda(String folio, String estatus){
+        boolean Status = false;
+        String webMethName="UpdataComanda";
+        // Create request
+        SoapObject request = new SoapObject(NAMESPACE, webMethName);
+        // Property which holds input parameters
+        PropertyInfo folioC = new PropertyInfo();
+        PropertyInfo estadoC = new PropertyInfo();
+        // Set folioPI
+        folioC.setName("folio");
+        // Set Value
+        folioC.setValue(folio);
+        // Set dataType
+        folioC.setType(String.class);
+        // Add the property to request object
+        request.addProperty(folioC);
+        // Set folioPI
+        estadoC.setName("estado");
+        // Set Value
+        estadoC.setValue(estatus);
+        // Set dataType
+        estadoC.setType(String.class);
+        // Add the property to request object
+        request.addProperty(estadoC);
+        // Create envelope
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        // Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        // Create HTTP call object
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
+        //Log.d("Tiempo: ", "time: "+Timeout);
+        try {
+            // Invoke web service
+            androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
+            // Get the response
+            SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+            // Assign it to  boolean variable variable
+            Status = Boolean.parseBoolean(response.toString());
+
+        } catch (Exception e) {
+            //Assign Error Status true in static variable 'errored'
+            MainActivity.errored = true;
+            e.printStackTrace();
+        }
+        //Return booleam to calling object
+        return Status;
     }
 
     public static Entrega[] invokeGetComanda(String UserComanda, String webMethName) {
@@ -212,5 +264,137 @@ public class WebService {
         return envioStatus;
     }
 
+    public static boolean invokeUbicacion(String folio, String ubicacion, String tipo){
+        boolean Status = false;
+        String webMethName="UpdataUbicacion";
+        // Create request
+        SoapObject request = new SoapObject(NAMESPACE, webMethName);
+        // Property which holds input parameters
+        PropertyInfo folioU = new PropertyInfo();
+        PropertyInfo tipoU = new PropertyInfo();
+        PropertyInfo ubicacionU = new PropertyInfo();
+        // Set folioPI
+        folioU.setName("folio");
+        // Set Value
+        folioU.setValue(folio);
+        // Set dataType
+        folioU.setType(String.class);
+        // Add the property to request object
+        request.addProperty(folioU);
+        // Set folioPI
+        tipoU.setName("tipo");
+        // Set Value
+        tipoU.setValue(tipo);
+        // Set dataType
+        tipoU.setType(String.class);
+        // Add the property to request object
+        request.addProperty(tipoU);
+        // Set folioPI
+        ubicacionU.setName("ubicacion");
+        // Set Value
+        ubicacionU.setValue(ubicacion);
+        // Set dataType
+        ubicacionU.setType(String.class);
+        // Add the property to request objec
+        request.addProperty(ubicacionU);
+        // Create envelope
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        // Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        // Create HTTP call object
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
+        //Log.d("Tiempo: ", "time: "+Timeout);
+        try {
+            // Invoke web service
+            androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
+            // Get the response
+            SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+            // Assign it to  boolean variable variable
+            Status = Boolean.parseBoolean(response.toString());
 
+        } catch (Exception e) {
+            //Assign Error Status true in static variable 'errored'
+            MainActivity.errored = true;
+            e.printStackTrace();
+        }
+        //Return booleam to calling object
+        return Status;
+    }
+
+    public static boolean invokeProducto(String folio, String producto, String estado, String faltante, String comentario){
+        boolean Status = false;
+        String webMethName="UpdataProducto";
+        // Create request
+        SoapObject request = new SoapObject(NAMESPACE, webMethName);
+        // Property which holds input parameters
+        PropertyInfo folioP = new PropertyInfo();
+        PropertyInfo productoP = new PropertyInfo();
+        PropertyInfo estadoP = new PropertyInfo();
+        PropertyInfo faltanteP = new PropertyInfo();
+        PropertyInfo comentarioP = new PropertyInfo();
+        // Set folioPI
+        folioP.setName("folio");
+        // Set Value
+        folioP.setValue(folio);
+        // Set dataType
+        folioP.setType(String.class);
+        // Add the property to request object
+        request.addProperty(folioP);
+        // Set folioPI
+        productoP.setName("producto");
+        // Set Value
+        productoP.setValue(producto);
+        // Set dataType
+        productoP.setType(String.class);
+        // Add the property to request object
+        request.addProperty(productoP);
+        // Set folioPI
+        estadoP.setName("estado");
+        // Set Value
+        estadoP.setValue(estado);
+        // Set dataType
+        estadoP.setType(String.class);
+        // Add the property to request objec
+        request.addProperty(estadoP);
+        // Set folioPI
+        faltanteP.setName("faltante");
+        // Set Value
+        faltanteP.setValue(faltante);
+        // Set dataType
+        faltanteP.setType(String.class);
+        // Add the property to request objec
+        request.addProperty(faltanteP);
+        // Set folioPI
+        comentarioP.setName("comentario");
+        // Set Value
+        comentarioP.setValue(comentario);
+        // Set dataType
+        comentarioP.setType(String.class);
+        // Add the property to request objec
+        request.addProperty(comentarioP);
+        // Create envelope
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        // Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        // Create HTTP call object
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
+        //Log.d("Tiempo: ", "time: "+Timeout);
+        try {
+            // Invoke web service
+            androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
+            // Get the response
+            SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+            // Assign it to  boolean variable variable
+            Status = Boolean.parseBoolean(response.toString());
+
+        } catch (Exception e) {
+            //Assign Error Status true in static variable 'errored'
+            MainActivity.errored = true;
+            e.printStackTrace();
+        }
+        //Return booleam to calling object
+        return Status;
+    }
 }

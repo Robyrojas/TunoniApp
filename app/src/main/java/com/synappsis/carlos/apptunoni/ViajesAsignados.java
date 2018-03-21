@@ -161,7 +161,9 @@ public class ViajesAsignados extends Fragment {
                             new actualizarStatus().execute();
                             Toast.makeText(getContext(), "Ha seleccionado: "+ grupotext, Toast.LENGTH_SHORT).show();
                             button.setEnabled(false);
+                            new enviarStatus().execute();
                             irEntregaProceso();
+
                         }
                     });
                     dialogo1.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
@@ -394,29 +396,10 @@ public class ViajesAsignados extends Fragment {
     }
 
     /*TEST DE BASE DE DATOS*/
-    public class obtenerUser extends AsyncTask<Void, Void, Void> {
+    public class enviarStatus extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            // [INSERCIONES]
-            try {
-                datos.getDb().beginTransaction();
-                //int a = 1;
-                Cursor cursor =datos.obtenerUser();
-                if(cursor!=null){
-                    if (cursor.moveToFirst()) {
-                        int columna = cursor.getColumnIndex("nombre");
-                        UserComanda = cursor.getString(columna);
-                    }
-                }
-                else{
-                    Log.d("USER","Error algo vacio");
-                }
-                datos.getDb().setTransactionSuccessful();
-            } finally {
-                datos.getDb().endTransaction();
-            }
-            // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
+            boolean status = WebService.invokeComanda(grupotext, "Seleccionada");
             return null;
         }
     }

@@ -2,6 +2,7 @@ package com.synappsis.carlos.apptunoni;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -29,6 +30,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -80,6 +83,7 @@ public class productos extends AppCompatActivity {
     String mCurrentSignPath;
     OperacionesBaseDatos datos = null;
     List<String> list64 = new ArrayList<>();
+    List<String> list64path = new ArrayList<>();
     Documentos doc;
     static boolean errored = false;
     boolean status = false;
@@ -263,6 +267,7 @@ public class productos extends AppCompatActivity {
                         list.add(0,"1");
                         Toast.makeText(getApplicationContext(),"Se ha guardado la Firma",Toast.LENGTH_SHORT).show();
                         dialog.setEnabled(false);
+                        savePath(mCurrentSignPath);
                         dialogAlert.dismiss();
                     }
                 });
@@ -281,6 +286,7 @@ public class productos extends AppCompatActivity {
     }
 
     private void enviarDoc() {
+        convert64();
         try {
             Log.e("PRODUCTO", "GUARDANDO FOTOS");
             datos.getDb().beginTransaction();
@@ -450,8 +456,6 @@ public class productos extends AppCompatActivity {
         fotoimg.setImageBitmap(bitmap);
         //mVideoUri = null;
         fotoimg.setVisibility(View.VISIBLE);
-
-        convert64(bitmap);
         //bandera=3;
     }
 
@@ -526,7 +530,7 @@ public class productos extends AppCompatActivity {
                     img2.setEnabled(false);
                 else
                     img3.setEnabled(false);
-                convert64();
+                savePath(mCurrentPhotoPath);
             }
             else{
                 Toast.makeText(this, "Vuelva a intentar a tomar la foto", Toast.LENGTH_LONG).show();
@@ -625,22 +629,32 @@ public class productos extends AppCompatActivity {
     }
 
     private void convert64(){
-        Bitmap bm = BitmapFactory.decodeFile(mCurrentPhotoPath);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-        byte[] byteArrayImage = baos.toByteArray();
-        String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-        //Log.e(tag, "64 "+encodedImage);
-        list64.add(encodedImage);
+        for(int i = 0; i < list64path.size(); i++){
+            Bitmap bm = BitmapFactory.decodeFile(list64path.get(i));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+            byte[] byteArrayImage = baos.toByteArray();
+            String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+            Log.e(tag, encodedImage.length() + "");
+            list64.add(encodedImage);
+        }
     }
 
-    private void convert64(Bitmap bm){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-        byte[] byteArrayImage = baos.toByteArray();
-        String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-        //Log.e(tag, "64 "+encodedImage);
-        list64.add(encodedImage);
+    private void convert64png(){
+        for(int i = 0; i < list64path.size(); i++){
+            File imageFile = new File(list64path.get(i));
+            Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            byte[] image = stream.toByteArray();
+            String encodedImage = Base64.encodeToString(image, 0);
+            Log.e(tag, "64 "+encodedImage);
+            list64.add(encodedImage);
+        }
+    }
+
+    private void savePath(String path){
+        list64path.add(path);
     }
 
     private void galleryAddPic() {
@@ -721,12 +735,16 @@ public class productos extends AppCompatActivity {
         protected Void doInBackground(String... params) {
             //Call Web Method
             Log.d("imagen ws", list64.size() +"");
-            for(int i = 0; i<4;i++){
-                status = WebService.invokeImagenWS(folioT,list64.get(i),"LoginApp");
-                Log.d("CICL0 ws", list64.get(i));
-                if(!status)
-                    i--;
-            }
+            //for(int i = 0; i<4;i++){
+            status = WebService.invokeImagenWS(folioT,list64.get(0),"Foto1");Log.d("CICL0 ws", "0 "+status);
+            //Log.d("CICL0 ws", list64.get(0));
+            status = WebService.invokeImagenWS(folioT,list64.get(1),"Foto2");Log.d("CICL0 ws", "1 "+status);
+            //Log.d("CICL0 ws", list64.get(1));
+            status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
+            //Log.d("CICL0 ws", list64.get(2));
+            //status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status  );
+            //Log.d("CICL0 ws", list64.get(3));
+
             Log.d("imagen ws","termine ed enviar");
             return null;
         }
@@ -735,14 +753,14 @@ public class productos extends AppCompatActivity {
         //Once WebService returns response
         protected void onPostExecute(Void result) {
             //Error status is false
-            if(!errored){
+            if(status){
                 //Error status is true
                 Toast.makeText(getApplicationContext(),"Se esta enviando",Toast.LENGTH_SHORT).show();
             }else{
-                Toast.makeText(getApplicationContext(),"Se ha gmuerto",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Aún no envia",Toast.LENGTH_SHORT).show();
             }
             //Re-initialize Error Status to False
-            errored = false;
+            status = false;
         }
 
         @Override
