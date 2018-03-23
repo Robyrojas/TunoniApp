@@ -35,13 +35,14 @@ class DrawingView extends View {
 
         mPath = new Path();
         mBitmapPaint = new Paint();
-        mBitmapPaint.setColor(Color.BLACK);
+        mBitmapPaint.setColor(Color.WHITE);
     }
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
         mCanvas = new Canvas(mBitmap);
+        mCanvas.drawARGB(0, 225, 225, 255);
     }
     @Override
     public void draw(Canvas canvas) {

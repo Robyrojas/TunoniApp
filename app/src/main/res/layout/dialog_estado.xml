@@ -9,32 +9,14 @@
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Selecione una opción:" />
+        android:text="Enviando información, espera un momento"
+        android:textAlignment="center"
+        android:textSize="24sp" />
 
-    <Spinner
-        android:id="@+id/spinnerEstado"
+    <ProgressBar
+        android:id="@+id/progressBarTUN0NI"
+        style="?android:attr/progressBarStyle"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/rojosoftT"
-        android:prompt="@string/estado_prompt" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <Button
-            android:id="@+id/btncancel_estado"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Cancelar" />
-
-        <Button
-            android:id="@+id/btnok_estado"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Aceptar" />
-
-    </LinearLayout>
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

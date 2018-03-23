@@ -92,6 +92,7 @@ public class EntregaProceso extends Fragment {
     private String Foliomaps;
     String vistaSave = null;
     double longitudeGPS = 0, latitudeGPS = 0;
+    String p0s = "";
     /*mapas*/
     static final int REQUEST_LOCATION = 1;
     LocationManager locationManager;
@@ -208,6 +209,7 @@ public class EntregaProceso extends Fragment {
                     if (enCAMINO == 0) {
                         actualizarStatus("En Camino");
                         new enviarStatus().execute();
+                        new enviarUbicacion().execute();
                         Toast.makeText(getActivity(), "Estas en Camino", Toast.LENGTH_LONG).show();
                         enCAMINO = 1;
                     }
@@ -543,7 +545,8 @@ public class EntregaProceso extends Fragment {
                 Log.e("longitude: ",longi+" ");
                 latitudeGPS = latti;
                 longitudeGPS = longi;
-                guardarLatLong(latti+","+longi);
+                p0s = latti+","+longi;
+                guardarLatLong(p0s);
                 //obtenerMapa();
                 LatLng origen = new LatLng(latitudeGPS, longitudeGPS);
                 LatLng destino = obtenerdestino();
@@ -598,6 +601,13 @@ public class EntregaProceso extends Fragment {
         @Override
         protected Void doInBackground(Void... params) {
             boolean status = WebService.invokeComanda(Foliomaps, "Por Entregar");
+            return null;
+        }
+    }
+    public class enviarUbicacion extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            boolean status = WebService.invokeUbicacion(Foliomaps, p0s,"Ubicacion");
             return null;
         }
     }

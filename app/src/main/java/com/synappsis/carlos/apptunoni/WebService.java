@@ -25,12 +25,11 @@ public class WebService {
     private static String NAMESPACE = "http://WebServicesApp/";
     //Webservice URL - WSDL File location // 192.241.195.227
     //http://148.204.4.150:8080/SeguimientoTunoni/
-    private static String URL = "http://148.204.4.150:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
+    private static String URL = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
-
-
-    private static String SOAP_ACTION = "http://148.204.4.150:8080/SeguimientoTunoni/ControlApp";
+    private static String SOAP_ACTION = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp";
     private static int Timeout = 10000;
+    private static int Timeout2 = 30000;
     static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public static boolean invokeLoginWS(String userName,String passWord, String webMethName) {
@@ -245,13 +244,16 @@ public class WebService {
         // Set output SOAP object
         envelope.setOutputSoapObject(request);
         // Create HTTP call object
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout);
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout2);
         //Log.d("Tiempo: ", "time: "+Timeout);
         try {
             // Invoke web service
+            Log.d("Tiempo: ", "EN EL TRY");
             androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
+            Log.d("Tiempo: ", "CALL");
             // Get the response
             SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
+            Log.d("Tiempo: ", "RES0NSE");
             // Assign it to  boolean variable variable
             envioStatus = Boolean.parseBoolean(response.toString());
 

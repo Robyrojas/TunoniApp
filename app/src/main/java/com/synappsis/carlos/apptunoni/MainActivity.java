@@ -115,7 +115,7 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intObj);
                 }else{
                     //Set Error message
-                    statusTV.setText("Vuelve a intentar, Error en Usuario y/o contraseña");
+                    statusTV.setText("Error en Usuario y/o contraseña");
                 }
                 //Error status is true
             }else{
@@ -130,18 +130,18 @@ public class MainActivity extends AppCompatActivity {
                                 } else if (ESTADO.equals("En Camino")) {
                                     startActivity(new Intent(MainActivity.this, Nav_Principal.class));
                                 } else {
-                                    statusTV.setText("No hay conexión a internet");
+                                    statusTV.setText("No hay conexión al Servidor");
                                 }
                             } else {
                                 statusTV.setText("Error en Usuario y/o contraseña");
                             }
                     }else{
                         //Set Error message
-                        statusTV.setText("No hay conexión a internet");
+                        statusTV.setText("No hay conexión al Servidor");
                     }
                 }else{
                     //Set Error message
-                    statusTV.setText("No hay conexión a internet");
+                    statusTV.setText("No hay conexión al Servidor");
                 }
             }
             //Re-initialize Error Status to False

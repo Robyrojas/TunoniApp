@@ -1,8 +1,5 @@
 package com.synappsis.carlos.apptunoni;
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -10,7 +7,6 @@ import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -31,13 +27,13 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.biometriaaplicada.identitum.exceptions.GZipException;
 import com.synappsis.carlos.apptunoni.entidades.Documentos;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 import com.synappsis.carlos.apptunoni.entidades.Producto;
@@ -48,13 +44,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.text.SimpleDateFormat;
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.StringTokenizer;
+import com.biometriaaplicada.identitum.utils.GZipUtils;
 
 public class productos extends AppCompatActivity {
     private final String ruta_fotos = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Tunoni/";
@@ -84,6 +80,7 @@ public class productos extends AppCompatActivity {
     OperacionesBaseDatos datos = null;
     List<String> list64 = new ArrayList<>();
     List<String> list64path = new ArrayList<>();
+    List<Bitmap> listBitmap = new ArrayList<>();
     Documentos doc;
     static boolean errored = false;
     boolean status = false;
@@ -114,65 +111,63 @@ public class productos extends AppCompatActivity {
         aceptar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!list.isEmpty()){
-                    if(list.size()>=4){
-                        AlertDialog.Builder aceptBuilder = new AlertDialog.Builder(productos.this);
-                        View vistaAcept = getLayoutInflater().inflate(R.layout.dialog_cliente,null);
-                        final EditText userU = (EditText) vistaAcept.findViewById(R.id.userName);
-                        final EditText userC = (EditText) vistaAcept.findViewById(R.id.passUser);
-                        Button mAcept = (Button) vistaAcept.findViewById(R.id.userAcept);
-                        Button mCancel = (Button) vistaAcept.findViewById(R.id.userCancel);
-                        aceptBuilder.setView(vistaAcept);
-                        final AlertDialog dialog = aceptBuilder.create();
-                        dialog.show();
-                        mAcept.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
-                                {
-                                    actualizarStatus("Send");
-                                    enviarDoc();
-                                    Toast.makeText(getApplicationContext(),"Enviando Captura",Toast.LENGTH_SHORT).show();
-                                    borrarBase();
+                if(aceptar.getText().equals("Aceptar")){
+                    if(!list.isEmpty()){
+                        if(list.size()>=4){
+                            AlertDialog.Builder aceptBuilder = new AlertDialog.Builder(productos.this);
+                            View vistaAcept = getLayoutInflater().inflate(R.layout.dialog_cliente,null);
+                            final EditText userU = (EditText) vistaAcept.findViewById(R.id.userName);
+                            final EditText userC = (EditText) vistaAcept.findViewById(R.id.passUser);
+                            Button mAcept = (Button) vistaAcept.findViewById(R.id.userAcept);
+                            Button mCancel = (Button) vistaAcept.findViewById(R.id.userCancel);
+                            aceptBuilder.setView(vistaAcept);
+                            final AlertDialog dialog = aceptBuilder.create();
+                            dialog.show();
+                            mAcept.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
+                                    {
+                                        actualizarStatus("Send");
+                                        enviarDoc();
+                                        Toast.makeText(getApplicationContext(),"Validación Guardada, dar clic en Terminar",Toast.LENGTH_SHORT).show();
+                                        //borrarBase();
+                                        dialog.dismiss();
+                                        //datos.getDb().close();
+                                        aceptar.setText("Terminar");
+                                        //finish();
+                                    }
+                                    else {
+                                        Toast.makeText(getApplicationContext(),"Faltan datos",Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+                            mCancel.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
                                     dialog.dismiss();
-                                    datos.getDb().close();
-                                    finish();
                                 }
-                                else {
-                                    Toast.makeText(getApplicationContext(),"Faltan datos",Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                        mCancel.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dialog.dismiss();
-                            }
-                        });
+                            });
+                        }else{
+                            Toast.makeText(getApplicationContext(),"Te falta agregar foto y/o firma",Toast.LENGTH_SHORT).show();
+                        }
                     }else{
-                        Toast.makeText(getApplicationContext(),"Te falta agregar foto y/o firma",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
+                        String testo = obtenerDatos(0);
+                        new WSTESTS().execute();
+                        //status = WebService.invokeImagenWS("OC0000001","put0 el angel","Foto1");
+                        Log.d("CICL0 ws", "0 "+status);
+                        Log.d(tag, testo);
                     }
-                }else{
-                    Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
-                    String testo = obtenerDatos(0);
-                    Log.d(tag, testo);
+                }
+                else{
+                    borrarBase();
+                    datos.getDb().close();
+                    Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
+                    finish();
                 }
             }
         });
-        /*codigo foto
-        boton = (Button) findViewById(R.id.btnFoto);
-        file.mkdirs();
-        boton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view) {
-                checkPermission = revisarPermisos();
-                if(checkPermission)
-                {
-                    bandera = 0;
-                    dispatchTakePictureIntent();
-                }
-            }
-        });*/
         /*codigo foto 1*/
         img1 = (ImageButton) findViewById(R.id.foto1);
         file.mkdirs();
@@ -263,7 +258,6 @@ public class productos extends AppCompatActivity {
                         }
                         setSign();
                         //convert64();
-                        //list64.add("put0 angel");
                         list.add(0,"1");
                         Toast.makeText(getApplicationContext(),"Se ha guardado la Firma",Toast.LENGTH_SHORT).show();
                         dialog.setEnabled(false);
@@ -630,27 +624,49 @@ public class productos extends AppCompatActivity {
 
     private void convert64(){
         for(int i = 0; i < list64path.size(); i++){
-            Bitmap bm = BitmapFactory.decodeFile(list64path.get(i));
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-            byte[] byteArrayImage = baos.toByteArray();
-            String encodedImage = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-            Log.e(tag, encodedImage.length() + "");
-            list64.add(encodedImage);
+            String xxx = encodeImage(list64path.get(i));
+            Log.e(tag, " TAM: " +xxx.length());
+            /*try {
+                byte[] bytesFinal = GZipUtils.compressBytes(xxx.getBytes(StandardCharsets.UTF_8));
+                String text = new String(bytesFinal, StandardCharsets.UTF_8);
+                Log.e(tag, " TAM C0MPRESS: " +text.length());
+                list64.add(text);
+            } catch (GZipException e) {
+                e.printStackTrace();
+            }*/
+            list64.add(xxx);
         }
     }
 
-    private void convert64png(){
-        for(int i = 0; i < list64path.size(); i++){
-            File imageFile = new File(list64path.get(i));
+    private String encodeImage(String path) {
+        File imagefile = new File(path);
+        FileInputStream fis = null;
+        try{
+            fis = new FileInputStream(imagefile);
+        }catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        Bitmap bm = BitmapFactory.decodeStream(fis);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.JPEG,20,baos);
+        byte[] b = baos.toByteArray();
+        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
+        //Base64.de
+        return encImage;
+
+    }
+
+    private String convert64test(){
+        String res = "";
+            File imageFile = new File(mCurrentSignPath);
             Bitmap bitmap = BitmapFactory.decodeFile(imageFile.getAbsolutePath());
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 50, stream);
             byte[] image = stream.toByteArray();
             String encodedImage = Base64.encodeToString(image, 0);
             Log.e(tag, "64 "+encodedImage);
-            list64.add(encodedImage);
-        }
+            res=encodedImage;
+        return res;
     }
 
     private void savePath(String path){
@@ -742,9 +758,50 @@ public class productos extends AppCompatActivity {
             //Log.d("CICL0 ws", list64.get(1));
             status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
             //Log.d("CICL0 ws", list64.get(2));
-            //status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status  );
+            status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status  );
             //Log.d("CICL0 ws", list64.get(3));
 
+            Log.d("imagen ws","termine ed enviar");
+            return null;
+        }
+
+        @Override
+        //Once WebService returns response
+        protected void onPostExecute(Void result) {
+            //Error status is false
+            if(status){
+                //Error status is true
+                Toast.makeText(getApplicationContext(),"Se esta enviando",Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getApplicationContext(),"Aún no envia",Toast.LENGTH_SHORT).show();
+            }
+            //Re-initialize Error Status to False
+            status = false;
+        }
+
+        @Override
+        //Make Progress Bar visible
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+    private class WSTESTS extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            //Call Web Method
+
+            //for(int i = 0; i<4;i++){
+            //mCurrentSignPath
+            status = WebService.invokeImagenWS("OC0000001","put0 el angel","Foto1");
+            Log.d("imagen ws", status +"");
+            String sda= "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";
+            status = WebService.invokeImagenWS("OC0000001",sda,"Foto2");
+            Log.d("imagen ws", status +"");
             Log.d("imagen ws","termine ed enviar");
             return null;
         }
