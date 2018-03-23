@@ -55,11 +55,11 @@ import com.biometriaaplicada.identitum.utils.GZipUtils;
 public class productos extends AppCompatActivity {
     private final String ruta_fotos = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Tunoni/";
     private File file = new File(ruta_fotos);
-    private Button boton;
     private Button dialog;
     private Button aceptar;
     private ImageButton img1, img2, img3, fotoFinal;
     private ImageView fotoimg;
+    private EditText comentario;
     private static String tag="Productos";
     List<String> list;
     /*VARIABLES DE CAMERA*/
@@ -70,7 +70,6 @@ public class productos extends AppCompatActivity {
     private static final int REQUEST_CODE_ASK_PERMISSIONS = 1 ;
     private String Folio = "C001-";
     private int bandera = 0;
-    int NUM_COLS = 4;
     String[] lista1 = {"Completo","Faltante","No Entregado"};
     String[] lista2 = {"Excelente","Regular","Malo"};
     String[] listaPRO = {"Zanahorias KG","Papas KG","Tortillas KG","Agua LT","Cereal CAJA"};
@@ -80,8 +79,6 @@ public class productos extends AppCompatActivity {
     OperacionesBaseDatos datos = null;
     List<String> list64 = new ArrayList<>();
     List<String> list64path = new ArrayList<>();
-    List<Bitmap> listBitmap = new ArrayList<>();
-    Documentos doc;
     static boolean errored = false;
     boolean status = false;
     String folioT ="";
@@ -107,6 +104,7 @@ public class productos extends AppCompatActivity {
         }
         */
         /*codigo aceptar*/
+        comentario = (EditText) findViewById(R.id.comentario);
         aceptar = (Button) findViewById(R.id.btnGuardar);
         aceptar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,6 +131,7 @@ public class productos extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(),"Validación Guardada, dar clic en Terminar",Toast.LENGTH_SHORT).show();
                                         //borrarBase();
                                         dialog.dismiss();
+                                        comentario.setEnabled(false);
                                         //datos.getDb().close();
                                         aceptar.setText("Terminar");
                                         //finish();
@@ -771,9 +770,9 @@ public class productos extends AppCompatActivity {
             //Error status is false
             if(status){
                 //Error status is true
-                Toast.makeText(getApplicationContext(),"Se esta enviando",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Se envío informacación",Toast.LENGTH_SHORT).show();
             }else{
-                Toast.makeText(getApplicationContext(),"Aún no envia",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Aún no se envia información",Toast.LENGTH_SHORT).show();
             }
             //Re-initialize Error Status to False
             status = false;
