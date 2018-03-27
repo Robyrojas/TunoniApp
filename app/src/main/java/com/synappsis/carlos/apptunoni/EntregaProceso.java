@@ -597,6 +597,7 @@ public class EntregaProceso extends Fragment {
             return null;
         }
     }
+
     public class enviarProceso extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
@@ -604,11 +605,15 @@ public class EntregaProceso extends Fragment {
             return null;
         }
     }
+
     public class enviarUbicacion extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
             boolean status = WebService.invokeUbicacion(Foliomaps, p0s,"Ubicacion");
+            Log.e(tag, " UPDATAUBICAI0N: " +status);
             return null;
         }
     }
+
+
 }

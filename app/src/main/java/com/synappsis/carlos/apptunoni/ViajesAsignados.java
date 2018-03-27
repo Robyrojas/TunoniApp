@@ -52,7 +52,9 @@ public class ViajesAsignados extends Fragment {
     /*base de datos*/
     static boolean errored = false;
     private String UserComanda ="";
+    String folioString = "";
     ArrayList<Entrega> datosComanda = new ArrayList<Entrega>();
+    ArrayList<Producto> pComanda = new ArrayList<Producto>();
     String grupotext=null;
     String vistaSave=null;
 
@@ -101,7 +103,6 @@ public class ViajesAsignados extends Fragment {
             button.setEnabled(false);
             actBoton.setEnabled(false);
             Cursor folio = datos.obtenerApp();
-            String folioString = "";
             if(folio!=null){
                 if (folio.moveToFirst()) {
                     int columna = folio.getColumnIndex("folio");
@@ -159,9 +160,10 @@ public class ViajesAsignados extends Fragment {
                         public void onClick(DialogInterface dialogo1, int id) {
                             grupotext = listAdapter.getNameGrup(grupActual);
                             new actualizarStatus().execute();
-                            Toast.makeText(getContext(), "Ha seleccionado: "+ grupotext, Toast.LENGTH_SHORT).show();
-                            button.setEnabled(false);
                             new enviarStatus().execute();
+                            Toast.makeText(getContext(), "Ha seleccionado: "+ grupotext, Toast.LENGTH_SHORT).show();
+                            new AsyncCallProductoWS().execute();
+                            button.setEnabled(false);
                             irEntregaProceso();
 
                         }
@@ -236,55 +238,6 @@ public class ViajesAsignados extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-    /*
-  * Preparing the list data
-  */
-    private void prepareListData() {
-        listDataHeader = new ArrayList<String>();
-        listDataChild = new HashMap<String, List<String>>();
-        // Adding child data
-        listDataHeader.add("F-001");
-        listDataHeader.add("F-002");
-        listDataHeader.add("F-003");
-
-        // Adding child data
-        List<String> top250 = new ArrayList<String>();
-        top250.add("Estatus: En Proceso");
-        top250.add("Dirección de Origen: Origen");
-        top250.add("Fecha de Origen: #");
-        top250.add("Nombre: Name");
-        top250.add("Dirección de Destino: Destino");
-        top250.add("Fecha de Destino: #");
-        top250.add("Nombre Receptor: Name");
-        //top250.add("Información Adicional: ---");
-        //top250.add("boton");
-
-        List<String> nowShowing = new ArrayList<String>();
-        nowShowing.add("Estatus: En Proceso");
-        nowShowing.add("Dirección de Origen: Origen");
-        nowShowing.add("Fecha de Origen: #");
-        nowShowing.add("Nombre: Name");
-        nowShowing.add("Dirección de Destino: Destino");
-        nowShowing.add("Fecha de Destino: #");
-        nowShowing.add("Nombre Receptor: Name");
-        //nowShowing.add("Información Adicional: ---");
-        //nowShowing.add("boton");
-
-        List<String> comingSoon = new ArrayList<String>();
-        comingSoon.add("Estatus: En Proceso");
-        comingSoon.add("Dirección de Origen: Origen");
-        comingSoon.add("Fecha de Origen: #");
-        comingSoon.add("Nombre: Name");
-        comingSoon.add("Dirección de Destino: Destino");
-        comingSoon.add("Fecha de Destino: #");
-        comingSoon.add("Nombre Receptor: Name");
-        //comingSoon.add("Información Adicional: ---");
-        //comingSoon.add("boton");
-
-        listDataChild.put(listDataHeader.get(0), top250); // Header, Child data
-        listDataChild.put(listDataHeader.get(1), nowShowing);
-        listDataChild.put(listDataHeader.get(2), comingSoon);
-    }
 
     public boolean llenarTabs(){
         listDataHeader = new ArrayList<String>();
@@ -355,6 +308,99 @@ public class ViajesAsignados extends Fragment {
             // [QUERIES]
             Log.d("USER","----------------Obtencion de base de datos");
             DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
+            return null;
+        }
+
+        @Override
+        //Once WebService returns response
+        protected void onPostExecute(Void result) {
+            //Error status is false
+            if(!errored){
+                //Based on Boolean value returned from WebService
+                Log.d("ViajesAsigandos", "Estoy en el POST");
+                if(!datosComanda.isEmpty()){
+                    if(datosComanda.get(0).folio!=null){
+                        llenarTabs();
+                        refrescar();
+                    }
+                    else
+                        Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+                }else{
+                    //Set Error message
+                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+                }
+                //Error status is true
+            }else{
+                Toast.makeText(getContext(),"Error de conexion al Servidor",Toast.LENGTH_SHORT).show();
+            }
+            //Re-initialize Error Status to False
+            errored = false;
+        }
+
+        @Override
+        //Make Progress Bar visible
+        protected void onPreExecute() {
+            //webservicePG.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+    private class AsyncCallProductoWS extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            //Call Web Method
+            datos.getDb().beginTransaction();
+            try{
+                Cursor folio = datos.obtenerApp();
+                if(folio!=null){
+                    if (folio.moveToFirst()) {
+                        int columna = folio.getColumnIndex("folio");
+                        folioString = folio.getString(columna);
+                    }
+                    Log.e("ViajesAsigandos", "folio: "+folioString);
+                }
+            }catch (Exception e){
+                datos.getDb().endTransaction();
+            }
+            finally {
+                datos.getDb().endTransaction();
+            }
+            Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
+            Producto[] listaProducto = WebService.invokeGetProduct(UserComanda, folioString);
+            Log.d("ViajesAsigandosPR0DUCT0", "Sali");
+            if(listaProducto.length == 0){
+                return null;
+            }
+            for(int i=0;i<listaProducto.length;i++)
+            {
+                pComanda.add(listaProducto[i]);
+            }
+            Log.d("ViajesAsigandosPR0DUCT0", "Numero de P: "+listaProducto.length);
+            datos.getDb().beginTransaction();
+            Log.d("ViajesAsigandosPR0DUCT0", "begintransacitión");
+            try { Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el TRY");
+                if(pComanda.get(0).producto!=null){
+                    for(int i = 0; i<pComanda.size();i++){
+                        Producto llenar = pComanda.get(i);
+                        datos.insertarProducto(llenar);
+                        Log.d("ViajesAsigandosPR0DUCT0", "Llenar: "+datosComanda.size());
+                    }
+                }else{ Log.d("ViajesAsigandosPR0DUCT0", "datos P vacios");}
+                datos.getDb().setTransactionSuccessful();
+            }catch (Exception e){
+                e.printStackTrace();Log.d("ViajesAsigandosPR0DUCT0", "Error" +e.toString());
+                datos.getDb().endTransaction();
+            }
+            finally {
+                datos.getDb().endTransaction();
+
+            }
+            // [QUERIES]
+            Log.d("USER","----------------Obtencion de base de datos");
+            DatabaseUtils.dumpCursor(datos.obtenerProducto(UserComanda));
             return null;
         }
 

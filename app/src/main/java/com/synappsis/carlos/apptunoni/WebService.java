@@ -1,7 +1,7 @@
 package com.synappsis.carlos.apptunoni;
 import android.util.Log;
 
-import com.synappsis.carlos.apptunoni.entidades.Documentos;
+import com.synappsis.carlos.apptunoni.entidades.Producto;
 import com.synappsis.carlos.apptunoni.entidades.Entrega;
 
 import org.ksoap2.SoapEnvelope;
@@ -25,9 +25,9 @@ public class WebService {
     private static String NAMESPACE = "http://WebServicesApp/";
     //Webservice URL - WSDL File location // 192.241.195.227
     //http://148.204.4.150:8080/SeguimientoTunoni/
-    private static String URL = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
+    private static String URL = "http://159.65.228.135:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
-    private static String SOAP_ACTION = "http://192.241.195.227:8080/SeguimientoTunoni/ControlApp";
+    private static String SOAP_ACTION = "http://159.65.228.135:8080/SeguimientoTunoni/ControlApp";
     private static int Timeout = 10000;
     private static int Timeout2 = 30000;
     static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -81,7 +81,7 @@ public class WebService {
         return loginStatus;
     }
 
-    public static List<String> invokeAsignadosWS(){
+    public static List<String> invokePrueba(){
         List<String> list = new ArrayList<String>();
 
         list.add("one");
@@ -322,6 +322,60 @@ public class WebService {
         }
         //Return booleam to calling object
         return Status;
+    }
+
+    public static Producto[] invokeGetProduct(String user, String Folio ) {
+        String webMethName = "ConsultaProductos";
+        // Create request
+        SoapObject request = new SoapObject(NAMESPACE, webMethName);
+        // Property which holds input parameters
+        PropertyInfo fPI = new PropertyInfo();
+        // Set licencia
+        fPI.setName("folio");
+        // Set Value
+        fPI.setValue(Folio);
+        // Set dataType
+        fPI.setType(String.class);
+        // Add the property to request object
+        request.addProperty(fPI);
+        // Create envelope
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(
+                SoapEnvelope.VER11);
+        // Set output SOAP object
+        envelope.setOutputSoapObject(request);
+        // Create HTTP call object
+
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(URL,Timeout2);
+
+        List<Producto> lista = new ArrayList<Producto>();
+        Log.d("S0AP","antes del try ");
+        try {
+            // Invoke web service
+            androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
+            Log.d("S0AP","despues del action del try ");
+            // Get the response
+            SoapObject resSoap =(SoapObject)envelope.bodyIn;
+            if(resSoap!=null) {
+                for(int i = 0;i<resSoap.getPropertyCount();i++) {
+                    SoapObject obj3 =(SoapObject) resSoap.getProperty(i);
+                    Producto item = new Producto();
+                    item.cantidad = obj3.getProperty(0).toString();
+                    item.producto = obj3.getProperty(1).toString();
+                    item.entrega_folio = Folio;
+                    item.estado = "";
+                    item.faltante = "";
+                    item.idproducto = Folio + "_" + i;
+                    item.usuario_nombre = user; Log.d("S0AP","Ya todo "+item.entrega_folio);
+                    lista.add(item);
+                }
+            }else{ Log.d("S0AP","Error vacío");}
+        } catch (Exception e) {
+            //Assign Error Status true in static variable 'errored'
+            MainActivity.errored = true;
+            e.printStackTrace();
+        }
+        Producto[] array = lista.toArray(new Producto[lista.size()]);
+        return array;
     }
 
     public static boolean invokeProducto(String folio, String producto, String estado, String faltante, String comentario){

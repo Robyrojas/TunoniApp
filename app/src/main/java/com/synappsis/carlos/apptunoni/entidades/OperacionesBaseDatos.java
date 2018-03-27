@@ -301,11 +301,11 @@ public class OperacionesBaseDatos {
         }
     }
 
-    public Cursor obtenerProducto(String user) {
+    public Cursor obtenerProducto(String folio) {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
 
-        String query = "select * from " + Tablas.TABLE_PRODUCTO + " WHERE usuario_nombre=?";
-        Cursor res = db.rawQuery(query, new String[]{user});
+        String query = "select * from " + Tablas.TABLE_PRODUCTO + " WHERE entrega_folio=?";
+        Cursor res = db.rawQuery(query, new String[]{folio});
         return res;
     }
 
