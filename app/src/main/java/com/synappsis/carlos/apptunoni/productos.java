@@ -50,6 +50,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import com.biometriaaplicada.identitum.utils.GZipUtils;
 
 public class productos extends AppCompatActivity {
@@ -80,9 +83,11 @@ public class productos extends AppCompatActivity {
     OperacionesBaseDatos datos = null;
     List<String> list64 = new ArrayList<>();
     List<String> list64path = new ArrayList<>();
+    List<Producto> listProduct = new ArrayList<>();
     static boolean errored = false;
     boolean status = false;
-    String folioT ="";
+    String folioT ="", c1= "";
+    AlertDialog Findialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,13 +120,15 @@ public class productos extends AppCompatActivity {
                                 public void onClick(View view) {
                                     if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
                                     {
+                                        obtenerDatos(0);
                                         actualizarStatus("Send");
-                                        new enviarStatus().execute();
+                                        c1 = comentario.getText().toString();
                                         Toast.makeText(getApplicationContext(),"Validación Guardada, dar clic en Terminar",Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
+                                        new mandarData().execute();
                                         aceptar.setText("Terminar");
                                         comentario.setEnabled(false);
-                                        enviarDoc();
+                                        new AsyncWS().execute();
                                     }
                                     else {
                                         Toast.makeText(getApplicationContext(),"Faltan datos",Toast.LENGTH_SHORT).show();
@@ -139,13 +146,12 @@ public class productos extends AppCompatActivity {
                         }
                     }else{
                         Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
-                        String testo = obtenerDatos(0);
-                        //status = WebService.invokeImagenWS("OC0000001","put0 el angel","Foto1");
-                        Log.d("CICL0 ws", "0 "+status);
-                        Log.d(tag, testo);
+                        //String testo = obtenerDatos(0);
+                        //Log.d(tag, testo);
                     }
                 }
                 else{
+                    new enviarStatus().execute();
                     borrarBase();
                     datos.getDb().close();
                     Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
@@ -308,20 +314,6 @@ public class productos extends AppCompatActivity {
         }
     }
 
-    private void enviarDoc() {
-        convert64();
-        if(folioT!=null){
-            //if(!folioT.isEmpty()){
-            // doc = new Documentos(null,list64.get(0),list64.get(1),list64.get(2),list64.get(3),null, "Entregado","",folioT);
-            //datos.insertarDocumentos(doc);//pass=xcvb
-            AsyncWS task = new AsyncWS();
-            task.execute();
-            //}
-        }else{
-
-        }
-    }
-
     public void borrarBase(){
         datos.getDb().beginTransaction();
         String folioT ="";
@@ -420,21 +412,38 @@ public class productos extends AppCompatActivity {
     }
 
     public String obtenerDatos(int index){
-        String res="";
-        Log.d("tabla",""+stk.getChildCount());
-        View view = stk.getChildAt(index+5);
-        TableRow t = (TableRow)view;
-        Log.d("tabla",""+t.getChildCount());
-        if(t!=null) {
-            TextView firstTextView = (TextView) t.getChildAt(0);
-            TextView secondTextView = (TextView) t.getChildAt(1);
-            Spinner mspinner = (Spinner) t.getChildAt(2);
-            Spinner mspinner2 = (Spinner) t.getChildAt(3);
-            String uno = firstTextView.getText().toString();
-            String dos = secondTextView.getText().toString();
-            String tres = mspinner.getSelectedItem().toString();
-            String cuatro = mspinner2.getSelectedItem().toString();
-            res = uno+"," + dos +"," + tres +"," + cuatro;
+        String res="false";
+        //Log.d("tabla",""+stk.getChildCount());
+        int datc = index+5;
+        for(int i = datc; i < stk.getChildCount();i++){
+            View view = stk.getChildAt(i);
+            TableRow t = (TableRow)view;
+            if(t!=null) {
+                TextView firstTextView = (TextView) t.getChildAt(0);
+                Spinner mspinner = (Spinner) t.getChildAt(2);
+                Spinner mspinner2 = (Spinner) t.getChildAt(3);
+                String uno = firstTextView.getText().toString();
+                String tres = mspinner.getSelectedItem().toString();
+                String cuatro = mspinner2.getSelectedItem().toString();
+                Producto p = new Producto("",cuatro,"",uno,tres,"",folioT);
+                listProduct.add(p);
+                try {
+                    datos.getDb().beginTransaction();
+                    Cursor cursor1 =datos.actualizarProducto(uno,tres,cuatro);
+                    if(cursor1!=null){
+                        //Nos aseguramos de que existe al menos un registro
+                        if (cursor1.moveToFirst()) {
+                            int columna = cursor1.getColumnIndex("estado");
+                            String estado = cursor1.getString(columna);
+                            Log.d("QUERY", estado);
+                        }
+                    }
+                    datos.getDb().setTransactionSuccessful();
+                } finally {
+                    datos.getDb().endTransaction();
+                }
+                res = "actualizado";
+            }
         }
         return res;
     }
@@ -626,10 +635,9 @@ public class productos extends AppCompatActivity {
         }
         Bitmap bm = BitmapFactory.decodeStream(fis);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,20,baos);
+        bm.compress(Bitmap.CompressFormat.JPEG,18,baos);
         byte[] b = baos.toByteArray();
         String encImage = Base64.encodeToString(b, Base64.DEFAULT);
-        //Base64.de
         return encImage;
 
     }
@@ -711,17 +719,10 @@ public class productos extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
 
-    public class enviarStatus extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            boolean status = WebService.invokeComanda(Folio, "Entregado");
-            return null;
-        }
-    }
-
     private class AsyncWS extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {
+            convert64();
             //Call Web Method
             Log.d("imagen ws", list64.size() +"");
             //for(int i = 0; i<4;i++){
@@ -741,12 +742,60 @@ public class productos extends AppCompatActivity {
         @Override
         //Once WebService returns response
         protected void onPostExecute(Void result) {
+            if (Findialog != null) {
+                Findialog.dismiss();
+                Findialog = null;
+            }
             //Error status is false
             if(status){
                 //Error status is true
-                Toast.makeText(getApplicationContext(),"Se envío informacación",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(),"Se envío información",Toast.LENGTH_SHORT).show();
             }else{
-                Toast.makeText(getApplicationContext(),"Aún no se envia información",Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(),"Aún no se envia información",Toast.LENGTH_SHORT).show();
+            }
+            //Re-initialize Error Status to False
+            status = false;
+        }
+
+        @Override
+        //Make Progress Bar visible
+        protected void onPreExecute() {
+            Log.d("imagen","l0ading");
+            AlertDialog.Builder finBuilder = new AlertDialog.Builder(productos.this);
+            View vistaFin = getLayoutInflater().inflate(R.layout.dialog_estado,null);
+            finBuilder.setView(vistaFin);
+            Findialog = finBuilder.create();
+            Findialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+    private class mandarData extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            //Call Web Method
+            Log.d("data", "data pr0duct0");
+            for(int i = 0; i<listProduct.size();i++) {
+                status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(1).estado, listProduct.get(i).faltante, c1);
+                Log.d("PR0DUCT0 ws", "0 " + status);
+            }
+            Log.d("imagen ws","termine ed enviar");
+            return null;
+        }
+
+        @Override
+        //Once WebService returns response
+        protected void onPostExecute(Void result) {
+
+            //Error status is false
+            if(status){
+                //Error status is true
+                Toast.makeText(getApplicationContext(),"Se guardo correctamente la información",Toast.LENGTH_SHORT).show();
+            }else{
+                //Toast.makeText(getApplicationContext(),"Aún no se envia información",Toast.LENGTH_SHORT).show();
             }
             //Re-initialize Error Status to False
             status = false;
@@ -763,4 +812,12 @@ public class productos extends AppCompatActivity {
         }
     }
 
+    public class enviarStatus extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            Log.e("Status","Entregada");
+            boolean status = WebService.invokeComanda(folioT, "Entregada");
+            return null;
+        }
+    }
 }

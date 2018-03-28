@@ -309,6 +309,19 @@ public class OperacionesBaseDatos {
         return res;
     }
 
+    public Cursor actualizarProducto(String producto, String estado, String faltante){
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        Cursor res =null;
+        try{
+            String query = "UPDATE " + Tablas.TABLE_PRODUCTO + " SET estado = '"+ estado +"', faltante = '"+ faltante +"' WHERE producto = '"+producto+"'";
+            Log.d("QUERY", query);
+            res = db.rawQuery(query, null);
+            return res;
+        }catch (Exception e){
+            return res;
+        }
+    }
+
     public boolean eliminarProducto(String idProducto) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
 
