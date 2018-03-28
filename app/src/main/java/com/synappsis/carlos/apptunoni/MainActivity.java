@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
                             if (editTextUsername.equals(parts[0]) && editTextPassword.equals(parts[1])) {
                                 if (ESTADO.equals("Entregando")) {
                                     startActivity(new Intent(MainActivity.this, productos.class));
-                                } else if (ESTADO.equals("En Camino")) {
+                                } else if (ESTADO.equals("En Camino") || ESTADO.equals("Aceptado")) {
                                     startActivity(new Intent(MainActivity.this, Nav_Principal.class));
                                 } else {
                                     statusTV.setText("No hay conexión al Servidor");
