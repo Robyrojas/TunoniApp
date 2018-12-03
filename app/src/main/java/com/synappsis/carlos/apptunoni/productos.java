@@ -240,7 +240,7 @@ public class productos extends AppCompatActivity {
                         }
                         try {
                             FileOutputStream fos = new FileOutputStream(image);
-                            imgBitmap.compress(Bitmap.CompressFormat.PNG, 90, fos);
+                            imgBitmap.compress(Bitmap.CompressFormat.PNG, 50, fos);
                             fos.close();
                         } catch (FileNotFoundException e) {
                             Log.d(tag, "File not found: " + e.getMessage());
@@ -738,7 +738,6 @@ public class productos extends AppCompatActivity {
             Log.d("imagen ws","termine ed enviar");
             return null;
         }
-
         @Override
         //Once WebService returns response
         protected void onPostExecute(Void result) {

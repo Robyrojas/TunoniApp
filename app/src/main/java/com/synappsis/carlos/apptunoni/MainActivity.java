@@ -1,10 +1,13 @@
 package com.synappsis.carlos.apptunoni;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,6 +16,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.widget.Toast;
 
 import com.synappsis.carlos.apptunoni.entidades.App;
@@ -80,7 +85,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            scheduleJob();
+        }
 
     }
     /*CLASE PARA CONEXION AL WEB SERVICE*/
@@ -101,6 +108,7 @@ public class MainActivity extends AppCompatActivity {
             webservicePG.setVisibility(View.INVISIBLE);
             Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
             Log.d("l0gin","p0st: "+loginStatus + "err0r: " + errored);
+            errored=false;loginStatus=true;
             //Error status is false
             if(!errored){
                 //Based on Boolean value returned from WebService
@@ -277,4 +285,33 @@ public class MainActivity extends AppCompatActivity {
         return resStatus;
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Intent startServiceIntent = new Intent(MainActivity.this, NetworkSchedulerService.class);
+        startService(startServiceIntent);
+    }
+
+    @Override
+    protected void onStop() {
+        stopService(new Intent(MainActivity.this, NetworkSchedulerService.class));
+        super.onStop();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    private void scheduleJob() {
+        JobInfo myJob = new JobInfo.Builder(0,
+                new ComponentName(MainActivity.this, NetworkSchedulerService.class))
+                .setRequiresCharging(true)
+                .setMinimumLatency(1000)
+                .setOverrideDeadline(2000)
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPersisted(true)
+                .build();
+
+        JobScheduler jobScheduler = (JobScheduler) getSystemService(Context.JOB_SCHEDULER_SERVICE);
+        if (jobScheduler != null) {
+            jobScheduler.schedule(myJob);
+        }
+    }
 }

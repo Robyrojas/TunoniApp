@@ -277,7 +277,14 @@ public class ViajesAsignados extends Fragment {
         protected Void doInBackground(String... params) {
             //Call Web Method
             Log.d("ViajesAsigandos", "Estoy en el WS");
-            Entrega[] comanda = WebService.invokeGetComanda(UserComanda,"ComandaPendientes");
+            Entrega[] comanda = null;
+            try{
+                comanda = WebService.invokeGetComanda(UserComanda,"ComandaPendientes");
+            }catch (Exception e){
+                MainActivity.errored = true;
+                e.printStackTrace();
+            }
+
             if(comanda.length == 0){
                 return null;
             }

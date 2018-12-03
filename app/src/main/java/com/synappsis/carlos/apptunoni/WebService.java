@@ -25,9 +25,9 @@ public class WebService {
     private static String NAMESPACE = "http://WebServicesApp/";
     //Webservice URL - WSDL File location // 192.241.195.227
     //http://148.204.4.150:8080/SeguimientoTunoni/
-    private static String URL = "http://159.65.228.135:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
+    private static String URL = "http://68.183.103.33:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
     //SOAP Action URI again Namespace + Web method name
-    private static String SOAP_ACTION = "http://159.65.228.135:8080/SeguimientoTunoni/ControlApp";
+    private static String SOAP_ACTION = "http://68.183.103.33:8080/SeguimientoTunoni/ControlApp/";
     private static int Timeout = 10000;
     private static int Timeout2 = 30000;
     static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -158,7 +158,7 @@ public class WebService {
         String fecha = dateFormat.format(date);
         passPI.setName("fecha");
         //Set dataType
-        passPI.setValue(fecha);
+        passPI.setValue(fecha); Log.d("S0AP",fecha);
         //Set dataType
         passPI.setType(String.class);
         //Add the property to request object
@@ -175,7 +175,7 @@ public class WebService {
         List<Entrega> entrega = new ArrayList<Entrega>();
         try {
             // Invoke web service
-            //Log.d("S0AP",SOAP_ACTION+webMethName+"");
+            Log.d("S0AP",SOAP_ACTION+webMethName+"");
             androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
             // Get the response
             //SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
