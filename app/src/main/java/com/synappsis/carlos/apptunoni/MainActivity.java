@@ -107,12 +107,12 @@ public class MainActivity extends AppCompatActivity {
             //Make Progress Bar invisible
             webservicePG.setVisibility(View.INVISIBLE);
             Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
-            Log.d("l0gin","p0st: "+loginStatus + "err0r: " + errored);
-            errored=false;loginStatus=true;
+            Log.e("l0gin","p0st: "+loginStatus + "err0r: " + errored);
+            errored=false;//loginStatus=true;
             //Error status is false
             if(!errored){
                 //Based on Boolean value returned from WebService
-                Log.d("l0gin","c0n internet");
+                Log.e("l0gin","c0n internet");
                 if(loginStatus){
                     //Navigate to Home Screen
                     String pantalla = obtenerEstado();

@@ -22,7 +22,7 @@ import java.util.List;
  */
 public class WebService {
     //Namespace of the Webservice - can be found in WSDL
-    private static String NAMESPACE = "http://WebServicesApp/";
+    private static String NAMESPACE = "http://WebServicesApp.seguimientotunoni.com/";
     //Webservice URL - WSDL File location // 192.241.195.227
     //http://148.204.4.150:8080/SeguimientoTunoni/
     private static String URL = "http://68.183.103.33:8080/SeguimientoTunoni/ControlApp?wsdl";//Make sure you changed IP address
@@ -65,12 +65,15 @@ public class WebService {
         //Log.d("Tiempo: ", "time: "+Timeout);
         try {
             // Invoke web service
-            //Log.d("S0AP",SOAP_ACTION+webMethName+"");
+            //Log.e("S0APentre",SOAP_ACTION+webMethName+"");
             androidHttpTransport.call(SOAP_ACTION+webMethName, envelope);
+            //Log.e("S0APRES","ya env0lci0");
             // Get the response
             SoapPrimitive response = (SoapPrimitive) envelope.getResponse();
             // Assign it to  boolean variable variable
+            //Log.e("S0APRES",response.toString()+"");
             loginStatus = Boolean.parseBoolean(response.toString());
+
 
         } catch (Exception e) {
             //Assign Error Status true in static variable 'errored'
