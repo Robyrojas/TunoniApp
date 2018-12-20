@@ -613,14 +613,6 @@ public class productos extends AppCompatActivity {
         for(int i = 0; i < list64path.size(); i++){
             String xxx = encodeImage(list64path.get(i));
             Log.e(tag, " TAM: " +xxx.length());
-            /*try {
-                byte[] bytesFinal = GZipUtils.compressBytes(xxx.getBytes(StandardCharsets.UTF_8));
-                String text = new String(bytesFinal, StandardCharsets.UTF_8);
-                Log.e(tag, " TAM C0MPRESS: " +text.length());
-                list64.add(text);
-            } catch (GZipException e) {
-                e.printStackTrace();
-            }*/
             list64.add(xxx);
         }
     }
@@ -722,6 +714,7 @@ public class productos extends AppCompatActivity {
         @Override
         protected Void doInBackground(String... params) {
             convert64();
+            saveDBImage(list64);
             //Call Web Method
             Log.d("imagen ws", list64.size() +"");
             //for(int i = 0; i<4;i++){
@@ -768,6 +761,22 @@ public class productos extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+    private void saveDBImage(List<String> list64) {
+        Documentos docs = new Documentos("", list64.get(0),list64.get(1),list64.get(2),list64.get(3),c1,"Entregada",folioT, "");
+        try {
+            Log.e("PRODUCTO", "save fotos");
+            datos.getDb().beginTransaction();
+            String idDoc= datos.insertarDocumentos(docs);
+            if(idDoc!=null){
+                //Nos aseguramos de que existe al menos un registro
+                Log.d("BASE","SE GUADO BD DOCS");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
         }
     }
 

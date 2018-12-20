@@ -65,7 +65,7 @@ public class NetworkSchedulerService extends JobService implements
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
         // Ejecutar operación aquí
         getFolio();
-        getProducts(folioT);
+        //getProducts(folioT);
         if(LISTAP.size() != 0)
         {
             for (int i = 0; i < LISTAP.size(); i++) {
@@ -76,23 +76,24 @@ public class NetworkSchedulerService extends JobService implements
 
     }
 
-    public String getFolio(){
+    public String getFolio() {
         try {
             Log.e("PRODUCTO", "GUARDANDO FOTOS");
             datos.getDb().beginTransaction();
-            Cursor cursor1 =datos.obtenerApp();
-            if(cursor1!=null){
+            Cursor cursor1 = datos.obtenerApp();
+            if (cursor1 != null) {
                 if (cursor1.moveToFirst()) {
                     int columna = cursor1.getColumnIndex("folio");
                     folioT = cursor1.getString(columna);
                 }
-                Log.e("ESTAD0", "folioT-U: "+folioT);
+                Log.e("ESTAD0", "folioT-U: " + folioT);
+
+                datos.getDb().setTransactionSuccessful();
             }
-            datos.getDb().setTransactionSuccessful();
-        } finally {
-            datos.getDb().endTransaction();
-        }
-        return folioT;
+            } finally{
+                datos.getDb().endTransaction();
+            }
+            return folioT;
     }
 
     public void getProducts(String f){

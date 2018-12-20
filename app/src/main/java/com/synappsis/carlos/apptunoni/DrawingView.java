@@ -35,7 +35,7 @@ class DrawingView extends View {
 
         mPath = new Path();
         mBitmapPaint = new Paint();
-        mBitmapPaint.setColor(Color.WHITE);
+        mBitmapPaint.setColor(Color.LTGRAY);
     }
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
