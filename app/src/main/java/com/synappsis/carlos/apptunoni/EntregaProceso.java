@@ -470,6 +470,7 @@ public class EntregaProceso extends Fragment {
                 //TODO
                 Log.e(tag, "SI");
                 actualizarStatus("Entregando");
+                //getLocationEntrega();
                 new enviarProceso().execute();
                 dialog.dismiss();
                 Intent intent = new Intent(getActivity(), productos.class);
@@ -576,6 +577,31 @@ public class EntregaProceso extends Fragment {
 
     }
 
+    void getLocationEntrega(){
+        if(checkSelfPermission(getContext(),Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED && checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION);
+
+        } else {
+            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (location != null){
+                double latti = location.getLatitude();
+                double longi = location.getLongitude();
+                Log.e("latidude: ",latti+" ");
+                Log.e("longitude: ",longi+" ");
+                latitudeGPS = latti;
+                longitudeGPS = longi;
+                p0s = latti+","+longi;
+                guardarLatLong(p0s);
+            } else {
+                Toast.makeText(getContext(), "No se puede encontrar ubicación", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if(REQUEST_LOCATION == requestCode) {

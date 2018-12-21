@@ -88,6 +88,7 @@ public class productos extends AppCompatActivity {
     boolean status = false;
     String folioT ="", c1= "";
     AlertDialog Findialog;
+    String UserComanda=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,15 +121,16 @@ public class productos extends AppCompatActivity {
                                 public void onClick(View view) {
                                     if(!userC.getText().toString().isEmpty() && !userU.getText().toString().isEmpty())
                                     {
-                                        obtenerDatos(0);
-                                        actualizarStatus("Send");
                                         c1 = comentario.getText().toString();
                                         Toast.makeText(getApplicationContext(),"Validación Guardada, dar clic en Terminar",Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
+                                        new AsyncWS().execute();
+                                        obtenerDatos(0);
+                                        actualizarStatus("Send");
                                         new mandarData().execute();
                                         aceptar.setText("Terminar");
                                         comentario.setEnabled(false);
-                                        new AsyncWS().execute();
+
                                     }
                                     else {
                                         Toast.makeText(getApplicationContext(),"Faltan datos",Toast.LENGTH_SHORT).show();
@@ -152,7 +154,7 @@ public class productos extends AppCompatActivity {
                 }
                 else{
                     new enviarStatus().execute();
-                    borrarBase();
+                    //borrarBase();
                     datos.getDb().close();
                     Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
                     finish();
@@ -681,7 +683,7 @@ public class productos extends AppCompatActivity {
         try {
             Log.e(tag, "Actualizar");
             datos.getDb().beginTransaction();
-            String UserComanda=null;
+            UserComanda=null;
             Cursor cursor = datos.obtenerEstatus();
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
@@ -713,21 +715,17 @@ public class productos extends AppCompatActivity {
     private class AsyncWS extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {
-            convert64();
-            saveDBImage(list64);
+            //convert64();
+            saveDBImage(list64path);
             //Call Web Method
-            Log.d("imagen ws", list64.size() +"");
-            //for(int i = 0; i<4;i++){
+            Log.d("imagen ws", list64path.size() +"");
+            /*
             status = WebService.invokeImagenWS(folioT,list64.get(0),"Foto1");Log.d("CICL0 ws", "0 "+status);
-            //Log.d("CICL0 ws", list64.get(0));
             status = WebService.invokeImagenWS(folioT,list64.get(1),"Foto2");Log.d("CICL0 ws", "1 "+status);
-            //Log.d("CICL0 ws", list64.get(1));
             status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
-            //Log.d("CICL0 ws", list64.get(2));
-            status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status  );
-            //Log.d("CICL0 ws", list64.get(3));
-
-            Log.d("imagen ws","termine ed enviar");
+            status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status);
+            */
+            Log.d("imagen ws","termine de guardar");
             return null;
         }
         @Override
@@ -765,7 +763,7 @@ public class productos extends AppCompatActivity {
     }
 
     private void saveDBImage(List<String> list64) {
-        Documentos docs = new Documentos("", list64.get(0),list64.get(1),list64.get(2),list64.get(3),c1,"Entregada",folioT, "");
+        Documentos docs = new Documentos("", list64.get(0),list64.get(1),list64.get(2),list64.get(3),c1,"Entregada",folioT, UserComanda);
         try {
             Log.e("PRODUCTO", "save fotos");
             datos.getDb().beginTransaction();
@@ -785,11 +783,11 @@ public class productos extends AppCompatActivity {
         protected Void doInBackground(String... params) {
             //Call Web Method
             Log.d("data", "data pr0duct0");
-            for(int i = 0; i<listProduct.size();i++) {
-                status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(1).estado, listProduct.get(i).faltante, c1);
+            /*for(int i = 0; i<listProduct.size();i++) {
+                status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(i).estado, listProduct.get(i).faltante, c1);
                 Log.d("PR0DUCT0 ws", "0 " + status);
-            }
-            Log.d("imagen ws","termine ed enviar");
+            }*/
+            Log.d("Producto","Termine de guardar productos");
             return null;
         }
 
@@ -822,7 +820,7 @@ public class productos extends AppCompatActivity {
     public class enviarStatus extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            Log.e("Status","Entregada");
+            Log.e("Producto","Entregada");
             boolean status = WebService.invokeComanda(folioT, "Entregada");
             return null;
         }

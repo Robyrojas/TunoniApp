@@ -99,13 +99,13 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Producto.ENTREGA_FOLIO, Referencias.ID_TABLE_PRODUCTOS
                 ));
         /*documentacion*/
-        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s ( %s INTEGER PRIMARY KEY," +//ID
+        db.execSQL(String.format("CREATE TABLE IF NOT EXISTS %s ( %s TEXT PRIMARY KEY," +//ID
                         "%s TEXT NOT NULL," +//F1
                         "%s TEXT NOT NULL," +//F2
                         "%s TEXT NOT NULL," +//F3
                         "%s TEXT NOT NULL," +//FIRM
-                        "%s TEXT NOT NULL," +//c0mentari0
-                        "%s TEXT NOT NULL," +//estatus
+                        "%s TEXT ," +//c0mentari0
+                        "%s TEXT ," +//estatus
                         "%s TEXT," +//USER
                         "%s TEXT," +//F0LI0
                         "FOREIGN KEY (%s) %s" +//FOREIGN / REFERENCES

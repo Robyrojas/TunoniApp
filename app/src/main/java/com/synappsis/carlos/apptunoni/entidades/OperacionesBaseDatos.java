@@ -322,11 +322,11 @@ public class OperacionesBaseDatos {
         }
     }
 
-    public boolean eliminarProducto(String idProducto) {
+    public boolean eliminarProducto(String folioT) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
 
-        String whereClause = String.format("%s=?", Comanda.Producto.IDPRODUCTO);
-        String[] whereArgs = {idProducto};
+        String whereClause = String.format("%s=?", Comanda.Producto.ENTREGA_FOLIO);
+        String[] whereArgs = {folioT};
 
         int resultado = db.delete(Tablas.TABLE_PRODUCTO, whereClause, whereArgs);
 
@@ -364,15 +364,13 @@ public class OperacionesBaseDatos {
             valores.put(Comanda.Documentos.COMENTARIOS, doc.comentarios);
             valores.put(Comanda.Documentos.USUARIO_NOMBRE, doc.usuario_nombre);
 
-        /*long resultado = db.insertOrThrow(Tablas.TABLE_DOCUMENTOS, null, valores);
+        long resultado = db.insertOrThrow(Tablas.TABLE_DOCUMENTOS, null, valores);
         if(resultado == -1) {
             return "Hubo un error";
         }
         else {
             return idProducto;
-        }*/
-            db.insert(Tablas.TABLE_DOCUMENTOS, null, valores);
-            return idProducto;
+        }
         }
     }
 
@@ -386,15 +384,22 @@ public class OperacionesBaseDatos {
         return res;
     }
 
-    public boolean eliminarDocumentos(String idProducto) {
+    public boolean eliminarDocumentos(String folioT) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
 
-        String whereClause = String.format("%s=?", Comanda.Documentos.IDDOCUMENTOS);
-        String[] whereArgs = {idProducto};
+        String whereClause = String.format("%s=?", Comanda.Documentos.ENTREGA_FOLIO);
+        String[] whereArgs = {folioT};
 
         int resultado = db.delete(Tablas.TABLE_DOCUMENTOS, whereClause, whereArgs);
 
         return resultado > 0;
+    }
+
+    public long contarRegistros(String nameTable){
+        long contador = 0;
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        contador = DatabaseUtils.queryNumEntries(db, nameTable);
+        return contador;
     }
     /*FIN DOCUMENTOS*/
 
