@@ -272,7 +272,7 @@ public class ViajesAsignados extends Fragment {
 
     /*CLASE PARA CONEXION AL WEB SERVICE*/
 
-    private class AsyncCallWS extends AsyncTask<String, Void, Void> {
+     private class AsyncCallWS extends AsyncTask<String, Void, Void> {
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method

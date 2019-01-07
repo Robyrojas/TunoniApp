@@ -10,18 +10,20 @@ public class Entrega {
     public String dirorigen;
     public String fechaorigen;
     public String nombre;
+    public String nombredestino;
     public String dirdestino;
     public String fechadestino;
     public String nombrereceptor;
     public String info;
     public String usuario_nombre;
 
-    public Entrega(String folio, String estatus, String dirorigen, String fechaorigen, String nombre, String dirdestino, String fechadestino, String nombrereceptor, String info, String usuario_nombre) {
+    public Entrega(String folio, String estatus, String dirorigen, String fechaorigen, String nombre, String nombredestino, String dirdestino, String fechadestino, String nombrereceptor, String info, String usuario_nombre) {
         this.folio = folio;
         this.estatus = estatus;
         this.dirorigen = dirorigen;
         this.fechaorigen = fechaorigen;
         this.nombre = nombre;
+        this.nombredestino=nombredestino;
         this.dirdestino = dirdestino;
         this.fechadestino = fechadestino;
         this.nombrereceptor = nombrereceptor;

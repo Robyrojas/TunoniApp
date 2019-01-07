@@ -13,6 +13,7 @@ public class Comanda {
         String DIRORIGEN = "dirOrigen";
         String FECHAORIGEN = "fechaOrigen";
         String NOMBRE = "nombre";
+        String NOMBREDESTINO = "nombredestino";
         String DIRDESTINO = "dirDestino";
         String FECHADESTINO = "fechaDestino";
         String NOMBRERECEPTOR = "nombreReceptor";

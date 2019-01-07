@@ -192,9 +192,10 @@ public class WebService {
                     item.fechadestino = obj3.getProperty(2).toString();
                     item.fechaorigen = obj3.getProperty(3).toString();
                     item.nombre = obj3.getProperty(4).toString();
-                    item.dirdestino = obj3.getProperty(5).toString();
-                    item.nombrereceptor = obj3.getProperty(6).toString();
-                    item.info = obj3.getProperty(7).toString();
+                    item.nombredestino = obj3.getProperty(5).toString();
+                    item.dirdestino = obj3.getProperty(6).toString();
+                    item.nombrereceptor = obj3.getProperty(7).toString();
+                    item.info = obj3.getProperty(8).toString();
                     item.usuario_nombre = UserComanda; //Log.d("S0AP","Ya todo "+item.folio);
                     entrega.add(item);
                 }

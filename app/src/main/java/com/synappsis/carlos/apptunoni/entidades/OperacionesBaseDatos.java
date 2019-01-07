@@ -110,6 +110,7 @@ public class OperacionesBaseDatos {
             //valores.put(Comanda.Entrega.DIRORIGEN, entrega.dirorigen);
             valores.put(Comanda.Entrega.FECHAORIGEN, entrega.fechaorigen);
             valores.put(Comanda.Entrega.NOMBRE, entrega.nombre);
+            valores.put(Comanda.Entrega.NOMBREDESTINO, entrega.nombredestino);
             valores.put(Comanda.Entrega.DIRDESTINO, entrega.dirdestino);
             valores.put(Comanda.Entrega.FECHADESTINO, entrega.fechadestino);
             valores.put(Comanda.Entrega.NOMBRERECEPTOR, entrega.nombrereceptor);
@@ -395,13 +396,13 @@ public class OperacionesBaseDatos {
         return resultado > 0;
     }
 
+    /*FIN DOCUMENTOS*/
     public long contarRegistros(String nameTable){
         long contador = 0;
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         contador = DatabaseUtils.queryNumEntries(db, nameTable);
         return contador;
     }
-    /*FIN DOCUMENTOS*/
 
     public void borrar(String tabla){
         SQLiteDatabase db = baseDatos.getWritableDatabase();

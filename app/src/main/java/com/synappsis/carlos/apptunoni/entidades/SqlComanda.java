@@ -57,7 +57,8 @@ public class SqlComanda extends SQLiteOpenHelper{
                         "%s TEXT," +//DIR0
                         "%s TEXT NOT NULL," +//FECHA
                         "%s TEXT NOT NULL," +//NOMBRE
-                        "%s TEXT NOT NULL," +//DRIDE
+                        "%s TEXT ," +//NOMBREDIR
+                        "%s TEXT NOT NULL," +//DIRDEST
                         "%s TEXT NOT NULL," +//FECHA DES
                         "%s TEXT NOT NULL," +//N0MBRE RECEPT0R
                         "%s TEXT," +//INF0
@@ -70,6 +71,7 @@ public class SqlComanda extends SQLiteOpenHelper{
                 Comanda.Entrega.DIRORIGEN,
                 Comanda.Entrega.FECHAORIGEN,
                 Comanda.Entrega.NOMBRE,
+                Comanda.Entrega.NOMBREDESTINO,
                 Comanda.Entrega.DIRDESTINO,
                 Comanda.Entrega.FECHADESTINO,
                 Comanda.Entrega.NOMBRERECEPTOR,

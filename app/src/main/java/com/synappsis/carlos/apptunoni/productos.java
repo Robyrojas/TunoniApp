@@ -1,5 +1,6 @@
 package com.synappsis.carlos.apptunoni;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -7,6 +8,8 @@ import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -124,10 +127,13 @@ public class productos extends AppCompatActivity {
                                         c1 = comentario.getText().toString();
                                         Toast.makeText(getApplicationContext(),"Validación Guardada, dar clic en Terminar",Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
-                                        new AsyncWS().execute();
-                                        obtenerDatos(0);
-                                        actualizarStatus("Send");
-                                        new mandarData().execute();
+                                        new loading().execute();
+                                        /*
+                                        if(isOnline(getApplicationContext())){
+                                            new AsyncWS().execute();
+                                            actualizarStatus("Send");
+                                            new mandarData().execute();
+                                        }*/
                                         aceptar.setText("Terminar");
                                         comentario.setEnabled(false);
 
@@ -148,15 +154,17 @@ public class productos extends AppCompatActivity {
                         }
                     }else{
                         Toast.makeText(getApplicationContext(),"Te falta agregar información",Toast.LENGTH_SHORT).show();
-                        //String testo = obtenerDatos(0);
-                        //Log.d(tag, testo);
                     }
                 }
                 else{
-                    new enviarStatus().execute();
-                    //borrarBase();
+                    if(isOnline(getApplicationContext())){
+                        new enviarStatus().execute();
+                        //borrarBase();
+                        Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
+                    }else{
+                        Toast.makeText(getApplicationContext(),"Información Guardada",Toast.LENGTH_SHORT).show();
+                    }
                     datos.getDb().close();
-                    Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
@@ -712,22 +720,36 @@ public class productos extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
 
-    private class AsyncWS extends AsyncTask<String, Void, Void> {
+    private class loading extends AsyncTask<String, Void, Void>{
         @Override
         protected Void doInBackground(String... params) {
-            //convert64();
-            saveDBImage(list64path);
             //Call Web Method
-            Log.d("imagen ws", list64path.size() +"");
-            /*
-            status = WebService.invokeImagenWS(folioT,list64.get(0),"Foto1");Log.d("CICL0 ws", "0 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(1),"Foto2");Log.d("CICL0 ws", "1 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status);
-            */
-            Log.d("imagen ws","termine de guardar");
+            Log.d(tag, "L0ading");
+            obtenerDatos(0);
+            saveDBImage(list64path);
+            Log.d("data", "data pr0duct0");
+            if(isOnline(getApplicationContext())){
+                for(int i = 0; i<listProduct.size();i++) {
+                    status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(i).estado, listProduct.get(i).faltante, c1);
+                    Log.d("PR0DUCT0 ws", "0 " + status);
+                }
+                Log.d("Producto","Termine de guardar productos");
+                convert64();
+                //Call Web Method
+                Log.d("imagen ws", list64path.size() +"");
+
+                status = WebService.invokeImagenWS(folioT,list64.get(0),"Foto1");Log.d("CICL0 ws", "0 "+status);
+                status = WebService.invokeImagenWS(folioT,list64.get(1),"Foto2");Log.d("CICL0 ws", "1 "+status);
+                status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
+                status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status);
+
+                Log.d("imagen ws","termine de guardar");
+                actualizarStatus("Send");
+
+            }
             return null;
         }
+
         @Override
         //Once WebService returns response
         protected void onPostExecute(Void result) {
@@ -737,10 +759,22 @@ public class productos extends AppCompatActivity {
             }
             //Error status is false
             if(status){
-                //Error status is true
-                //Toast.makeText(getApplicationContext(),"Se envío información",Toast.LENGTH_SHORT).show();
+                Log.e(tag, "Se envio prodcutos completos");
+                //Toast.makeText(getApplicationContext(),"Se guardo correctamente la información",Toast.LENGTH_SHORT).show();
+                try {
+                    datos.getDb().beginTransaction();
+                    boolean res =datos.eliminarProducto(folioT);
+                    boolean res2 = datos.eliminarDocumentos(folioT);
+                    if(res && res2){
+                        Log.e(tag, "base prodcutos borrada");
+                    }
+                    datos.getDb().setTransactionSuccessful();
+                } finally {
+                    datos.getDb().endTransaction();
+                }
+                Toast.makeText(getApplicationContext(),"Se envío información",Toast.LENGTH_SHORT).show();
             }else{
-                //Toast.makeText(getApplicationContext(),"Aún no se envia información",Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(),"Se guardo la información",Toast.LENGTH_SHORT).show();
             }
             //Re-initialize Error Status to False
             status = false;
@@ -755,6 +789,38 @@ public class productos extends AppCompatActivity {
             finBuilder.setView(vistaFin);
             Findialog = finBuilder.create();
             Findialog.show();
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+    private class AsyncWS extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            convert64();
+            //Call Web Method
+            Log.d("imagen ws", list64path.size() +"");
+
+            status = WebService.invokeImagenWS(folioT,list64.get(0),"Foto1");Log.d("CICL0 ws", "0 "+status);
+            status = WebService.invokeImagenWS(folioT,list64.get(1),"Foto2");Log.d("CICL0 ws", "1 "+status);
+            status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
+            status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status);
+
+            Log.d("imagen ws","termine de guardar");
+            return null;
+        }
+        @Override
+        //Once WebService returns response
+        protected void onPostExecute(Void result) {
+
+        }
+
+        @Override
+        //Make Progress Bar visible
+        protected void onPreExecute() {
+
         }
 
         @Override
@@ -783,10 +849,10 @@ public class productos extends AppCompatActivity {
         protected Void doInBackground(String... params) {
             //Call Web Method
             Log.d("data", "data pr0duct0");
-            /*for(int i = 0; i<listProduct.size();i++) {
+            for(int i = 0; i<listProduct.size();i++) {
                 status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(i).estado, listProduct.get(i).faltante, c1);
                 Log.d("PR0DUCT0 ws", "0 " + status);
-            }*/
+            }
             Log.d("Producto","Termine de guardar productos");
             return null;
         }
@@ -825,4 +891,11 @@ public class productos extends AppCompatActivity {
             return null;
         }
     }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    }
+
 }
