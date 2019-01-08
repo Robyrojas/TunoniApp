@@ -141,7 +141,7 @@ public class Nav_Principal extends AppCompatActivity
                     int columna = cursor.getColumnIndex("estatus");
                     String estado = cursor.getString(columna);
                     Log.d("QUERY", "Termine task:" +estado);
-                    if(estado.equals("Sin Enviar"))
+                    if(estado.equals("Sin Enviar") || estado.equals("Send"))
                         cambiarFragment=0;
                     else if(estado.equals("Aceptado"))
                         cambiarFragment=1;

@@ -5,6 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -89,11 +91,69 @@ public class ViajesAsignados extends Fragment {
         datos = OperacionesBaseDatos.obtenerInstancia(getContext());
         getUser();
         Log.d("ViajesAsigandos", "Estoy en el viajes asignados");
-        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-            new AsyncCallWS().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            new AsyncCallWS().execute();
+        if(isOnline(getContext())){
+            if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+                new AsyncCallWS().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                new AsyncCallWS().execute();
+            }
         }
+        else{
+            datos.getDb().beginTransaction();
+            Log.d("ViajesAsigandos", "begintransacitión2");
+            try {
+                Log.e("ViajesAsigandos", "get dat0s");
+                datos.getDb().beginTransaction();
+                Cursor cursor1 =datos.obtenerEntregas();
+                if(cursor1!=null){
+                    //Nos aseguramos de que existe al menos un registro
+                    if (cursor1.moveToFirst()) {
+                        //Recorremos el cursor hasta que no haya más registros
+                        do {
+                            Entrega e = new Entrega();
+                            int columna = cursor1.getColumnIndex("folio");
+                            e.folio = cursor1.getString(columna);
+                            int columna2 = cursor1.getColumnIndex("estatus");
+                            e.estatus = cursor1.getString(columna2);
+                            int columna3 = cursor1.getColumnIndex("dirOrigen");
+                            e.dirorigen = cursor1.getString(columna3);
+                            int columna4 = cursor1.getColumnIndex("fechaOrigen");
+                            e.fechaorigen = cursor1.getString(columna4);
+                            int columna5 = cursor1.getColumnIndex("nombre");
+                            e.nombre = cursor1.getString(columna5);
+                            int columna6 = cursor1.getColumnIndex("nombredestino");
+                            e.nombredestino = cursor1.getString(columna6);
+                            int columna7 = cursor1.getColumnIndex("dirDestino");
+                            e.dirdestino = cursor1.getString(columna7);
+                            int columna8 = cursor1.getColumnIndex("fechaDestino");
+                            e.fechadestino = cursor1.getString(columna8);
+                            int columna9 = cursor1.getColumnIndex("nombreReceptor");
+                            e.nombrereceptor = cursor1.getString(columna9);
+                            int columna10 = cursor1.getColumnIndex("infoAdicional");
+                            e.info = cursor1.getString(columna10);
+                            int columna11 = cursor1.getColumnIndex("Usuario_nombre");
+                            e.usuario_nombre = cursor1.getString(columna11);
+                            datosComanda.add(e);
+                        } while(cursor1.moveToNext());
+                    }
+                }
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
+            }
+            if(!datosComanda.isEmpty()){
+                if(datosComanda.get(0).folio!=null){
+                    llenarTabs();
+                    refrescar();
+                }
+                else
+                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+            }else{
+                //Set Error message
+                Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+            }
+        }
+
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
@@ -315,6 +375,7 @@ public class ViajesAsignados extends Fragment {
             // [QUERIES]
             Log.d("USER","----------------Obtencion de base de datos");
             DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
+
             return null;
         }
 
@@ -550,4 +611,11 @@ public class ViajesAsignados extends Fragment {
         // [QUERIES]
         Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
     }
+
+    public static boolean isOnline(Context context) {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    }
+
 }

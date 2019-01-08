@@ -159,6 +159,7 @@ public class productos extends AppCompatActivity {
                 else{
                     if(isOnline(getApplicationContext())){
                         new enviarStatus().execute();
+                        actualizarStatus("SNC");
                         //borrarBase();
                         Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
                     }else{
