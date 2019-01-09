@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                boolean isNetworkAvailable = intent.getBooleanExtra(IS_NETWORK_AVAILABLE, false);
+                boolean isNetworkAvailable = isOnline();
                 String networkStatus = isNetworkAvailable ? "Establecida" : "Desconectada";
                 Log.e("br0adcast",networkStatus);
                 //Toast.makeText(getApplicationContext(), networkStatus, Toast.LENGTH_SHORT).show();
@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 EnviarRegistros();
-                Snackbar.make(findViewById(R.id.activity_main), "Se ha enviado correctamente8 ", Snackbar.LENGTH_LONG).show();
+                Snackbar.make(findViewById(R.id.activity_main), "Se ha enviado correctamente ", Snackbar.LENGTH_LONG).show();
             }
         });
         Log.e("mainactivity","init app");
@@ -159,18 +159,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            //scheduleJob();
-            if(isOnline(getApplicationContext())){
-                //String message = "Conectado a Internet";
-                //Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                btnEnviar.setVisibility(View.VISIBLE);
-                //obtener usuario
-            }
-            else{
-                btnEnviar.setVisibility(View.INVISIBLE);
-            }
-        }*/
+
 
     }
     /*CLASE PARA CONEXION AL WEB SERVICE*/
@@ -220,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                             if (editTextUsername.equals(parts[0]) && editTextPassword.equals(parts[1])) {
                                 if (ESTADO.equals("Entregando")) {
                                     startActivity(new Intent(MainActivity.this, productos.class));
-                                } else if (ESTADO.equals("En Camino") || ESTADO.equals("Aceptado") || ESTADO.equals("Send")) {
+                                } else if (ESTADO.equals("En Camino") || ESTADO.equals("Aceptado") || ESTADO.equals("Sin enviar") || ESTADO.equals("Send")) {
                                     startActivity(new Intent(MainActivity.this, Nav_Principal.class));
                                 } else {
                                     statusTV.setText("No hay conexión al Servidor");
@@ -402,10 +391,19 @@ public class MainActivity extends AppCompatActivity {
         return resStatus;
     }
 
-    public static boolean isOnline(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+    public static boolean isOnline() {
+        try {
+            Process p = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.es");
+
+            int val           = p.waitFor();
+            boolean reachable = (val == 0);
+            return reachable;
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 
     private void obtenerUser() {

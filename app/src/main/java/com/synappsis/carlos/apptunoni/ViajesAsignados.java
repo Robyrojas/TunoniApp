@@ -96,6 +96,7 @@ public class ViajesAsignados extends Fragment {
                 new AsyncCallWS().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
                 new AsyncCallWS().execute();
+                new SaveProductoWS().execute();
             }
         }
         else{
@@ -133,7 +134,10 @@ public class ViajesAsignados extends Fragment {
                             e.info = cursor1.getString(columna10);
                             int columna11 = cursor1.getColumnIndex("Usuario_nombre");
                             e.usuario_nombre = cursor1.getString(columna11);
-                            datosComanda.add(e);
+                            if(cursor1.getString(columna2).equals("Por salir"))
+                            {
+                                datosComanda.add(e);
+                            }
                         } while(cursor1.moveToNext());
                     }
                 }
@@ -440,7 +444,8 @@ public class ViajesAsignados extends Fragment {
             finally {
                 datos.getDb().endTransaction();
             }
-            Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
+            DatabaseUtils.dumpCursor(datos.obtenerApp());
+            /*Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
             Producto[] listaProducto = WebService.invokeGetProduct(UserComanda, folioString);
             Log.d("ViajesAsigandosPR0DUCT0", "Sali");
             if(listaProducto.length == 0){
@@ -473,6 +478,107 @@ public class ViajesAsignados extends Fragment {
             // [QUERIES]
             Log.d("USER","----------------Obtencion de base de datos");
             DatabaseUtils.dumpCursor(datos.obtenerProducto(UserComanda));
+            */
+            return null;
+        }
+
+        @Override
+        //Once WebService returns response
+        protected void onPostExecute(Void result) {
+            //Error status is false
+            if(!errored){
+                //Based on Boolean value returned from WebService
+                Log.d("ViajesAsigandos", "Estoy en el POST");
+                if(!datosComanda.isEmpty()){
+                    if(datosComanda.get(0).folio!=null){
+                        llenarTabs();
+                        refrescar();
+                    }
+                    else
+                        Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+                }else{
+                    //Set Error message
+                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+                }
+                //Error status is true
+            }else{
+                Toast.makeText(getContext(),"Error de conexion al Servidor",Toast.LENGTH_SHORT).show();
+            }
+            //Re-initialize Error Status to False
+            errored = false;
+        }
+
+        @Override
+        //Make Progress Bar visible
+        protected void onPreExecute() {
+            //webservicePG.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+        }
+    }
+
+    private class SaveProductoWS extends AsyncTask<String, Void, Void> {
+        @Override
+        protected Void doInBackground(String... params) {
+            //Call Web Method
+            ArrayList<String> listFolioP = new ArrayList<String>();
+            datos.getDb().beginTransaction();
+            try{
+                Cursor folio = datos.obtenerEntregas();
+                if(folio!=null){
+                    if (folio.moveToFirst()) {
+                        int columna = folio.getColumnIndex("folio");
+                        listFolioP.add(folio.getString(columna));
+                    }
+                    Log.e("ViajesAsigandos", "Lista de folios: "+ listFolioP.size());
+                }
+            }catch (Exception e){
+                datos.getDb().endTransaction();
+            }
+            finally {
+                datos.getDb().endTransaction();
+            }
+            //ciclo para guardar productos con folio
+            for (int j = 0; j < listFolioP.size(); j++)
+            {
+                String folio = listFolioP.get(j);
+                //do something with i
+                Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
+                Producto[] listaProducto = WebService.invokeGetProduct(UserComanda, folio);
+                Log.d("ViajesAsigandosPR0DUCT0", "Sali");
+                if(listaProducto.length == 0){
+                    return null;
+                }
+                for(int i=0;i<listaProducto.length;i++)
+                {
+                    pComanda.add(listaProducto[i]);
+                }
+                Log.d("ViajesAsigandosPR0DUCT0", "Numero de P: "+listaProducto.length);
+                datos.getDb().beginTransaction();
+                Log.d("ViajesAsigandosPR0DUCT0", "begintransacitión");
+                try { Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el TRY");
+                    if(pComanda.get(0).producto!=null){
+                        for(int i = 0; i<pComanda.size();i++){
+                            Producto llenar = pComanda.get(i);
+                            datos.insertarProducto(llenar);
+                            Log.d("ViajesAsigandosPR0DUCT0", "Llenar: "+datosComanda.size());
+                        }
+                    }else{ Log.d("ViajesAsigandosPR0DUCT0", "datos P vacios");}
+                    datos.getDb().setTransactionSuccessful();
+                }catch (Exception e){
+                    e.printStackTrace();Log.d("ViajesAsigandosPR0DUCT0", "Error" +e.toString());
+                    datos.getDb().endTransaction();
+                }
+                finally {
+                    datos.getDb().endTransaction();
+
+                }
+                // [QUERIES]
+                Log.d("USER","----------------Obtencion de base de datos");
+                DatabaseUtils.dumpCursor(datos.obtenerProducto(UserComanda));
+            }
             return null;
         }
 
@@ -617,9 +723,18 @@ public class ViajesAsignados extends Fragment {
     }
 
     public static boolean isOnline(Context context) {
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
-        return networkInfo != null && networkInfo.isAvailable() && networkInfo.isConnected();
+        try {
+            Process p = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.com");
+
+            int val           = p.waitFor();
+            boolean reachable = (val == 0);
+            return reachable;
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }
