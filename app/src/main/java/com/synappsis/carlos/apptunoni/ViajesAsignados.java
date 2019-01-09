@@ -141,17 +141,7 @@ public class ViajesAsignados extends Fragment {
             } finally {
                 datos.getDb().endTransaction();
             }
-            if(!datosComanda.isEmpty()){
-                if(datosComanda.get(0).folio!=null){
-                    llenarTabs();
-                    refrescar();
-                }
-                else
-                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
-            }else{
-                //Set Error message
-                Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
-            }
+
         }
 
         listViewVar =(ExpandableListView)rootView.findViewById(R.id.listview);
@@ -182,6 +172,20 @@ public class ViajesAsignados extends Fragment {
             listAdapter = new ExpandableListAdapter(getContext(), listDataHeader, listDataChild);
             // setting list adapter
             listViewVar.setAdapter(listAdapter);
+        }
+
+        if(!isOnline(getContext())){
+            if(!datosComanda.isEmpty()){
+                if(datosComanda.get(0).folio!=null){
+                    llenarTabs();
+                    refrescar();
+                }
+                else
+                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+            }else{
+                //Set Error message
+                Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
+            }
         }
         listViewVar.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
             @Override
