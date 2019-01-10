@@ -96,7 +96,6 @@ public class ViajesAsignados extends Fragment {
                 new AsyncCallWS().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
                 new AsyncCallWS().execute();
-                new SaveProductoWS().execute();
             }
         }
         else{
@@ -230,7 +229,7 @@ public class ViajesAsignados extends Fragment {
                             new actualizarStatus().execute();
                             new enviarStatus().execute();
                             Toast.makeText(getContext(), "Ha seleccionado: "+ grupotext, Toast.LENGTH_SHORT).show();
-                            new AsyncCallProductoWS().execute();
+
                             button.setEnabled(false);
                             irEntregaProceso();
 
@@ -362,13 +361,13 @@ public class ViajesAsignados extends Fragment {
             }
             Log.d("ViajesAsigandos", "Numero de c: "+comanda.length);
             datos.getDb().beginTransaction();
-            Log.d("ViajesAsigandos", "begintransacitión");
+            //Log.d("ViajesAsigandos", "begintransacitión");
             try { Log.d("ViajesAsigandos", "Estoy en el TRY");
                 if(datosComanda.get(0).folio!=null){
                     for(int i = 0; i<datosComanda.size();i++){
                         Entrega llenar = datosComanda.get(i);
                         datos.insertarEntrega(llenar);
-                        Log.d("ViajesAsigandos", "Llenar: "+datosComanda.size());
+                        Log.d("ViajesAsigandos", "Folio: "+datosComanda.get(i).folio);
                     }
                 }else{ Log.d("ViajesAsigandos", "datos vacios");}
                 datos.getDb().setTransactionSuccessful();
@@ -384,201 +383,52 @@ public class ViajesAsignados extends Fragment {
             Log.d("USER","----------------Obtencion de base de datos");
             DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
 
-            return null;
-        }
 
-        @Override
-        //Once WebService returns response
-        protected void onPostExecute(Void result) {
-            //Error status is false
-            if(!errored){
-                //Based on Boolean value returned from WebService
-                Log.d("ViajesAsigandos", "Estoy en el POST");
-                if(!datosComanda.isEmpty()){
-                    if(datosComanda.get(0).folio!=null){
-                        llenarTabs();
-                        refrescar();
-                    }
-                    else
-                        Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
-                }else{
-                    //Set Error message
-                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
-                }
-                //Error status is true
-            }else{
-                Toast.makeText(getContext(),"Error de conexion al Servidor",Toast.LENGTH_SHORT).show();
-            }
-            //Re-initialize Error Status to False
-            errored = false;
-        }
+            //insertar pr0duct0s
 
-        @Override
-        //Make Progress Bar visible
-        protected void onPreExecute() {
-            //webservicePG.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
-
-    private class AsyncCallProductoWS extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            //Call Web Method
-            datos.getDb().beginTransaction();
-            try{
-                Cursor folio = datos.obtenerApp();
-                if(folio!=null){
-                    if (folio.moveToFirst()) {
-                        int columna = folio.getColumnIndex("folio");
-                        folioString = folio.getString(columna);
-                    }
-                    Log.e("ViajesAsigandos", "folio: "+folioString);
-                }
-            }catch (Exception e){
-                datos.getDb().endTransaction();
-            }
-            finally {
-                datos.getDb().endTransaction();
-            }
-            DatabaseUtils.dumpCursor(datos.obtenerApp());
-            /*Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
-            Producto[] listaProducto = WebService.invokeGetProduct(UserComanda, folioString);
-            Log.d("ViajesAsigandosPR0DUCT0", "Sali");
-            if(listaProducto.length == 0){
-                return null;
-            }
-            for(int i=0;i<listaProducto.length;i++)
-            {
-                pComanda.add(listaProducto[i]);
-            }
-            Log.d("ViajesAsigandosPR0DUCT0", "Numero de P: "+listaProducto.length);
-            datos.getDb().beginTransaction();
-            Log.d("ViajesAsigandosPR0DUCT0", "begintransacitión");
-            try { Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el TRY");
-                if(pComanda.get(0).producto!=null){
-                    for(int i = 0; i<pComanda.size();i++){
-                        Producto llenar = pComanda.get(i);
-                        datos.insertarProducto(llenar);
-                        Log.d("ViajesAsigandosPR0DUCT0", "Llenar: "+datosComanda.size());
-                    }
-                }else{ Log.d("ViajesAsigandosPR0DUCT0", "datos P vacios");}
-                datos.getDb().setTransactionSuccessful();
-            }catch (Exception e){
-                e.printStackTrace();Log.d("ViajesAsigandosPR0DUCT0", "Error" +e.toString());
-                datos.getDb().endTransaction();
-            }
-            finally {
-                datos.getDb().endTransaction();
-
-            }
-            // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos");
-            DatabaseUtils.dumpCursor(datos.obtenerProducto(UserComanda));
-            */
-            return null;
-        }
-
-        @Override
-        //Once WebService returns response
-        protected void onPostExecute(Void result) {
-            //Error status is false
-            if(!errored){
-                //Based on Boolean value returned from WebService
-                Log.d("ViajesAsigandos", "Estoy en el POST");
-                if(!datosComanda.isEmpty()){
-                    if(datosComanda.get(0).folio!=null){
-                        llenarTabs();
-                        refrescar();
-                    }
-                    else
-                        Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
-                }else{
-                    //Set Error message
-                    Toast.makeText(getContext(),"No hay envios, vuelve a intentar más tarde",Toast.LENGTH_SHORT).show();
-                }
-                //Error status is true
-            }else{
-                Toast.makeText(getContext(),"Error de conexion al Servidor",Toast.LENGTH_SHORT).show();
-            }
-            //Re-initialize Error Status to False
-            errored = false;
-        }
-
-        @Override
-        //Make Progress Bar visible
-        protected void onPreExecute() {
-            //webservicePG.setVisibility(View.VISIBLE);
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
-
-    private class SaveProductoWS extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            //Call Web Method
-            ArrayList<String> listFolioP = new ArrayList<String>();
-            datos.getDb().beginTransaction();
-            try{
-                Cursor folio = datos.obtenerEntregas();
-                if(folio!=null){
-                    if (folio.moveToFirst()) {
-                        int columna = folio.getColumnIndex("folio");
-                        listFolioP.add(folio.getString(columna));
-                    }
-                    Log.e("ViajesAsigandos", "Lista de folios: "+ listFolioP.size());
-                }
-            }catch (Exception e){
-                datos.getDb().endTransaction();
-            }
-            finally {
-                datos.getDb().endTransaction();
-            }
             //ciclo para guardar productos con folio
-            for (int j = 0; j < listFolioP.size(); j++)
-            {
-                String folio = listFolioP.get(j);
-                //do something with i
-                Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
-                Producto[] listaProducto = WebService.invokeGetProduct(UserComanda, folio);
-                Log.d("ViajesAsigandosPR0DUCT0", "Sali");
-                if(listaProducto.length == 0){
-                    return null;
-                }
-                for(int i=0;i<listaProducto.length;i++)
+            if(datosComanda.size() > 0){
+                for (int j = 0; j < datosComanda.size(); j++)
                 {
-                    pComanda.add(listaProducto[i]);
-                }
-                Log.d("ViajesAsigandosPR0DUCT0", "Numero de P: "+listaProducto.length);
-                datos.getDb().beginTransaction();
-                Log.d("ViajesAsigandosPR0DUCT0", "begintransacitión");
-                try { Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el TRY");
-                    if(pComanda.get(0).producto!=null){
-                        for(int i = 0; i<pComanda.size();i++){
-                            Producto llenar = pComanda.get(i);
-                            datos.insertarProducto(llenar);
-                            Log.d("ViajesAsigandosPR0DUCT0", "Llenar: "+datosComanda.size());
-                        }
-                    }else{ Log.d("ViajesAsigandosPR0DUCT0", "datos P vacios");}
-                    datos.getDb().setTransactionSuccessful();
-                }catch (Exception e){
-                    e.printStackTrace();Log.d("ViajesAsigandosPR0DUCT0", "Error" +e.toString());
-                    datos.getDb().endTransaction();
-                }
-                finally {
-                    datos.getDb().endTransaction();
+                    String folio = datosComanda.get(j).folio;
+                    //do something with i
+                    Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
+                    Producto[] listaProducto = WebService.invokeGetProduct(UserComanda, folio);
+                    Log.d("ViajesAsigandosPR0DUCT0", "Sali");
+                    if(listaProducto.length == 0){
+                        return null;
+                    }
+                    Log.d("ViajesAsigandosPR0DUCT0", "Numero de pr0duct0s: "+listaProducto.length);
+                    for(int i=0;i<listaProducto.length;i++)
+                    {
+                        pComanda.add(listaProducto[i]);
+                    }
+                    datos.getDb().beginTransaction();
+                    Log.d("ViajesAsigandosPR0DUCT0", "pr0duct0s de c: "+pComanda.size());
+                    try { Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el TRY");
+                        if(pComanda.get(0).producto!=null){
+                            for(int i = 0; i<pComanda.size();i++){
+                                Producto llenar = pComanda.get(i);
+                                datos.insertarProducto(llenar);
+                                Log.d("ViajesAsigandosPR0DUCT0", "Folio: "+pComanda.get(i).entrega_folio);
+                            }
+                        }else{ Log.d("ViajesAsigandosPR0DUCT0", "datos P vacios");}
+                        datos.getDb().setTransactionSuccessful();
+                    }catch (Exception e){
+                        e.printStackTrace();Log.d("ViajesAsigandosPR0DUCT0", "Error" +e.toString());
+                        datos.getDb().endTransaction();
+                    }
+                    finally {
+                        datos.getDb().endTransaction();
 
+                    }
+                    // [QUERIES]
+                    Log.d("USER","----------------Obtencion de base de datos");
+                    DatabaseUtils.dumpCursor(datos.obtenerProducto(UserComanda));
                 }
-                // [QUERIES]
-                Log.d("USER","----------------Obtencion de base de datos");
-                DatabaseUtils.dumpCursor(datos.obtenerProducto(UserComanda));
             }
+
+
             return null;
         }
 

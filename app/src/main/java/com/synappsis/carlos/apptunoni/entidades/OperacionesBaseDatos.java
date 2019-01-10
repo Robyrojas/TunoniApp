@@ -279,7 +279,7 @@ public class OperacionesBaseDatos {
             return "Ya existe";
         }
         else{
-            Log.d("pr0duct0","pr0duct0 Nueva");
+            //Log.d("pr0duct0","pr0duct0 Nueva");
             ContentValues valores = new ContentValues();
             // Generar Pk
             String idProducto = Comanda.Producto.generarIdProducto();
@@ -290,7 +290,7 @@ public class OperacionesBaseDatos {
             valores.put(Comanda.Producto.ESTADO, product.estado);
             valores.put(Comanda.Producto.USUARIO_NOMBRE, product.usuario_nombre);
             valores.put(Comanda.Producto.ENTREGA_FOLIO, product.entrega_folio);
-            Log.d("SQL",idProducto);
+            //Log.d("SQL",idProducto);
             long resultado = db.insert(Tablas.TABLE_PRODUCTO, null, valores);
             //this.getWritableDatabase().insert(Tablas.TABLE_PRODUCTO, null, valores);
             if(resultado == -1) {

@@ -369,7 +369,7 @@ public class WebService {
                     item.estado = "";
                     item.faltante = "";
                     item.idproducto = Folio + "_" + i;
-                    item.usuario_nombre = user; Log.d("S0AP","Ya todo "+item.entrega_folio);
+                    item.usuario_nombre = user; //Log.d("S0AP","Ya todo "+item.entrega_folio);
                     lista.add(item);
                 }
             }else{ Log.d("S0AP","Error vacío");}
