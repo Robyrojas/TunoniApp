@@ -264,7 +264,8 @@ public class OperacionesBaseDatos {
     /*PRODUCTO*/
     public String insertarProducto(Producto product) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
-        String Query = "SELECT * FROM Producto WHERE idproducto = '"+product.idproducto+"'";
+        String id = "P-" +product.producto+product.entrega_folio;
+        String Query = "SELECT * FROM Producto WHERE idproducto = '"+id+"'";
         Cursor cursor = db.rawQuery(Query, null);
         String doble =null;
         if (cursor.moveToFirst()){
@@ -282,7 +283,7 @@ public class OperacionesBaseDatos {
             //Log.d("pr0duct0","pr0duct0 Nueva");
             ContentValues valores = new ContentValues();
             // Generar Pk
-            String idProducto = Comanda.Producto.generarIdProducto();
+            String idProducto = Comanda.Producto.generarIdProducto(product.producto ,product.entrega_folio );
             valores.put(Comanda.Producto.IDPRODUCTO, idProducto);
             valores.put(Comanda.Producto.FALTANTE, product.faltante);
             valores.put(Comanda.Producto.CANTIDAD, product.cantidad);

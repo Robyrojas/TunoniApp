@@ -362,7 +362,7 @@ public class ViajesAsignados extends Fragment {
             Log.d("ViajesAsigandos", "Numero de c: "+comanda.length);
             datos.getDb().beginTransaction();
             //Log.d("ViajesAsigandos", "begintransacitión");
-            try { Log.d("ViajesAsigandos", "Estoy en el TRY");
+            try { Log.d("ViajesAsigandos", "Size datoscomanda: "+datosComanda.size());
                 if(datosComanda.get(0).folio!=null){
                     for(int i = 0; i<datosComanda.size();i++){
                         Entrega llenar = datosComanda.get(i);
@@ -392,9 +392,8 @@ public class ViajesAsignados extends Fragment {
                 {
                     String folio = datosComanda.get(j).folio;
                     //do something with i
-                    Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el WS");
+                    Log.d("ViajesAsigandosPR0DUCT0", "Folio: "+folio);
                     Producto[] listaProducto = WebService.invokeGetProduct(UserComanda, folio);
-                    Log.d("ViajesAsigandosPR0DUCT0", "Sali");
                     if(listaProducto.length == 0){
                         return null;
                     }
@@ -405,14 +404,16 @@ public class ViajesAsignados extends Fragment {
                     }
                     datos.getDb().beginTransaction();
                     Log.d("ViajesAsigandosPR0DUCT0", "pr0duct0s de c: "+pComanda.size());
-                    try { Log.d("ViajesAsigandosPR0DUCT0", "Estoy en el TRY");
+                    try {
                         if(pComanda.get(0).producto!=null){
                             for(int i = 0; i<pComanda.size();i++){
+
                                 Producto llenar = pComanda.get(i);
                                 datos.insertarProducto(llenar);
                                 Log.d("ViajesAsigandosPR0DUCT0", "Folio: "+pComanda.get(i).entrega_folio);
                             }
                         }else{ Log.d("ViajesAsigandosPR0DUCT0", "datos P vacios");}
+                        Log.d("ViajesAsigandosPR0DUCT0","" + datos.contarRegistros("Producto"));
                         datos.getDb().setTransactionSuccessful();
                     }catch (Exception e){
                         e.printStackTrace();Log.d("ViajesAsigandosPR0DUCT0", "Error" +e.toString());
@@ -422,9 +423,9 @@ public class ViajesAsignados extends Fragment {
                         datos.getDb().endTransaction();
 
                     }
+
                     // [QUERIES]
                     Log.d("USER","----------------Obtencion de base de datos");
-                    DatabaseUtils.dumpCursor(datos.obtenerProducto(UserComanda));
                 }
             }
 

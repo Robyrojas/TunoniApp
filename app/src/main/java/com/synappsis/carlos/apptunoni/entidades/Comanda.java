@@ -62,8 +62,8 @@ public class Comanda {
         }
     }
     public static class Producto implements ColumnasProducto {
-        public static String generarIdProducto() {
-            return "P-" + UUID.randomUUID().toString();
+        public static String generarIdProducto(String a, String b) {
+            return "P-" +a+b;
         }
     }
     public static class Documentos implements ColumnasDocumentos {
