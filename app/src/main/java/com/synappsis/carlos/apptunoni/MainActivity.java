@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.synappsis.carlos.apptunoni.entidades.App;
 import com.synappsis.carlos.apptunoni.entidades.Documentos;
+import com.synappsis.carlos.apptunoni.entidades.Entrega;
 import com.synappsis.carlos.apptunoni.entidades.OperacionesBaseDatos;
 import com.synappsis.carlos.apptunoni.entidades.Producto;
 import com.synappsis.carlos.apptunoni.entidades.Usuario;
@@ -52,7 +53,6 @@ import static com.synappsis.carlos.apptunoni.receiver.NetworkStateChangeReceiver
 public class MainActivity extends AppCompatActivity {
     //Set Error Status
     static boolean errored = false;
-    Button b;
     TextView statusTV;
     EditText userNameET , passWordET;
     ProgressBar webservicePG;
@@ -62,14 +62,17 @@ public class MainActivity extends AppCompatActivity {
     OperacionesBaseDatos datos = null;
     String ESTATUS = "";
     private static ConnectivityManager manager;
-    String folioT ="", UserComanda = "";
+    String UserComanda = "";
     List<Producto> LISTAP = new ArrayList<Producto>();
-    Documentos doc = new Documentos();
+    List<Documentos> LISTADOC = new ArrayList<Documentos>();
+    List<Entrega> LISTAE = new ArrayList<Entrega>();
+    //folioT ="",
+
+    //Documentos doc = new Documentos();
     String comentarioComanda = "", tag="Main";
     boolean status = false;
-    List<String> nombreTablas = Arrays.asList("Usuario", "Producto","Documentos");
     List<String> list64 = new ArrayList<>();
-
+    AlertDialog Findialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,16 +101,17 @@ public class MainActivity extends AppCompatActivity {
                 if(isNetworkAvailable){
                     //obtener usuario
                     obtenerUser();
-                    //obtener folio
-                    getFolio();
-                    if(!folioT.isEmpty()){
-                        getProducts(folioT);
-                        if(!LISTAP.isEmpty()){
-                            btnEnviar.setVisibility(View.VISIBLE);
+                    if(UserComanda!=null){
+                        if(!UserComanda.isEmpty()){
+                            getProducts();
+                            getFotos(UserComanda);
+                            if(!LISTAP.isEmpty() || !LISTADOC.isEmpty()){
+                                btnEnviar.setVisibility(View.VISIBLE);
+                            }else
+                                btnEnviar.setVisibility(View.INVISIBLE);
                         }else
                             btnEnviar.setVisibility(View.INVISIBLE);
-                    }else
-                        btnEnviar.setVisibility(View.INVISIBLE);
+                    }
                 }
                 else{
                     btnEnviar.setVisibility(View.INVISIBLE);
@@ -117,8 +121,7 @@ public class MainActivity extends AppCompatActivity {
         btnEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EnviarRegistros();
-                Snackbar.make(findViewById(R.id.activity_main), "Se ha enviado correctamente ", Snackbar.LENGTH_LONG).show();
+                new loading().execute();
             }
         });
         Log.e("mainactivity","init app");
@@ -144,10 +147,6 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             task.execute();
                         }
-                        //sin web service
-                        /*Intent intObj = new Intent(MainActivity.this, Nav_Principal.class);
-                        startActivity(intObj);
-                        webservicePG.setVisibility(View.INVISIBLE);*/
                     }
                     //If Password text control is empty
                     else{
@@ -239,40 +238,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onProgressUpdate(Void... values) {
         }
-    }
-
-    private void EnviarRegistros(){
-        boolean userExist =false;
-        obtenerUser();
-        //obtener folio
-        getFolio();
-        //obtener porductos
-        if(!folioT.isEmpty()){
-            getProducts(folioT);
-            //obtener foto
-            if(UserComanda!=null){
-                getFotos(UserComanda);
-            }
-            for (int i = 0; i < nombreTablas.size(); i++) {
-                //Enviar Status, productos y fotos
-                if(numRegistros(nombreTablas.get(i))){
-                    if(i == 0 && UserComanda!=null){
-                        userExist =true;
-                    }
-                    if(userExist && i == 1){
-                        new mandarProductos().execute();
-                        new enviarStatus().execute();
-                    }
-                    if(userExist && i == 2){
-                        new enviarFotos().execute();
-                        new enviarStatus().execute();
-                    }
-
-                }
-            }
-        }
-        datos.getDb().close();
-        //Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
     }
 
     private void registro() {
@@ -428,31 +393,53 @@ public class MainActivity extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
 
-    public String getFolio() {
+    public void getFolios() {
         try {
-            Log.e(tag, "Obteniendo folio");
+            Log.e(tag, "Obteniendo folios de entrega");
             datos.getDb().beginTransaction();
-            Cursor cursor1 = datos.obtenerApp();
+            Cursor cursor1 = datos.obtenerEntregas();
             if (cursor1 != null) {
                 if (cursor1.moveToFirst()) {
-                    int columna = cursor1.getColumnIndex("folio");
-                    folioT = cursor1.getString(columna);
-                }
-                Log.e("ESTAD0", "folioT-U: " + folioT);
+                    do {
+                        Entrega e = new Entrega();
+                        int columna = cursor1.getColumnIndex("folio");
+                        e.folio = cursor1.getString(columna);
+                        int columna1 = cursor1.getColumnIndex("estatus");
+                        e.estatus = cursor1.getString(columna1);
+                        int columna2 = cursor1.getColumnIndex("dirorigen");
+                        e.dirorigen = cursor1.getString(columna2);
+                        int columna3 = cursor1.getColumnIndex("fechaorigen");
+                        e.fechaorigen = cursor1.getString(columna3);
+                        int columna4 = cursor1.getColumnIndex("nombre");
+                        e.nombre = cursor1.getString(columna4);
+                        int columna5 = cursor1.getColumnIndex("nombredestino");
+                        e.nombredestino = cursor1.getString(columna5);
+                        int columna6 = cursor1.getColumnIndex("dirdestino");
+                        e.dirdestino = cursor1.getString(columna6);
+                        int columna7 = cursor1.getColumnIndex("fechadestino");
+                        e.fechadestino = cursor1.getString(columna7);
+                        int columna8 = cursor1.getColumnIndex("nombrereceptor");
+                        e.nombrereceptor = cursor1.getString(columna8);
+                        int columna9 = cursor1.getColumnIndex("info");
+                        e.info = cursor1.getString(columna9);
+                        int columna0 = cursor1.getColumnIndex("usuario_nombre");
+                        e.usuario_nombre = cursor1.getString(columna0);
+                        LISTAE.add(e);
+                    } while(cursor1.moveToNext());
 
+                }
                 datos.getDb().setTransactionSuccessful();
             }
         } finally{
             datos.getDb().endTransaction();
         }
-        return folioT;
     }
 
-    public void getProducts(String f){
+    public void getProducts(){
         try {
             Log.e(tag, "get productos");
             datos.getDb().beginTransaction();
-            Cursor cursor1 =datos.obtenerProducto(f);
+            Cursor cursor1 =datos.obtenerProductos(UserComanda);
             if(cursor1!=null){
                 //Nos aseguramos de que existe al menos un registro
                 if (cursor1.moveToFirst()) {
@@ -465,8 +452,8 @@ public class MainActivity extends AppCompatActivity {
                         p.cantidad = cursor1.getString(columna2);
                         int columna3 = cursor1.getColumnIndex("faltante");
                         p.cantidad = cursor1.getString(columna3);
-                        //int columna4 = cursor1.getColumnIndex("entrega_folio");
-                        p.entrega_folio = folioT;
+                        int columna4 = cursor1.getColumnIndex("entrega_folio");
+                        p.entrega_folio = cursor1.getString(columna4);
                         LISTAP.add(p);
                     } while(cursor1.moveToNext());
                 }
@@ -475,7 +462,8 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             datos.getDb().endTransaction();
         }
-        DatabaseUtils.dumpCursor(datos.obtenerProducto(f));
+        //DatabaseUtils.dumpCursor(datos.obtenerProductos(UserComanda));
+        Log.d(tag, "Tam List: "+LISTAP.size());
     }
 
     public void getFotos(String user){
@@ -488,7 +476,8 @@ public class MainActivity extends AppCompatActivity {
                 if (cursor1.moveToFirst()) {
                     //Recorremos el cursor hasta que no haya más registros
                     do {
-
+                        Documentos d = new Documentos();
+                        int columna0 = cursor1.getColumnIndex("idDocumentos");
                         int columna = cursor1.getColumnIndex("foto1");
                         int columna2 = cursor1.getColumnIndex("foto2");
                         int columna3 = cursor1.getColumnIndex("foto3");
@@ -498,25 +487,27 @@ public class MainActivity extends AppCompatActivity {
                         String t2 = cursor1.getString(columna2);
                         String t3 = cursor1.getString(columna3);
                         String t4 = cursor1.getString(columna4);
+                        String t0 = cursor1.getString(columna0);
                         if(!t1.isEmpty() || !t2.isEmpty() || !t3.isEmpty() || !t4.isEmpty()){
-                            doc.foto1 = cursor1.getString(columna);
-                            doc.foto2 = cursor1.getString(columna2);
-                            doc.foto3 = cursor1.getString(columna3);
-                            doc.firma = cursor1.getString(columna4);
+                            d.foto1 = cursor1.getString(columna);
+                            d.foto2 = cursor1.getString(columna2);
+                            d.foto3 = cursor1.getString(columna3);
+                            d.firma = cursor1.getString(columna4);
+                            d.iddocumentos = cursor1.getString(columna0);
                             comentarioComanda = cursor1.getString(columna5);
+                            LISTADOC.add(d);
                         }else{
                             try {
-                                boolean res =datos.eliminarDocumentos(folioT);
+                                boolean res =datos.eliminarDocumentos(t0);
                                 if(res){
                                     //Nos aseguramos de que existe al menos un registro
-                                    Log.e(tag, "base fotos borrada");
+                                    Log.e(tag, "base fotos borrada con: " + t0);
                                 }
-                                datos.getDb().setTransactionSuccessful();
+                                //datos.getDb().setTransactionSuccessful();
                             } finally {
                                 //datos.getDb().endTransaction();
                             }
                         }
-
                         //LISTAP.add(p);
                     } while(cursor1.moveToNext());
                 }
@@ -528,100 +519,80 @@ public class MainActivity extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerDocumentos(user));
     }
 
-    private class mandarProductos extends AsyncTask<String, Void, Void> {
+    private class loading extends AsyncTask<String, Void, Void>{
         @Override
         protected Void doInBackground(String... params) {
-            //Call Web Method
-            //Log.d("data", "data pr0duct0");
-            for(int i = 0; i<LISTAP.size();i++) {
-                status = WebService.invokeProducto(folioT, LISTAP.get(i).producto, LISTAP.get(i).estado, LISTAP.get(i).faltante, comentarioComanda);
+            //enviar prodcutos
+            Log.d(tag, "L0ading");
+            for(int i = 0; i<LISTAP.size();i++) { //entrega_folio
+                status = WebService.invokeProducto(LISTAP.get(i).entrega_folio, LISTAP.get(i).producto, LISTAP.get(i).estado, LISTAP.get(i).faltante, comentarioComanda);
                 //reenviar
                 Log.d("PR0DUCT0 ws", "0 " + status);
             }
-            //Log.d("imagen ws","termine ed enviar");
-            return null;
-        }
-
-        @Override
-        //Once WebService returns response
-        protected void onPostExecute(Void result) {
-            //Error status is false
-            if(status){
-                Log.e(tag, "Se envio prodcutos completos");
-                //Toast.makeText(getApplicationContext(),"Se guardo correctamente la información",Toast.LENGTH_SHORT).show();
-                try {
-                    datos.getDb().beginTransaction();
-                    boolean res =datos.eliminarProducto(folioT);
-                    if(res){
-                        //Nos aseguramos de que existe al menos un registro
-                        Log.e(tag, "base prodcutos borrada");
-                    }
-                    datos.getDb().setTransactionSuccessful();
-                } finally {
-                    datos.getDb().endTransaction();
-                }
-            }else{
-                //Toast.makeText(getApplicationContext(),"Aún no se envia información",Toast.LENGTH_SHORT).show();
+            //Convertir y enviar fotos
+            for(int i = 0; i<LISTADOC.size();i++) { //entrega_folio
+                String f1 = convert64(LISTADOC.get(i).foto1);
+                String f2 = convert64(LISTADOC.get(i).foto2);
+                String f3 = convert64(LISTADOC.get(i).foto3);
+                String f4 = convert64(LISTADOC.get(i).firma);
+                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f1,"Foto1");Log.d("CICL0 ws", "0 "+status);
+                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f2,"Foto2");Log.d("CICL0 ws", "1 "+status);
+                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f3,"Foto3");Log.d("CICL0 ws", "2 "+status);
+                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f4,"Firma");Log.d("CICL0 ws", "3 "+status);
+                //reenviar
+                Log.d("Doc ws", "0 " + status);
             }
-        }
-
-        @Override
-        //Make Progress Bar visible
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
-
-    public class enviarStatus extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            Log.e("Status","Entregada");
-            boolean status = WebService.invokeComanda(folioT, "Entregada");
-            return null;
-        }
-    }
-
-    private class enviarFotos extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            //Call Web Method
-            convert64();
-            status = WebService.invokeImagenWS(folioT,list64.get(0),"Foto1");Log.d("CICL0 ws", "0 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(1),"Foto2");Log.d("CICL0 ws", "1 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status);
+            //enviar satuts
+            getFolios();
+            for(int i = 0; i<LISTAE.size();i++) {
+                status = WebService.invokeComanda(LISTAE.get(i).folio, "Entregada");
+                //reenviar
+                Log.d("ENTRAGFOLIOS ws", "0 " + status);
+            }
 
             Log.d("imagen ws","termine ed enviar");
             return null;
         }
+
         @Override
         //Once WebService returns response
         protected void onPostExecute(Void result) {
+                        //Error status is false
             if(status){
-                Log.e(tag, "Se envio prodcutos completos");
+                Log.e(tag, "Envios completos");
                 try {
                     datos.getDb().beginTransaction();
-                    boolean res =datos.eliminarDocumentos(folioT);
-                    if(res){
-                        //Nos aseguramos de que existe al menos un registro
-                        Log.e(tag, "base fotos borrada");
-                    }
+                    datos.borrar("Producto");
+                    datos.borrar("Documentos");
+                    datos.borrar("Entrega");
+                    Log.d("MAIN", "NumProductos: "+datos.contarRegistros("Producto"));
+                    Log.d("MAIN", "NumDocs: "+datos.contarRegistros("Documentos"));
+                    Log.d("MAIN", "NumDocs: "+datos.contarRegistros("Entrega"));
                     datos.getDb().setTransactionSuccessful();
                 } finally {
                     datos.getDb().endTransaction();
                 }
+                Toast.makeText(getApplicationContext(),"Se envío información",Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getApplicationContext(),"Vuelva a intentar",Toast.LENGTH_SHORT).show();
             }
-
+            if (Findialog != null) {
+                Findialog.dismiss();
+                Findialog = null;
+            }
+            //Re-initialize Error Status to False
+            status = false;
         }
 
         @Override
         //Make Progress Bar visible
         protected void onPreExecute() {
-
+            Log.d("imagen","l0ading");
+            AlertDialog.Builder finBuilder = new AlertDialog.Builder(MainActivity.this);
+            View vistaFin = getLayoutInflater().inflate(R.layout.dialog_estado,null);
+            finBuilder.setView(vistaFin);
+            Findialog = finBuilder.create();
+            Findialog.show();
         }
 
         @Override
@@ -669,35 +640,10 @@ public class MainActivity extends AppCompatActivity {
         datos.deleteALL(getApplicationContext());
     }
 
-    public boolean numRegistros(String nametable){
-        boolean res = false;
-        try {
-            //Log.e(tag, "get dat0s");
-            datos.getDb().beginTransaction();
-            long cont =datos.contarRegistros(nametable);
-            Log.e(tag,"La tabla tiene " + nametable + ": "+cont);
-            if(cont > 0){
-                //Nos aseguramos de que existe al menos un registro
-                res = true;
-            }
-            datos.getDb().setTransactionSuccessful();
-        } finally {
-            datos.getDb().endTransaction();
-        }
-        return res;
-    }
-
-    private void convert64(){
-        List<String> list64path = new ArrayList<>();
-        list64path.add(doc.foto1);
-        list64path.add(doc.foto2);
-        list64path.add(doc.foto3);
-        list64path.add(doc.firma);
-        for(int i = 0; i < list64path.size(); i++){
-            String xxx = encodeImage(list64path.get(i));
-            Log.e(tag, " TAM: " +xxx.length());
-            list64.add(xxx);
-        }
+    private String convert64(String ruta){
+        String xxx = encodeImage(ruta);
+        Log.e(tag, " TAM: " +xxx.length());
+        return xxx;
     }
 
     private String encodeImage(String path) {

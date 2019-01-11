@@ -67,8 +67,8 @@ public class Comanda {
         }
     }
     public static class Documentos implements ColumnasDocumentos {
-        public static String generarIdDocumentos() {
-            return "D-" + UUID.randomUUID().toString();
+        public static String generarIdDocumentos(String folio) {
+            return "D-" + folio;
         }
     }
     public static class App implements ColumnasApp {

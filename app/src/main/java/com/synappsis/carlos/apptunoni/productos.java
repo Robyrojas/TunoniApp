@@ -128,12 +128,6 @@ public class productos extends AppCompatActivity {
                                         Toast.makeText(getApplicationContext(),"Validación Guardada, dar clic en Terminar",Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
                                         new loading().execute();
-                                        /*
-                                        if(isOnline(getApplicationContext())){
-                                            new AsyncWS().execute();
-                                            actualizarStatus("Send");
-                                            new mandarData().execute();
-                                        }*/
                                         aceptar.setText("Terminar");
                                         comentario.setEnabled(false);
 
@@ -159,7 +153,7 @@ public class productos extends AppCompatActivity {
                 else{
                     if(isOnline(getApplicationContext())){
                         new enviarStatus().execute();
-                        actualizarStatus("SNC");
+                        actualizarStatus("Sin enviar");
                         //borrarBase();
                         Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
                     }else{
@@ -690,7 +684,7 @@ public class productos extends AppCompatActivity {
 
     private void actualizarStatus(String statusNew) {
         try {
-            Log.e(tag, "Actualizar");
+            Log.e(tag, "ActualizarStatus");
             datos.getDb().beginTransaction();
             UserComanda=null;
             Cursor cursor = datos.obtenerEstatus();
@@ -699,7 +693,7 @@ public class productos extends AppCompatActivity {
                     int columna = cursor.getColumnIndex("folio");
                     UserComanda = cursor.getString(columna);
                 }
-                Log.e(tag, "user: " + UserComanda);
+                //Log.e(tag, "folio: " + UserComanda);
                 Cursor cursor2 = datos.actualizarStatus(statusNew, UserComanda);
                 if (cursor2 != null) {
                     Log.e(tag, "Si hay actualizar estado");
@@ -710,6 +704,24 @@ public class productos extends AppCompatActivity {
                     }
                 } else {
                     Log.d("QUERY", "Error en query 2");
+                }
+                if(statusNew.equals("Sin enviar")){
+                    Cursor cursor3 = datos.actualizarFolio("SF");
+                    if (cursor3 != null) {
+                        if (cursor3.moveToFirst()) {
+                            int columna = cursor3.getColumnIndex("folio");
+                            String estado = cursor3.getString(columna);
+                            Log.d("QUERY", estado);
+                        }
+                    } else {
+                        Log.d("QUERY", "Error en query 3");
+                    }
+                    boolean res = datos.eliminarEntregas(folioT);
+                    if (res) {
+                        Log.d("QUERY", "Se elimino entrega "+folioT);
+                    } else {
+                        Log.d("QUERY", "No se elimino "+ folioT);
+                    }
                 }
             } else {
                 Log.d("USER", "Error algo vacio");
@@ -734,7 +746,7 @@ public class productos extends AppCompatActivity {
                     status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(i).estado, listProduct.get(i).faltante, c1);
                     Log.d("PR0DUCT0 ws", "0 " + status);
                 }
-                Log.d("Producto","Termine de guardar productos");
+                Log.d("Producto","Termine de enviar productos");
                 convert64();
                 //Call Web Method
                 Log.d("imagen ws", list64path.size() +"");
@@ -766,9 +778,10 @@ public class productos extends AppCompatActivity {
                     datos.getDb().beginTransaction();
                     boolean res =datos.eliminarProducto(folioT);
                     boolean res2 = datos.eliminarDocumentos(folioT);
-                    if(res && res2){
-                        Log.e(tag, "base prodcutos borrada");
-                    }
+                    Log.d("QUERY", "No se elimino res:"+ res +" res2:"+res2);
+                    if(res)
+                        if(res2)
+                            Log.e(tag, "base prodcutos borrada");
                     datos.getDb().setTransactionSuccessful();
                 } finally {
                     datos.getDb().endTransaction();
@@ -834,7 +847,7 @@ public class productos extends AppCompatActivity {
         try {
             Log.e("PRODUCTO", "save fotos");
             datos.getDb().beginTransaction();
-            String idDoc= datos.insertarDocumentos(docs);
+            String idDoc= datos.insertarDocumentos(docs,folioT);
             if(idDoc!=null){
                 //Nos aseguramos de que existe al menos un registro
                 Log.d("BASE","SE GUADO BD DOCS");

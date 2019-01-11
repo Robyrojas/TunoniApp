@@ -138,8 +138,11 @@ public class ViajesAsignados extends Fragment {
                                 datosComanda.add(e);
                             }
                         } while(cursor1.moveToNext());
+
                     }
                 }
+                Log.d("ViajesAsignados", "NumProductos: "+datos.contarRegistros("Producto"));
+                Log.d("ViajesAsignados", "NumDocs: "+datos.contarRegistros("Documentos"));
                 datos.getDb().setTransactionSuccessful();
             } finally {
                 datos.getDb().endTransaction();
@@ -151,24 +154,6 @@ public class ViajesAsignados extends Fragment {
         // preparing list data rootView
         final Button button = rootView.findViewById(R.id.asignarViaje);
         final Button actBoton = rootView.findViewById(R.id.actualizar);
-        vistaSave = obtenerEstado();
-        if(vistaSave.equals("Aceptado")) {
-            button.setEnabled(false);
-            actBoton.setEnabled(false);
-            Cursor folio = datos.obtenerApp();
-            if(folio!=null){
-                if (folio.moveToFirst()) {
-                    int columna = folio.getColumnIndex("folio");
-                    folioString = folio.getString(columna);
-                }
-                Log.e("ViajesAsigandos", "folio: "+folioString);
-            }
-            Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
-        }else {
-            button.setEnabled(true);
-            actBoton.setEnabled(true);
-            Toast.makeText(getContext(), "Cargando...", Toast.LENGTH_SHORT).show();
-        }
         //prepareListData();
 
         if(listDataHeader != null || listDataChild != null) {
@@ -226,7 +211,9 @@ public class ViajesAsignados extends Fragment {
                     dialogo1.setPositiveButton("Confirmar", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialogo1, int id) {
                             grupotext = listAdapter.getNameGrup(grupActual);
-                            new actualizarStatus().execute();
+                            Log.e("ViajesAsigandos", "folio: "+grupotext);
+                            //new actualizarStatus().execute();
+                            actualizarFolioApp();
                             new enviarStatus().execute();
                             Toast.makeText(getContext(), "Ha seleccionado: "+ grupotext, Toast.LENGTH_SHORT).show();
 
@@ -261,6 +248,24 @@ public class ViajesAsignados extends Fragment {
                 }
             }
         });
+        vistaSave = obtenerEstado();
+        if(vistaSave.equals("Aceptado")) {
+            button.setEnabled(false);
+            actBoton.setEnabled(false);
+            Cursor folio = datos.obtenerApp();
+            if(folio!=null){
+                if (folio.moveToFirst()) {
+                    int columna = folio.getColumnIndex("folio");
+                    folioString = folio.getString(columna);
+                }
+                Log.e("ViajesAsigandos", "folio: "+folioString);
+            }
+            Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
+        }else {
+            button.setEnabled(true);
+            actBoton.setEnabled(true);
+            Toast.makeText(getContext(), "Cargando...", Toast.LENGTH_SHORT).show();
+        }
         return rootView;
     }
 
@@ -486,13 +491,13 @@ public class ViajesAsignados extends Fragment {
             // [INSERCIONES]
             try {
                 datos.getDb().beginTransaction();
-                //int a = 1;
+                Log.d("ViajesAsigandos", "Folio: "+ grupotext);
                 Cursor cursor =datos.actualizarFolio(grupotext);
                 if(cursor!=null){
                     if (cursor.moveToFirst()) {
                         int columna = cursor.getColumnIndex("folio");
                         String estado = cursor.getString(columna);
-                        Log.d("ViajesAsigandos", estado);
+                        Log.d("ViajesAsigandosFolio", estado);
                     }
                 }
                 else{Log.d("ViajesAsigandos", "Error en query 1");}
@@ -588,4 +593,34 @@ public class ViajesAsignados extends Fragment {
         return false;
     }
 
+    public void actualizarFolioApp(){
+        try {
+            datos.getDb().beginTransaction();
+            Log.d("ViajesAsigandos", "Folio: "+ grupotext);
+            Cursor cursor =datos.actualizarFolio(grupotext);
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("folio");
+                    String estado = cursor.getString(columna);
+                    Log.d("ViajesAsigandosFolio", estado);
+                }
+            }
+            else{Log.d("ViajesAsigandos", "Error en query 1");}
+            Cursor cursor2 =datos.actualizarStatus("Aceptado", grupotext);
+            if(cursor2!=null){
+                if (cursor2.moveToFirst()) {
+                    int columna = cursor2.getColumnIndex("folio");
+                    String estado = cursor2.getString(columna);
+                    Log.d("ViajesAsigandos", estado);
+                }
+            }
+            else{Log.d("ViajesAsigandos", "Error en query 2");}
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        // [QUERIES]
+        Log.d("USER","----------------Obtencion de base de datos de Viajes asignados "+ UserComanda);
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+    }
 }

@@ -153,11 +153,11 @@ public class OperacionesBaseDatos {
         return db.rawQuery(sql, null);
     }
 
-    public boolean eliminarEntregas(String idProducto) {
+    public boolean eliminarEntregas(String folio) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
 
         String whereClause = String.format("%s=?", Comanda.Entrega.FOLIO);
-        String[] whereArgs = {idProducto};
+        String[] whereArgs = {folio};
 
         int resultado = db.delete(Tablas.TABLE_ENTREGA, whereClause, whereArgs);
 
@@ -311,6 +311,14 @@ public class OperacionesBaseDatos {
         return res;
     }
 
+    public Cursor obtenerProductos(String usuario_nombre) {
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+
+        String query = "select * from " + Tablas.TABLE_PRODUCTO + " WHERE usuario_nombre=?";
+        Cursor res = db.rawQuery(query, new String[]{usuario_nombre});
+        return res;
+    }
+
     public Cursor actualizarProducto(String producto, String estado, String faltante){
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         Cursor res =null;
@@ -337,7 +345,7 @@ public class OperacionesBaseDatos {
     /*FIN PRODUCTO*/
 
     /*DOCUMENTOS*/
-    public String insertarDocumentos(Documentos doc) {
+    public String insertarDocumentos(Documentos doc, String folio) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
         String Query = "SELECT * FROM Documentos WHERE iddocumentos = '"+doc.iddocumentos+"'";
         Cursor cursor = db.rawQuery(Query, null);
@@ -357,7 +365,7 @@ public class OperacionesBaseDatos {
             Log.d("DOC","D0C Nueva");
             ContentValues valores = new ContentValues();
             // Generar Pk
-            String idProducto = Comanda.Documentos.generarIdDocumentos();
+            String idProducto = Comanda.Documentos.generarIdDocumentos(folio);
             valores.put(Comanda.Documentos.IDDOCUMENTOS, idProducto);
             valores.put(Comanda.Documentos.FOTO1, doc.foto1);
             valores.put(Comanda.Documentos.FOTO2, doc.foto2);
@@ -388,9 +396,8 @@ public class OperacionesBaseDatos {
 
     public boolean eliminarDocumentos(String folioT) {
         SQLiteDatabase db = baseDatos.getWritableDatabase();
-
-        String whereClause = String.format("%s=?", Comanda.Documentos.ENTREGA_FOLIO);
-        String[] whereArgs = {folioT};
+        String whereClause = String.format("%s=?", Comanda.Documentos.IDDOCUMENTOS);
+        String[] whereArgs = {"D-"+folioT};
 
         int resultado = db.delete(Tablas.TABLE_DOCUMENTOS, whereClause, whereArgs);
 
