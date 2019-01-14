@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     String UserComanda = "";
     List<Producto> LISTAP = new ArrayList<Producto>();
     List<Documentos> LISTADOC = new ArrayList<Documentos>();
-    List<Entrega> LISTAE = new ArrayList<Entrega>();
+    List<String> LISTAF = new ArrayList<String>();
     //folioT ="",
 
     //Documentos doc = new Documentos();
@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         final Button btnEnviar = (Button) findViewById(R.id.enviarInfo);
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getApplicationContext());
-        DatabaseUtils.dumpCursor(datos.obtenerUser());
+        //DatabaseUtils.dumpCursor(datos.obtenerUser());
         IntentFilter intentFilter = new IntentFilter(NetworkStateChangeReceiver.NETWORK_AVAILABLE_ACTION);
         Log.e("br0adcast",NetworkStateChangeReceiver.NETWORK_AVAILABLE_ACTION);
         LocalBroadcastManager.getInstance(this).registerReceiver(new BroadcastReceiver() {
@@ -102,7 +102,8 @@ public class MainActivity extends AppCompatActivity {
                     //obtener usuario
                     obtenerUser();
                     if(UserComanda!=null){
-                        if(!UserComanda.isEmpty()){
+                        boolean res = revisarEnvio();
+                        if(!UserComanda.isEmpty() && res){
                             getProducts();
                             getFotos(UserComanda);
                             if(!LISTAP.isEmpty() || !LISTADOC.isEmpty()){
@@ -118,12 +119,15 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }, intentFilter);
+
         btnEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 new loading().execute();
+                btnEnviar.setVisibility(View.INVISIBLE);
             }
         });
+
         Log.e("mainactivity","init app");
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -136,12 +140,8 @@ public class MainActivity extends AppCompatActivity {
                         editTextUsername = userNameET.getText().toString();
                         editTextPassword = passWordET.getText().toString();
                         statusTV.setText("");
-                        //Create instance for AsyncCallWS
-                        //if(isOnline(getApplicationContext())){
-                            AsyncCallWS task = new AsyncCallWS();
-                        //}
-
-                        //Log.d("l0gin","para el task");
+                        AsyncCallWS task = new AsyncCallWS();
+                        datos.getDb().close();
                         if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
                             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
                         } else {
@@ -160,6 +160,37 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+    }
+
+    private boolean revisarEnvio() {
+        boolean res = false;
+        try {
+            //Log.e(tag, "Actualizar");
+            datos.getDb().beginTransaction();
+            Cursor cursor = datos.obtenerEntregas();
+            if (cursor != null) {
+                Log.d("MAIN", "NumProductos: "+datos.contarRegistros("Producto"));
+                Log.d("MAIN", "NumDocs: "+datos.contarRegistros("Documentos"));
+                Log.d("MAIN", "NumEntrega: "+datos.contarRegistros("Entrega"));
+                if (cursor.moveToFirst()) {
+                    do{
+                        int columna = cursor.getColumnIndex("estatus");
+                        String state = cursor.getString(columna);
+                        Log.d("MAIN", "state: "+ state);
+                        if(state.equals("Por Entregar"))
+                            res = true;
+                    }while (cursor.moveToNext());
+
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        //DatabaseUtils.dumpCursor(datos.obtenerApp());
+        return res;
     }
     /*CLASE PARA CONEXION AL WEB SERVICE*/
 
@@ -393,69 +424,44 @@ public class MainActivity extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
 
-    public void getFolios() {
-        try {
-            Log.e(tag, "Obteniendo folios de entrega");
-            datos.getDb().beginTransaction();
-            Cursor cursor1 = datos.obtenerEntregas();
-            if (cursor1 != null) {
-                if (cursor1.moveToFirst()) {
-                    do {
-                        Entrega e = new Entrega();
-                        int columna = cursor1.getColumnIndex("folio");
-                        e.folio = cursor1.getString(columna);
-                        int columna1 = cursor1.getColumnIndex("estatus");
-                        e.estatus = cursor1.getString(columna1);
-                        int columna2 = cursor1.getColumnIndex("dirorigen");
-                        e.dirorigen = cursor1.getString(columna2);
-                        int columna3 = cursor1.getColumnIndex("fechaorigen");
-                        e.fechaorigen = cursor1.getString(columna3);
-                        int columna4 = cursor1.getColumnIndex("nombre");
-                        e.nombre = cursor1.getString(columna4);
-                        int columna5 = cursor1.getColumnIndex("nombredestino");
-                        e.nombredestino = cursor1.getString(columna5);
-                        int columna6 = cursor1.getColumnIndex("dirdestino");
-                        e.dirdestino = cursor1.getString(columna6);
-                        int columna7 = cursor1.getColumnIndex("fechadestino");
-                        e.fechadestino = cursor1.getString(columna7);
-                        int columna8 = cursor1.getColumnIndex("nombrereceptor");
-                        e.nombrereceptor = cursor1.getString(columna8);
-                        int columna9 = cursor1.getColumnIndex("info");
-                        e.info = cursor1.getString(columna9);
-                        int columna0 = cursor1.getColumnIndex("usuario_nombre");
-                        e.usuario_nombre = cursor1.getString(columna0);
-                        LISTAE.add(e);
-                    } while(cursor1.moveToNext());
-
-                }
-                datos.getDb().setTransactionSuccessful();
-            }
-        } finally{
-            datos.getDb().endTransaction();
-        }
-    }
-
     public void getProducts(){
         try {
             Log.e(tag, "get productos");
             datos.getDb().beginTransaction();
-            Cursor cursor1 =datos.obtenerProductos(UserComanda);
-            if(cursor1!=null){
+            Cursor entrega = datos.obtenerEntregas(UserComanda);
+            if(entrega!=null){
                 //Nos aseguramos de que existe al menos un registro
-                if (cursor1.moveToFirst()) {
+                if (entrega.moveToFirst()) {
                     //Recorremos el cursor hasta que no haya más registros
                     do {
-                        Producto p = new Producto();
-                        int columna = cursor1.getColumnIndex("producto");
-                        p.producto = cursor1.getString(columna);
-                        int columna2 = cursor1.getColumnIndex("estado");
-                        p.cantidad = cursor1.getString(columna2);
-                        int columna3 = cursor1.getColumnIndex("faltante");
-                        p.cantidad = cursor1.getString(columna3);
-                        int columna4 = cursor1.getColumnIndex("entrega_folio");
-                        p.entrega_folio = cursor1.getString(columna4);
-                        LISTAP.add(p);
-                    } while(cursor1.moveToNext());
+                        Entrega e = new Entrega();
+                        int c1 = entrega.getColumnIndex("folio");
+                        e.folio = entrega.getString(c1);
+                        int c2 = entrega.getColumnIndex("estatus");
+                        e.estatus = entrega.getString(c2);
+                        String estatus = e.estatus;
+                        String f = e.folio;
+                        if(estatus.equals("Por Entregar")){
+                            Cursor cursor1 =datos.obtenerProducto(f);
+                            if(cursor1!=null){
+                                //Nos aseguramos de que existe al menos un registro
+                                if (cursor1.moveToFirst()) {
+                                    //Recorremos el cursor hasta que no haya más registros
+                                    do {
+                                        Producto p = new Producto();
+                                        int columna = cursor1.getColumnIndex("producto");
+                                        p.producto = cursor1.getString(columna);
+                                        int columna2 = cursor1.getColumnIndex("estado");
+                                        p.cantidad = cursor1.getString(columna2);
+                                        int columna3 = cursor1.getColumnIndex("faltante");
+                                        p.cantidad = cursor1.getString(columna3);
+                                        LISTAP.add(p);
+                                        LISTAF.add(f);
+                                    } while(cursor1.moveToNext());
+                                }
+                            }
+                        }
+                    } while(entrega.moveToNext());
                 }
             }
             datos.getDb().setTransactionSuccessful();
@@ -483,6 +489,7 @@ public class MainActivity extends AppCompatActivity {
                         int columna3 = cursor1.getColumnIndex("foto3");
                         int columna4 = cursor1.getColumnIndex("firma");
                         int columna5 = cursor1.getColumnIndex("comentarios");
+                        int columna6 = cursor1.getColumnIndex("status");
                         String t1 = cursor1.getString(columna);
                         String t2 = cursor1.getString(columna2);
                         String t3 = cursor1.getString(columna3);
@@ -495,7 +502,10 @@ public class MainActivity extends AppCompatActivity {
                             d.firma = cursor1.getString(columna4);
                             d.iddocumentos = cursor1.getString(columna0);
                             comentarioComanda = cursor1.getString(columna5);
-                            LISTADOC.add(d);
+                            String estatus = cursor1.getString(columna6);
+                            if(estatus.equals("Entregada")){
+                                LISTADOC.add(d);
+                            }
                         }else{
                             try {
                                 boolean res =datos.eliminarDocumentos(t0);
@@ -543,11 +553,11 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("Doc ws", "0 " + status);
             }
             //enviar satuts
-            getFolios();
-            for(int i = 0; i<LISTAE.size();i++) {
-                status = WebService.invokeComanda(LISTAE.get(i).folio, "Entregada");
+            //getFolios();
+            for(int i = 0; i<LISTAF.size();i++) {
+                status = WebService.invokeComanda(LISTAF.get(i), "Entregada");
                 //reenviar
-                Log.d("ENTRAGFOLIOS ws", "0 " + status);
+                Log.d("Actualizand0FOLIOS ws", ""+i + status);
             }
 
             Log.d("imagen ws","termine ed enviar");
@@ -562,12 +572,19 @@ public class MainActivity extends AppCompatActivity {
                 Log.e(tag, "Envios completos");
                 try {
                     datos.getDb().beginTransaction();
-                    datos.borrar("Producto");
-                    datos.borrar("Documentos");
-                    datos.borrar("Entrega");
+                    for (int i = 0; i < LISTAF.size(); i++)
+                    {
+                        String folioBorrar = LISTAF.get(i);
+                        datos.eliminarProducto(folioBorrar);
+                        datos.eliminarEntregas(folioBorrar);
+                        datos.eliminarDocumentos(folioBorrar);
+                    }
                     Log.d("MAIN", "NumProductos: "+datos.contarRegistros("Producto"));
                     Log.d("MAIN", "NumDocs: "+datos.contarRegistros("Documentos"));
                     Log.d("MAIN", "NumDocs: "+datos.contarRegistros("Entrega"));
+                    LISTAF.clear();
+                    LISTADOC.clear();
+                    LISTAP.clear();
                     datos.getDb().setTransactionSuccessful();
                 } finally {
                     datos.getDb().endTransaction();
@@ -600,6 +617,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /*
     public void borrarBase(){
         datos.getDb().beginTransaction();
         String folioT ="";
@@ -639,6 +657,7 @@ public class MainActivity extends AppCompatActivity {
         }
         datos.deleteALL(getApplicationContext());
     }
+    */
 
     private String convert64(String ruta){
         String xxx = encodeImage(ruta);
@@ -670,7 +689,7 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Si", new DialogInterface.OnClickListener() {
                     // do something when the button is clicked
                     public void onClick(DialogInterface arg0, int arg1) {
-                        finish();
+                        datos.getDb().close();finish();
                     }
                 })
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {

@@ -103,7 +103,6 @@ public class ViajesAsignados extends Fragment {
             Log.d("ViajesAsigandos", "begintransacitión2");
             try {
                 Log.e("ViajesAsigandos", "get dat0s");
-                datos.getDb().beginTransaction();
                 Cursor cursor1 =datos.obtenerEntregas();
                 if(cursor1!=null){
                     //Nos aseguramos de que existe al menos un registro
@@ -252,15 +251,25 @@ public class ViajesAsignados extends Fragment {
         if(vistaSave.equals("Aceptado")) {
             button.setEnabled(false);
             actBoton.setEnabled(false);
-            Cursor folio = datos.obtenerApp();
-            if(folio!=null){
-                if (folio.moveToFirst()) {
-                    int columna = folio.getColumnIndex("folio");
-                    folioString = folio.getString(columna);
+            try {
+                //Log.e(tag, "Actualizar");
+                datos.getDb().beginTransaction();
+                Cursor folio = datos.obtenerApp();
+                if(folio!=null){
+                    if (folio.moveToFirst()) {
+                        int columna = folio.getColumnIndex("folio");
+                        folioString = folio.getString(columna);
+                    }
+                    Log.e("ViajesAsigandos", "folio: "+folioString);
+                    Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
+                }else {
+                    Log.d("USER", "Error algo vacio");
+                    Toast.makeText(getContext(), "Vuelva a intentar", Toast.LENGTH_SHORT).show();
                 }
-                Log.e("ViajesAsigandos", "folio: "+folioString);
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
             }
-            Toast.makeText(getContext(), "Se eligio el Folio: "+folioString, Toast.LENGTH_SHORT).show();
         }else {
             button.setEnabled(true);
             actBoton.setEnabled(true);

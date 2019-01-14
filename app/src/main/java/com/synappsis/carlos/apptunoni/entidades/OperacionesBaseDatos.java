@@ -147,6 +147,19 @@ public class OperacionesBaseDatos {
         }
     }
 
+    public Cursor actualizarStatusEntregas(String folio, String status){
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        Cursor res =null;
+        try{
+            String query = "UPDATE " + Tablas.TABLE_ENTREGA + " SET estatus = '"+ status +"' WHERE folio='"+folio+"'";
+            Log.d("QUERY", query);
+            res = db.rawQuery(query, null);
+            return res;
+        }catch (Exception e){
+            return res;
+        }
+    }
+
     public Cursor obtenerEntregas() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         String sql = String.format("SELECT * FROM %s", Tablas.TABLE_ENTREGA);

@@ -183,16 +183,25 @@ public class EntregaProceso extends Fragment {
         vistaSave = obtenerEstado();
         if (vistaSave.equals("En Camino")) {
             spinnerOpc.setSelection(1);
-            Cursor folio = datos.obtenerApp();
-            String folioString = "";
-            if (folio != null) {
-                if (folio.moveToFirst()) {
-                    int columna = folio.getColumnIndex("folio");
-                    folioString = folio.getString(columna);
+            try {
+                //Log.e(tag, "Actualizar");
+                datos.getDb().beginTransaction();
+                Cursor folio = datos.obtenerApp();
+                String folioString = "";
+                if (folio != null) {
+                    if (folio.moveToFirst()) {
+                        int columna = folio.getColumnIndex("folio");
+                        folioString = folio.getString(columna);
+                    }
+                    Toast.makeText(getContext(), "Se eligio el Folio: " + folioString, Toast.LENGTH_SHORT).show();
+                    Log.e("ESTAD0", "folio: " + folioString);
+                } else {
+                    Log.d("USER", "Error algo vacio");
                 }
-                Log.e("ESTAD0", "folio: " + folioString);
+                datos.getDb().setTransactionSuccessful();
+            } finally {
+                datos.getDb().endTransaction();
             }
-            Toast.makeText(getContext(), "Se eligio el Folio: " + folioString, Toast.LENGTH_SHORT).show();
         }
         spinnerOpc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -474,6 +483,7 @@ public class EntregaProceso extends Fragment {
                 //getLocationEntrega();
                 new enviarProceso().execute();
                 dialog.dismiss();
+                datos.getDb().close();
                 Intent intent = new Intent(getActivity(), productos.class);
                 startActivity(intent);
                 getActivity().finish();

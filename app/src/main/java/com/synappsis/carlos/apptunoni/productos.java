@@ -78,7 +78,6 @@ public class productos extends AppCompatActivity {
     private int bandera = 0;
     String[] lista1 = {"Completo","Faltante","No Entregado"};
     String[] lista2 = {"Excelente","Regular","Malo"};
-    //String[] listaPRO = {"Zanahorias KG","Papas KG","Tortillas KG","Agua LT","Cereal CAJA"};
     List<Producto> LISTAP = new ArrayList<Producto>();
     TableLayout stk;
     /*Variable firma*/
@@ -127,6 +126,8 @@ public class productos extends AppCompatActivity {
                                         c1 = comentario.getText().toString();
                                         Toast.makeText(getApplicationContext(),"Validación Guardada, dar clic en Terminar",Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
+                                        obtenerDatos(0);
+                                        saveDBImage(list64path);
                                         new loading().execute();
                                         aceptar.setText("Terminar");
                                         comentario.setEnabled(false);
@@ -151,13 +152,15 @@ public class productos extends AppCompatActivity {
                     }
                 }
                 else{
-                    if(isOnline(getApplicationContext())){
+                    if(isOnline()){
                         new enviarStatus().execute();
                         actualizarStatus("Sin enviar");
                         //borrarBase();
                         Toast.makeText(getApplicationContext(),"Información Enviada",Toast.LENGTH_SHORT).show();
                     }else{
                         Toast.makeText(getApplicationContext(),"Información Guardada",Toast.LENGTH_SHORT).show();
+                        actualizarFolioYEntrega("Sin enviar");
+
                     }
                     datos.getDb().close();
                     finish();
@@ -277,7 +280,7 @@ public class productos extends AppCompatActivity {
 
     public String getFolio(){
         try {
-            Log.e("PRODUCTO", "GUARDANDO FOTOS");
+            Log.e("PRODUCTO", "0BTENIEND0 F0LI0");
             datos.getDb().beginTransaction();
             Cursor cursor1 =datos.obtenerApp();
             if(cursor1!=null){
@@ -408,7 +411,7 @@ public class productos extends AppCompatActivity {
                 list2.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, lista1));
                 list2.setGravity(Gravity.CENTER_HORIZONTAL);
                 tbrow.addView(list2);
-                Log.d("tabla tbrow",""+tbrow.getChildCount());
+                //Log.d("tabla tbrow",""+tbrow.getChildCount());
                 //
                 stk.addView(tbrow);
             }
@@ -418,7 +421,7 @@ public class productos extends AppCompatActivity {
 
     public String obtenerDatos(int index){
         String res="false";
-        //Log.d("tabla",""+stk.getChildCount());
+        //Log.d("tabla",""+stk.getChildCount());]]
         int datc = index+5;
         for(int i = datc; i < stk.getChildCount();i++){
             View view = stk.getChildAt(i);
@@ -446,6 +449,7 @@ public class productos extends AppCompatActivity {
                     datos.getDb().setTransactionSuccessful();
                 } finally {
                     datos.getDb().endTransaction();
+                    Log.d("QUERY", "Obtenerdatos end");
                 }
                 res = "actualizado";
             }
@@ -733,15 +737,53 @@ public class productos extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerApp());
     }
 
+    private void actualizarFolioYEntrega(String statusNew) {
+        try {
+            Log.e(tag, "actualizarFolioYEntrega");
+            datos.getDb().beginTransaction();
+            String f ="";
+            Cursor cursor3 = datos.actualizarStatusEntregas(folioT,"Por Entregar");
+            if (cursor3 != null) {
+                if (cursor3.moveToFirst()) {
+                    int columna = cursor3.getColumnIndex("folio");
+                    f = cursor3.getString(columna);
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+
+            Cursor cursor = datos.actualizarStatus(statusNew,folioT);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("folio");
+                    f = cursor.getString(columna);
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            Cursor cursor2 = datos.actualizarFolio("SF");
+            if (cursor2 != null) {
+                if (cursor2.moveToFirst()) {
+                    int columna = cursor2.getColumnIndex("folio");
+                    f = cursor2.getString(columna);
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        DatabaseUtils.dumpCursor(datos.obtenerApp());
+    }
+
     private class loading extends AsyncTask<String, Void, Void>{
         @Override
         protected Void doInBackground(String... params) {
             //Call Web Method
             Log.d(tag, "L0ading");
-            obtenerDatos(0);
-            saveDBImage(list64path);
             Log.d("data", "data pr0duct0");
-            if(isOnline(getApplicationContext())){
+            if(isOnline()){
                 for(int i = 0; i<listProduct.size();i++) {
                     status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(i).estado, listProduct.get(i).faltante, c1);
                     Log.d("PR0DUCT0 ws", "0 " + status);
@@ -772,21 +814,26 @@ public class productos extends AppCompatActivity {
             }
             //Error status is false
             if(status){
-                Log.e(tag, "Se envio prodcutos completos");
-                //Toast.makeText(getApplicationContext(),"Se guardo correctamente la información",Toast.LENGTH_SHORT).show();
-                try {
-                    datos.getDb().beginTransaction();
-                    boolean res =datos.eliminarProducto(folioT);
-                    boolean res2 = datos.eliminarDocumentos(folioT);
-                    Log.d("QUERY", "No se elimino res:"+ res +" res2:"+res2);
-                    if(res)
-                        if(res2)
-                            Log.e(tag, "base prodcutos borrada");
-                    datos.getDb().setTransactionSuccessful();
-                } finally {
-                    datos.getDb().endTransaction();
+                if(isOnline()){
+                    //Toast.makeText(getApplicationContext(),"Se guardo correctamente la información",Toast.LENGTH_SHORT).show();
+                    try {
+                        datos.getDb().beginTransaction();
+                        boolean res =datos.eliminarProducto(folioT);
+                        boolean res2 = datos.eliminarDocumentos(folioT);
+                        Log.d("QUERY", "No se elimino res:"+ res +" res2:"+res2);
+                        if(res)
+                            if(res2)
+                                Log.e(tag, "base prodcutos borrada");
+                        datos.getDb().setTransactionSuccessful();
+                    } finally {
+                        datos.getDb().endTransaction();
+                    }
+                    Toast.makeText(getApplicationContext(),"Se envío información",Toast.LENGTH_SHORT).show();
                 }
-                Toast.makeText(getApplicationContext(),"Se envío información",Toast.LENGTH_SHORT).show();
+                else
+                    Toast.makeText(getApplicationContext(),"Se guardo la información",Toast.LENGTH_SHORT).show();
+                Log.e(tag, "Se envio inf0 completa");
+
             }else{
                 Toast.makeText(getApplicationContext(),"Se guardo la información",Toast.LENGTH_SHORT).show();
             }
@@ -810,38 +857,6 @@ public class productos extends AppCompatActivity {
         }
     }
 
-    private class AsyncWS extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            convert64();
-            //Call Web Method
-            Log.d("imagen ws", list64path.size() +"");
-
-            status = WebService.invokeImagenWS(folioT,list64.get(0),"Foto1");Log.d("CICL0 ws", "0 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(1),"Foto2");Log.d("CICL0 ws", "1 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(2),"Foto3");Log.d("CICL0 ws", "2 "+status);
-            status = WebService.invokeImagenWS(folioT,list64.get(3),"Firma");Log.d("CICL0 ws", "3 "+status);
-
-            Log.d("imagen ws","termine de guardar");
-            return null;
-        }
-        @Override
-        //Once WebService returns response
-        protected void onPostExecute(Void result) {
-
-        }
-
-        @Override
-        //Make Progress Bar visible
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
-
     private void saveDBImage(List<String> list64) {
         Documentos docs = new Documentos("", list64.get(0),list64.get(1),list64.get(2),list64.get(3),c1,"Entregada",folioT, UserComanda);
         try {
@@ -855,45 +870,7 @@ public class productos extends AppCompatActivity {
             datos.getDb().setTransactionSuccessful();
         } finally {
             datos.getDb().endTransaction();
-        }
-    }
-
-    private class mandarData extends AsyncTask<String, Void, Void> {
-        @Override
-        protected Void doInBackground(String... params) {
-            //Call Web Method
-            Log.d("data", "data pr0duct0");
-            for(int i = 0; i<listProduct.size();i++) {
-                status = WebService.invokeProducto(folioT, listProduct.get(i).producto, listProduct.get(i).estado, listProduct.get(i).faltante, c1);
-                Log.d("PR0DUCT0 ws", "0 " + status);
-            }
-            Log.d("Producto","Termine de guardar productos");
-            return null;
-        }
-
-        @Override
-        //Once WebService returns response
-        protected void onPostExecute(Void result) {
-
-            //Error status is false
-            if(status){
-                //Error status is true
-                Toast.makeText(getApplicationContext(),"Se guardo correctamente la información",Toast.LENGTH_SHORT).show();
-            }else{
-                //Toast.makeText(getApplicationContext(),"Aún no se envia información",Toast.LENGTH_SHORT).show();
-            }
-            //Re-initialize Error Status to False
-            status = false;
-        }
-
-        @Override
-        //Make Progress Bar visible
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
+            Log.d("QUERY", "SaveBD end");
         }
     }
 
@@ -906,7 +883,7 @@ public class productos extends AppCompatActivity {
         }
     }
 
-    public static boolean isOnline(Context context) {
+    public static boolean isOnline() {
         try {
             Process p = java.lang.Runtime.getRuntime().exec("ping -c 1 www.google.es");
 
