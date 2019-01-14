@@ -91,6 +91,7 @@ public class productos extends AppCompatActivity {
     String folioT ="", c1= "";
     AlertDialog Findialog;
     String UserComanda=null;
+    String posLL = null, posS=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -898,4 +899,21 @@ public class productos extends AppCompatActivity {
         return false;
     }
 
+    public class enviarUbicacionLLegada extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            boolean status = WebService.invokeUbicacion(folioT, posLL,"LLegada");
+            Log.e(tag, " UPDATAUBICAI0N: " +status);
+            return null;
+        }
+    }
+
+    public class enviarUbicacionSalida extends AsyncTask<Void, Void, Void> {
+        @Override
+        protected Void doInBackground(Void... params) {
+            boolean status = WebService.invokeUbicacion(folioT, posS,"Salida");
+            Log.e(tag, " UPDATAUBICAI0N: " +status);
+            return null;
+        }
+    }
 }
