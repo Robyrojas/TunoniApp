@@ -131,7 +131,11 @@ public class MainActivity extends AppCompatActivity {
         btnEnviar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                new loading().execute();
+                if(!LISTAP.isEmpty() || !LISTADOC.isEmpty()){
+                    new loading().execute();
+                }else{
+                    Toast.makeText(getApplicationContext(),"Ya se envío toda la información",Toast.LENGTH_SHORT).show();
+                }
                 btnEnviar.setEnabled(false);
                 btnEnviar.setVisibility(View.INVISIBLE);
             }
