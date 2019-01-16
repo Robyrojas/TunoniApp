@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     List<Producto> LISTAP = new ArrayList<Producto>();
     List<Documentos> LISTADOC = new ArrayList<Documentos>();
     List<String> LISTAF = new ArrayList<String>();
-    //folioT ="",
+    String posS = "",posLL = "";
 
     //Documentos doc = new Documentos();
     String comentarioComanda = "", tag="Main";
@@ -85,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
         webservicePG.setVisibility(View.INVISIBLE);
         Button btn = (Button) findViewById(R.id.initSesion);
         final Button btnEnviar = (Button) findViewById(R.id.enviarInfo);
+        btnEnviar.setEnabled(false);
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getApplicationContext());
         //DatabaseUtils.dumpCursor(datos.obtenerUser());
@@ -107,14 +108,21 @@ public class MainActivity extends AppCompatActivity {
                             getProducts();
                             getFotos(UserComanda);
                             if(!LISTAP.isEmpty() || !LISTADOC.isEmpty()){
+                                btnEnviar.setEnabled(true);
                                 btnEnviar.setVisibility(View.VISIBLE);
-                            }else
+                            }else{
+                                btnEnviar.setEnabled(false);
                                 btnEnviar.setVisibility(View.INVISIBLE);
-                        }else
+                            }
+                        }else{
+                            btnEnviar.setEnabled(false);
                             btnEnviar.setVisibility(View.INVISIBLE);
+                        }
+
                     }
                 }
                 else{
+                    btnEnviar.setEnabled(false);
                     btnEnviar.setVisibility(View.INVISIBLE);
                 }
             }
@@ -124,6 +132,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 new loading().execute();
+                btnEnviar.setEnabled(false);
                 btnEnviar.setVisibility(View.INVISIBLE);
             }
         });
@@ -133,29 +142,35 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 //Check if text controls are not empty
-                if (userNameET.getText().length() != 0 && userNameET.getText().toString() != "") {
-                    if(passWordET.getText().length() != 0 && passWordET.getText().toString() != ""){
-                        webservicePG.setVisibility(View.VISIBLE);
-                        //Log.d("l0gin","activar l0ad");
-                        editTextUsername = userNameET.getText().toString();
-                        editTextPassword = passWordET.getText().toString();
-                        statusTV.setText("");
-                        AsyncCallWS task = new AsyncCallWS();
-                        datos.getDb().close();
-                        if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
-                            task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-                        } else {
-                            task.execute();
-                        }
-                    }
-                    //If Password text control is empty
-                    else{
-                        statusTV.setText("Falta escribir la contraseña");
-                    }
-                    //If Username text control is empty
-                } else {
-                    statusTV.setText("Falta escribir el usuario");
+                if(btnEnviar.isEnabled()){
+                    statusTV.setText("Tienes comandas por enviar");
                 }
+                else{
+                    if (userNameET.getText().length() != 0 && userNameET.getText().toString() != "") {
+                        if(passWordET.getText().length() != 0 && passWordET.getText().toString() != ""){
+                            webservicePG.setVisibility(View.VISIBLE);
+                            //Log.d("l0gin","activar l0ad");
+                            editTextUsername = userNameET.getText().toString();
+                            editTextPassword = passWordET.getText().toString();
+                            statusTV.setText("");
+                            AsyncCallWS task = new AsyncCallWS();
+                            datos.getDb().close();
+                            if(Build.VERSION.SDK_INT >= 11/*HONEYCOMB*/) {
+                                task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+                            } else {
+                                task.execute();
+                            }
+                        }
+                        //If Password text control is empty
+                        else{
+                            statusTV.setText("Falta escribir la contraseña");
+                        }
+                        //If Username text control is empty
+                    } else {
+                        statusTV.setText("Falta escribir el usuario");
+                    }
+                }
+
             }
         });
 
@@ -529,11 +544,50 @@ public class MainActivity extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerDocumentos(user));
     }
 
+    public String obtenerUbicaciones(String folioT){
+        String ubicacion="";
+        try {
+            datos.getDb().beginTransaction();
+            Cursor cursor = datos.obtenerEntregas(folioT);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("dirorigen");
+                    String dirO = cursor.getString(columna);
+                    int columna2 = cursor.getColumnIndex("dirdestino");
+                    String dirD = cursor.getString(columna2);
+                    if(dirO!=null && dirD!=null){
+                        if(!dirO.isEmpty() && !dirD.isEmpty()){
+                            posS = dirO;
+                            posLL = dirD;
+                            ubicacion = posS+";"+posLL;
+                        }
+                    }
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+        return ubicacion;
+    }
+
     private class loading extends AsyncTask<String, Void, Void>{
         @Override
         protected Void doInBackground(String... params) {
-            //enviar prodcutos
+
+            //enviar ubicaciones
             Log.d(tag, "L0ading");
+            for(int i = 0; i<LISTAF.size();i++) { //entrega_folio
+                String ubicacion = obtenerUbicaciones(LISTAF.get(i));
+                status = WebService.invokeUbicacion(LISTAF.get(i),ubicacion.split(";")[0],ubicacion.split(";")[1]);
+                //reenviar
+                Log.d("ubicacion ws", "0 " + status);
+            }
+
+            //enviar prodcutos
+            Log.d(tag, "L0ading productos");
             for(int i = 0; i<LISTAP.size();i++) { //entrega_folio
                 status = WebService.invokeProducto(LISTAP.get(i).entrega_folio, LISTAP.get(i).producto, LISTAP.get(i).estado, LISTAP.get(i).faltante, comentarioComanda);
                 //reenviar
@@ -616,48 +670,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onProgressUpdate(Void... values) {
         }
     }
-
-    /*
-    public void borrarBase(){
-        datos.getDb().beginTransaction();
-        String folioT ="";
-        Cursor cursor =datos.obtenerApp();
-        if(cursor!=null){
-            if (cursor.moveToFirst()) {
-                int columna = cursor.getColumnIndex("folio");
-                folioT = cursor.getString(columna);
-            }
-            Log.e(tag, "folioT-U: "+folioT);
-        }
-        datos.actualizarStatus("Sin Enviar",folioT);
-        datos.borrar("App");
-        datos.borrar("Producto");
-        datos.borrar("Documentos");
-        datos.borrar("Entrega");
-        datos.borrar("Usuario");
-        //DatabaseUtils.dumpCursor(datos.obtenerApp());
-        //DatabaseUtils.dumpCursor(datos.obtenerUser());
-        Cursor cursor1 =datos.obtenerApp();
-        String hola =null;
-        if(cursor1!=null){
-            if (cursor1.moveToFirst()) {
-                int columna = cursor1.getColumnIndex("estatus");
-                hola = cursor1.getString(columna);
-            }
-            Log.e("ESTAD0", "BORRAR: "+hola);
-        }
-        cursor1 =datos.obtenerUser();
-        String hola1 =null;
-        if(cursor1!=null){
-            if (cursor1.moveToFirst()) {
-                int columna = cursor1.getColumnIndex("nonbre");
-                hola1 = cursor1.getString(columna);
-            }
-            Log.e("ESTAD0", "BORRAR-U: "+hola1);
-        }
-        datos.deleteALL(getApplicationContext());
-    }
-    */
 
     private String convert64(String ruta){
         String xxx = encodeImage(ruta);

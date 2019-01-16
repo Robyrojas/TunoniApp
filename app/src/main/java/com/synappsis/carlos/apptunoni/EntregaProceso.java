@@ -92,7 +92,7 @@ public class EntregaProceso extends Fragment {
     private String Foliomaps;
     String vistaSave = null;
     double longitudeGPS = 0, latitudeGPS = 0;
-    String p0s = "";
+    String p0s = "";String p0sOrigen = "19.430464,-99.135046";
     /*mapas*/
     static final int REQUEST_LOCATION = 1;
     LocationManager locationManager;
@@ -395,6 +395,7 @@ public class EntregaProceso extends Fragment {
                     String geo = cursor.getString(columna);
                     if(geo!=null){
                         if(!geo.isEmpty()){
+                            p0sOrigen = geo;
                             latitudeGPS = Double.parseDouble(geo.split(",")[0]);
                             longitudeGPS = Double.parseDouble(geo.split(",")[1]);
                             result= true;
@@ -578,31 +579,7 @@ public class EntregaProceso extends Fragment {
 
     }
 
-    void getLocationEntrega(){
-        if(checkSelfPermission(getContext(),Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED && checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
 
-            requestPermissions(new String[]{android.Manifest.permission.ACCESS_COARSE_LOCATION,
-                            android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION);
-
-        } else {
-            Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null){
-                double latti = location.getLatitude();
-                double longi = location.getLongitude();
-                Log.e("latidude: ",latti+" ");
-                Log.e("longitude: ",longi+" ");
-                latitudeGPS = latti;
-                longitudeGPS = longi;
-                p0s = latti+","+longi;
-                guardarLatLong(p0s);
-            } else {
-                Toast.makeText(getContext(), "No se puede encontrar ubicación", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if(REQUEST_LOCATION == requestCode) {
@@ -636,11 +613,9 @@ public class EntregaProceso extends Fragment {
     public class enviarUbicacion extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            boolean status = WebService.invokeUbicacion(Foliomaps, p0s,"Ubicacion");
+            boolean status = WebService.invokeUbicacion(Foliomaps, p0sOrigen,p0s);
             Log.e(tag, " UPDATAUBICAI0N: " +status);
             return null;
         }
     }
-
-
 }

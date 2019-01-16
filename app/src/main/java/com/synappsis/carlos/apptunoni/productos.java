@@ -1,6 +1,7 @@
 package com.synappsis.carlos.apptunoni;
 
-import android.content.Context;
+import android.*;
+import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -8,8 +9,8 @@ import android.database.DatabaseUtils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
+import android.location.Location;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -47,16 +48,12 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import static android.support.v4.content.PermissionChecker.checkSelfPermission;
 
-import com.biometriaaplicada.identitum.utils.GZipUtils;
+import static com.synappsis.carlos.apptunoni.EntregaProceso.REQUEST_LOCATION;
+import static java.security.AccessController.getContext;
 
 public class productos extends AppCompatActivity {
     private final String ruta_fotos = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Tunoni/";
@@ -91,7 +88,8 @@ public class productos extends AppCompatActivity {
     String folioT ="", c1= "";
     AlertDialog Findialog;
     String UserComanda=null;
-    String posLL = null, posS=null;
+    String posLL = "19.430464,-99.135046", posS="19.430464,-99.135046";
+    LocationManager locationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +99,7 @@ public class productos extends AppCompatActivity {
         datos = OperacionesBaseDatos
                 .obtenerInstancia(getApplicationContext());
         init();
+        locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
         /*codigo aceptar*/
         comentario = (EditText) findViewById(R.id.comentario);
         aceptar = (Button) findViewById(R.id.btnGuardar);
@@ -154,6 +153,9 @@ public class productos extends AppCompatActivity {
                 }
                 else{
                     if(isOnline()){
+                        getUbicacionLlegada();
+                        getUbicacionOrigen();
+                        new enviarUbicacion().execute();
                         new enviarStatus().execute();
                         actualizarStatus("Sin enviar");
                         //borrarBase();
@@ -394,6 +396,7 @@ public class productos extends AppCompatActivity {
                 TextView t1v = new TextView(this);
                 t1v.setText(LISTAP.get(i).producto);
                 t1v.setTextColor(Color.BLACK);
+                t1v.setMaxWidth(300);
                 t1v.setGravity(Gravity.CENTER);
                 tbrow.addView(t1v);
                 //col 2
@@ -492,7 +495,7 @@ public class productos extends AppCompatActivity {
 
     private boolean revisarPermisos() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            Toast.makeText(this, "Es una versión anterior del API 23 " + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Debes asignar permisos desde configuraciones" + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
             return true;
         } else {
             int hasWriteContactsPermission = checkSelfPermission(android.Manifest.permission.CAMERA);
@@ -662,7 +665,7 @@ public class productos extends AppCompatActivity {
         if(REQUEST_CODE_ASK_PERMISSIONS == requestCode) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 //Toast.makeText(this, "OK Permisos otorgados",Toast.LENGTH_LONG).show();
-                dispatchTakePictureIntent();
+                //dispatchTakePictureIntent();
             } else {
                 Toast.makeText(this, "Permisos denegados", Toast.LENGTH_LONG).show();
             }
@@ -899,21 +902,99 @@ public class productos extends AppCompatActivity {
         return false;
     }
 
-    public class enviarUbicacionLLegada extends AsyncTask<Void, Void, Void> {
+    public class enviarUbicacion extends AsyncTask<Void, Void, Void> {
         @Override
         protected Void doInBackground(Void... params) {
-            boolean status = WebService.invokeUbicacion(folioT, posLL,"LLegada");
+            boolean status = WebService.invokeUbicacion(folioT,posLL,posS);
             Log.e(tag, " UPDATAUBICAI0N: " +status);
             return null;
         }
     }
 
-    public class enviarUbicacionSalida extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            boolean status = WebService.invokeUbicacion(folioT, posS,"Salida");
-            Log.e(tag, " UPDATAUBICAI0N: " +status);
-            return null;
+    void getUbicacionOrigen(){
+        try {
+            datos.getDb().beginTransaction();
+            Cursor cursor = datos.obtenerEntregas(folioT);
+            if (cursor != null) {
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("dirorigen");
+                    String geo = cursor.getString(columna);
+                    if(geo!=null){
+                        if(!geo.isEmpty()){
+                            posS = geo;
+                        }
+                    }
+                }
+            } else {
+                Log.d("USER", "Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
         }
     }
+
+    void getUbicacionLlegada() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            Toast.makeText(this, "Debes asignar permisos desde configuraciones" + Build.VERSION.SDK_INT, Toast.LENGTH_LONG).show();
+        } else {
+            int hasWriteContactsPermission = checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            if (hasWriteContactsPermission != PackageManager.PERMISSION_GRANTED) {
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        REQUEST_CODE_ASK_PERMISSIONS);
+                Toast.makeText(this, "Requiriendo permisos", Toast.LENGTH_LONG).show();
+            } else if (hasWriteContactsPermission == PackageManager.PERMISSION_GRANTED) {
+                //Toast.makeText(this, "Permisos ya otorgados ", Toast.LENGTH_LONG).show();
+                Location location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                if (location != null) {
+                    double latti = location.getLatitude();
+                    double longi = location.getLongitude();
+                    posLL = latti + "," + longi;
+                    try {
+                        datos.getDb().beginTransaction();
+                        Cursor cursor = datos.actualizarDestino(posLL,folioT);
+                        if (cursor != null) {
+                            if (cursor.moveToFirst()) {
+                                int columna = cursor.getColumnIndex("dirDestino");
+                                String geo = cursor.getString(columna);
+                                if(geo!=null){
+                                    if(!geo.isEmpty()){
+                                        Log.d("productos", "pos llegada: "+ posLL);
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.d("USER", "Error algo vacio");
+                        }
+                        datos.getDb().setTransactionSuccessful();
+                    } finally {
+                        datos.getDb().endTransaction();
+                    }
+                }else{
+                    try {
+                        datos.getDb().beginTransaction();
+                        Cursor cursor = datos.obtenerEntregas();
+                        if (cursor != null) {
+                            if (cursor.moveToFirst()) {
+                                int columna = cursor.getColumnIndex("dirDestino");
+                                String geo = cursor.getString(columna);
+                                if(geo!=null){
+                                    if(!geo.isEmpty()){
+                                        posLL = geo;
+                                    }
+                                }
+                            }
+                        } else {
+                            Log.d("USER", "Error algo vacio");
+                        }
+                        datos.getDb().setTransactionSuccessful();
+                    } finally {
+                        datos.getDb().endTransaction();
+                    }
+                }
+            }
+        }
+    }
+
+
 }
