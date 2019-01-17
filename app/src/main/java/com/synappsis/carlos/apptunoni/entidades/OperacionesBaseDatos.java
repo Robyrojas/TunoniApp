@@ -134,6 +134,13 @@ public class OperacionesBaseDatos {
         return res;
     }
 
+    public Cursor obtenerEntrega(String f) {
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        String query = "select * from " + Tablas.TABLE_ENTREGA + " WHERE folio=?";
+        Cursor res = db.rawQuery(query, new String[]{f});
+        return res;
+    }
+
     public Cursor actualizarOrigen(String dirorigen, String folio){
         SQLiteDatabase db = baseDatos.getReadableDatabase();
         Cursor res =null;

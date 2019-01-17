@@ -388,7 +388,7 @@ public class EntregaProceso extends Fragment {
         try {
             datos.getDb().beginTransaction();
             //int a = 1;
-            Cursor cursor = datos.obtenerEntregas(Foliomaps);
+            Cursor cursor = datos.obtenerEntrega(Foliomaps);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     int columna = cursor.getColumnIndex("dirorigen");
@@ -409,6 +409,7 @@ public class EntregaProceso extends Fragment {
         } finally {
             datos.getDb().endTransaction();
         }
+        DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
         return result;
     }
 

@@ -475,11 +475,11 @@ public class MainActivity extends AppCompatActivity {
                                         int columna3 = cursor1.getColumnIndex("faltante");
                                         p.cantidad = cursor1.getString(columna3);
                                         LISTAP.add(p);
-                                        LISTAF.add(f);
                                     } while(cursor1.moveToNext());
                                 }
                             }
                         }
+                        LISTAF.add(f);
                     } while(entrega.moveToNext());
                 }
             }
@@ -489,6 +489,7 @@ public class MainActivity extends AppCompatActivity {
         }
         //DatabaseUtils.dumpCursor(datos.obtenerProductos(UserComanda));
         Log.d(tag, "Tam List: "+LISTAP.size());
+        Log.d(tag, "Tam List E-F: "+LISTAF.size());
     }
 
     public void getFotos(String user){
@@ -552,12 +553,12 @@ public class MainActivity extends AppCompatActivity {
         String ubicacion="";
         try {
             datos.getDb().beginTransaction();
-            Cursor cursor = datos.obtenerEntregas(folioT);
+            Cursor cursor = datos.obtenerEntregas(UserComanda);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    int columna = cursor.getColumnIndex("dirorigen");
+                    int columna = cursor.getColumnIndex("dirOrigen");
                     String dirO = cursor.getString(columna);
-                    int columna2 = cursor.getColumnIndex("dirdestino");
+                    int columna2 = cursor.getColumnIndex("dirDestino");
                     String dirD = cursor.getString(columna2);
                     if(dirO!=null && dirD!=null){
                         if(!dirO.isEmpty() && !dirD.isEmpty()){
@@ -574,6 +575,7 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             datos.getDb().endTransaction();
         }
+        DatabaseUtils.dumpCursor(datos.obtenerEntregas(folioT));
         return ubicacion;
     }
 
