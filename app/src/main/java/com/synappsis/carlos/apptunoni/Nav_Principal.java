@@ -163,35 +163,4 @@ public class Nav_Principal extends AppCompatActivity
 
     }
 
-    /*TEST DE BASE DE DATOS*/
-    public class obtenerStatus extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... params) {
-            // [INSERCIONES]
-            try {
-                datos.getDb().beginTransaction();
-                //int a = 1;
-                Cursor cursor =datos.obtenerEstatus();
-                if(cursor!=null){
-                    if (cursor.moveToFirst()) {
-                        int columna = cursor.getColumnIndex("estatus");
-                        String estado = cursor.getString(columna);
-                        if(estado == "Sin Enviar")
-                            cambiarFragment=0;
-                        else if(estado=="Aceptado")
-                            cambiarFragment=1;
-                        else if(estado=="En Camino")
-                            cambiarFragment=2;
-                    }
-                }
-                datos.getDb().setTransactionSuccessful();
-                Log.d("QUERY", "Termine task:" +cambiarFragment);
-            } finally {
-                datos.getDb().endTransaction();
-            }
-            // [QUERIES]
-            return null;
-        }
-    }
-
 }

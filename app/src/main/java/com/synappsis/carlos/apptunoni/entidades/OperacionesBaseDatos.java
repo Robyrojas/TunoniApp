@@ -422,8 +422,9 @@ public class OperacionesBaseDatos {
 
         //String sql = String.format("SELECT * FROM %s", Tablas.TABLE_DOCUMENTOS);
         //b.rawQuery("SELECT body FROM table1 WHERE title IN ('title1', 'title2', 'title3')");
-        String query = "select * from " + Tablas.TABLE_DOCUMENTOS + " WHERE usuario_nombre=?";
-        Cursor res = db.rawQuery(query, new String[]{usuario_nombre});
+        String query = "select * from " + Tablas.TABLE_DOCUMENTOS + " WHERE Usuario_nombre = " + "'"+usuario_nombre+"'";
+        Log.d("BASE","query: "+ query);
+        Cursor res = db.rawQuery(query, null);
         return res;
     }
 

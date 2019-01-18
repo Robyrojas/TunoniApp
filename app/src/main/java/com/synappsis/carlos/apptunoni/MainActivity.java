@@ -403,6 +403,7 @@ public class MainActivity extends AppCompatActivity {
             datos.getDb().endTransaction();
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
+        DatabaseUtils.dumpCursor(datos.obtenerEntregas());
         return resStatus;
     }
 
@@ -474,6 +475,7 @@ public class MainActivity extends AppCompatActivity {
                                         p.cantidad = cursor1.getString(columna2);
                                         int columna3 = cursor1.getColumnIndex("faltante");
                                         p.cantidad = cursor1.getString(columna3);
+                                        p.entrega_folio=f;
                                         LISTAP.add(p);
                                     } while(cursor1.moveToNext());
                                 }
@@ -641,7 +643,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                     Log.d("MAIN", "NumProductos: "+datos.contarRegistros("Producto"));
                     Log.d("MAIN", "NumDocs: "+datos.contarRegistros("Documentos"));
-                    Log.d("MAIN", "NumDocs: "+datos.contarRegistros("Entrega"));
+                    Log.d("MAIN", "NumEntrega: "+datos.contarRegistros("Entrega"));
                     LISTAF.clear();
                     LISTADOC.clear();
                     LISTAP.clear();

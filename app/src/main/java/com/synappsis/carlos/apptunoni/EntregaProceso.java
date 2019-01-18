@@ -202,6 +202,7 @@ public class EntregaProceso extends Fragment {
             } finally {
                 datos.getDb().endTransaction();
             }
+            Log.d("USER","----------------Entregas");
         }
         spinnerOpc.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -328,6 +329,7 @@ public class EntregaProceso extends Fragment {
             datos.getDb().endTransaction();
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
+
         return resStatus;
     }
 
@@ -381,6 +383,8 @@ public class EntregaProceso extends Fragment {
         } finally {
             datos.getDb().endTransaction();
         }
+        Log.d("USER","----------------Entregas");
+        DatabaseUtils.dumpCursor(datos.obtenerEntrega(Foliomaps));
     }
 
     private boolean obtenerOrigen() {
@@ -391,7 +395,7 @@ public class EntregaProceso extends Fragment {
             Cursor cursor = datos.obtenerEntrega(Foliomaps);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    int columna = cursor.getColumnIndex("dirorigen");
+                    int columna = cursor.getColumnIndex("dirOrigen");
                     String geo = cursor.getString(columna);
                     if(geo!=null){
                         if(!geo.isEmpty()){
@@ -409,7 +413,7 @@ public class EntregaProceso extends Fragment {
         } finally {
             datos.getDb().endTransaction();
         }
-        DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
+        //DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
         return result;
     }
 
@@ -418,7 +422,7 @@ public class EntregaProceso extends Fragment {
         try {
             datos.getDb().beginTransaction();
             //int a = 1;
-            Cursor cursor = datos.obtenerEntregas();
+            Cursor cursor = datos.obtenerEntrega(Foliomaps);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     int columna = cursor.getColumnIndex("dirDestino");
@@ -447,7 +451,7 @@ public class EntregaProceso extends Fragment {
             Cursor cursor = datos.actualizarOrigen(s,Foliomaps);
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
-                    int columna = cursor.getColumnIndex("dirorigen");
+                    int columna = cursor.getColumnIndex("dirOrigen");
                     String ac = cursor.getString(columna);
                     Log.d("UPDATE ORI", ac);
                 }

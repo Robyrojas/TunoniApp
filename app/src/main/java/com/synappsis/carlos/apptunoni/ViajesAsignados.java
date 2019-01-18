@@ -394,7 +394,7 @@ public class ViajesAsignados extends Fragment {
 
             }
             // [QUERIES]
-            Log.d("USER","----------------Obtencion de base de datos");
+            Log.d("USER","----------------Entregas");
             DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
 
 

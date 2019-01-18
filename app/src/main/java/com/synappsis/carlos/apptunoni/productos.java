@@ -297,7 +297,7 @@ public class productos extends AppCompatActivity {
         } finally {
             datos.getDb().endTransaction();
         }
-        DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
+        DatabaseUtils.dumpCursor(datos.obtenerEntregas());
         return folioT;
     }
 
@@ -456,7 +456,7 @@ public class productos extends AppCompatActivity {
                     datos.getDb().endTransaction();
                     Log.d("QUERY", "Obtenerdatos end");
                 }
-                DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
+                DatabaseUtils.dumpCursor(datos.obtenerEntregas());
                 res = "actualizado";
             }
         }
@@ -781,7 +781,7 @@ public class productos extends AppCompatActivity {
             datos.getDb().endTransaction();
         }
         DatabaseUtils.dumpCursor(datos.obtenerApp());
-        DatabaseUtils.dumpCursor(datos.obtenerEntregas(UserComanda));
+        DatabaseUtils.dumpCursor(datos.obtenerEntregas());
     }
 
     private class loading extends AsyncTask<String, Void, Void>{
@@ -879,6 +879,7 @@ public class productos extends AppCompatActivity {
             datos.getDb().endTransaction();
             Log.d("QUERY", "SaveBD end");
         }
+        DatabaseUtils.dumpCursor(datos.obtenerDocumentos(UserComanda));
     }
 
     public class enviarStatus extends AsyncTask<Void, Void, Void> {
