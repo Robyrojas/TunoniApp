@@ -129,14 +129,14 @@ public class OperacionesBaseDatos {
 
     public Cursor obtenerEntregas(String id) {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
-        String query = "select * from " + Tablas.TABLE_ENTREGA + " WHERE usuario_nombre=?";
+        String query = "SELECT * FROM " + Tablas.TABLE_ENTREGA + " WHERE Usuario_nombre=?";
         Cursor res = db.rawQuery(query, new String[]{id});
         return res;
     }
 
     public Cursor obtenerEntrega(String f) {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
-        String query = "select * from " + Tablas.TABLE_ENTREGA + " WHERE folio=?";
+        String query = "SELECT * FROM " + Tablas.TABLE_ENTREGA + " WHERE folio=?";
         Cursor res = db.rawQuery(query, new String[]{f});
         return res;
     }
@@ -223,28 +223,14 @@ public class OperacionesBaseDatos {
             valores.put(Comanda.App.ESTATUS, appbase.estatus);
             valores.put(Comanda.App.ACTUALIZAR, appbase.actualizar);
 
-        /*long resultado = db.insertOrThrow(Tablas.TABLE_DOCUMENTOS, null, valores);
-        if(resultado == -1) {
-            return "Hubo un error";
-        }
-        else {
-            return idProducto;
-        }*/
             db.insert(Tablas.TABLE_APP, null, valores);
             return appbase.folio;
         }
     }
 
-    public Cursor obtenerApp(String folio) {
-        SQLiteDatabase db = baseDatos.getReadableDatabase();
-        String query = "select * from " + Tablas.TABLE_APP + " WHERE folio=?";
-        Cursor res = db.rawQuery(query, new String[]{folio});
-        return res;
-    }
-
     public Cursor obtenerApp() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
-        String query = "select * from " + Tablas.TABLE_APP ;
+        String query = "SELECT * FROM " + Tablas.TABLE_APP ;
         Cursor res = db.rawQuery(query, null);
         return res;
     }
@@ -277,7 +263,7 @@ public class OperacionesBaseDatos {
 
     public Cursor obtenerEstatus() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
-        String query = "select * from " + Tablas.TABLE_APP ;
+        String query = "SELECT * FROM " + Tablas.TABLE_APP ;
         Cursor res = db.rawQuery(query, null);
         return res;
     }
@@ -288,7 +274,7 @@ public class OperacionesBaseDatos {
         String whereClause = String.format("%s=?", Comanda.App.FOLIO);
         String[] whereArgs = {folio};
 
-        int resultado = db.delete(Tablas.TABLE_DOCUMENTOS, whereClause, whereArgs);
+        int resultado = db.delete(Tablas.TABLE_APP, whereClause, whereArgs);
 
         return resultado > 0;
     }
@@ -339,16 +325,16 @@ public class OperacionesBaseDatos {
     public Cursor obtenerProducto(String folio) {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
 
-        String query = "select * from " + Tablas.TABLE_PRODUCTO + " WHERE entrega_folio=?";
+        String query = "SELECT * FROM " + Tablas.TABLE_PRODUCTO + " WHERE entrega_folio=?";
         Cursor res = db.rawQuery(query, new String[]{folio});
         return res;
     }
 
-    public Cursor obtenerProductos(String usuario_nombre) {
+    public Cursor obtenerProductos() {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
 
-        String query = "select * from " + Tablas.TABLE_PRODUCTO + " WHERE usuario_nombre=?";
-        Cursor res = db.rawQuery(query, new String[]{usuario_nombre});
+        String query = "SELECT * FROM " + Tablas.TABLE_PRODUCTO;
+        Cursor res = db.rawQuery(query, null);
         return res;
     }
 
@@ -405,6 +391,8 @@ public class OperacionesBaseDatos {
             valores.put(Comanda.Documentos.FOTO3, doc.foto3);
             valores.put(Comanda.Documentos.FIRMA, doc.firma);
             valores.put(Comanda.Documentos.COMENTARIOS, doc.comentarios);
+            valores.put(Comanda.Documentos.STATUS, doc.status);
+            valores.put(Comanda.Documentos.ENTREGA_FOLIO, doc.entrega_folio);
             valores.put(Comanda.Documentos.USUARIO_NOMBRE, doc.usuario_nombre);
 
         long resultado = db.insertOrThrow(Tablas.TABLE_DOCUMENTOS, null, valores);
@@ -420,12 +408,17 @@ public class OperacionesBaseDatos {
     public Cursor obtenerDocumentos(String usuario_nombre) {
         SQLiteDatabase db = baseDatos.getReadableDatabase();
 
-        //String sql = String.format("SELECT * FROM %s", Tablas.TABLE_DOCUMENTOS);
-        //b.rawQuery("SELECT body FROM table1 WHERE title IN ('title1', 'title2', 'title3')");
-        String query = "select * from " + Tablas.TABLE_DOCUMENTOS + " WHERE Usuario_nombre = " + "'"+usuario_nombre+"'";
+        //String query = "select * from %s" + Tablas.TABLE_DOCUMENTOS + " WHERE Usuario_nombre = " + "'"+usuario_nombre+"'";
+        String query = "SELECT * FROM " + Tablas.TABLE_DOCUMENTOS + " WHERE Usuario_nombre = ?";
         Log.d("BASE","query: "+ query);
-        Cursor res = db.rawQuery(query, null);
+        Cursor res = db.rawQuery(query,  new String[]{usuario_nombre});
         return res;
+    }
+
+    public Cursor obtenerDocumentos() {
+        SQLiteDatabase db = baseDatos.getReadableDatabase();
+        String sql = String.format("SELECT * FROM %s", Tablas.TABLE_DOCUMENTOS);
+        return db.rawQuery(sql, null);
     }
 
     public boolean eliminarDocumentos(String folioT) {

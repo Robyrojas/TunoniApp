@@ -100,6 +100,7 @@ public class productos extends AppCompatActivity {
                 .obtenerInstancia(getApplicationContext());
         init();
         locationManager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
+        getUser();
         /*codigo aceptar*/
         comentario = (EditText) findViewById(R.id.comentario);
         aceptar = (Button) findViewById(R.id.btnGuardar);
@@ -300,6 +301,27 @@ public class productos extends AppCompatActivity {
         DatabaseUtils.dumpCursor(datos.obtenerEntregas());
         return folioT;
     }
+
+    private void getUser(){
+        try {
+            datos.getDb().beginTransaction();
+            Cursor cursor =datos.obtenerUser();
+            if(cursor!=null){
+                if (cursor.moveToFirst()) {
+                    int columna = cursor.getColumnIndex("nombre");
+                    UserComanda = cursor.getString(columna);
+                    Log.d("Productos","user: "+UserComanda);
+                }
+            }
+            else{
+                Log.d("USER","Error algo vacio");
+            }
+            datos.getDb().setTransactionSuccessful();
+        } finally {
+            datos.getDb().endTransaction();
+        }
+    }
+
 
     public void getProducts(String f){
         try {
@@ -696,15 +718,15 @@ public class productos extends AppCompatActivity {
         try {
             Log.e(tag, "ActualizarStatus");
             datos.getDb().beginTransaction();
-            UserComanda=null;
+            String folioAct=null;
             Cursor cursor = datos.obtenerEstatus();
             if (cursor != null) {
                 if (cursor.moveToFirst()) {
                     int columna = cursor.getColumnIndex("folio");
-                    UserComanda = cursor.getString(columna);
+                    folioAct = cursor.getString(columna);
                 }
-                //Log.e(tag, "folio: " + UserComanda);
-                Cursor cursor2 = datos.actualizarStatus(statusNew, UserComanda);
+
+                Cursor cursor2 = datos.actualizarStatus(statusNew, folioAct);
                 if (cursor2 != null) {
                     Log.e(tag, "Si hay actualizar estado");
                     if (cursor2.moveToFirst()) {
@@ -726,11 +748,11 @@ public class productos extends AppCompatActivity {
                     } else {
                         Log.d("QUERY", "Error en query 3");
                     }
-                    boolean res = datos.eliminarEntregas(folioT);
+                    boolean res = datos.eliminarEntregas(folioAct);
                     if (res) {
-                        Log.d("QUERY", "Se elimino entrega "+folioT);
+                        Log.d("QUERY", "Se elimino entrega "+folioAct);
                     } else {
-                        Log.d("QUERY", "No se elimino "+ folioT);
+                        Log.d("QUERY", "No se elimino "+ folioAct);
                     }
                 }
             } else {
@@ -865,7 +887,7 @@ public class productos extends AppCompatActivity {
     }
 
     private void saveDBImage(List<String> list64) {
-        Documentos docs = new Documentos("", list64.get(0),list64.get(1),list64.get(2),list64.get(3),c1,"Entregada",folioT, UserComanda);
+        Documentos docs = new Documentos("", list64.get(0),list64.get(1),list64.get(2),list64.get(3),c1,"Entregada", UserComanda, folioT);
         try {
             Log.e("PRODUCTO", "save fotos");
             datos.getDb().beginTransaction();
@@ -879,7 +901,7 @@ public class productos extends AppCompatActivity {
             datos.getDb().endTransaction();
             Log.d("QUERY", "SaveBD end");
         }
-        DatabaseUtils.dumpCursor(datos.obtenerDocumentos(UserComanda));
+        DatabaseUtils.dumpCursor(datos.obtenerDocumentos());
     }
 
     public class enviarStatus extends AsyncTask<Void, Void, Void> {

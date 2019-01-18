@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                     new loading().execute();
                 }else{
                     Toast.makeText(getApplicationContext(),"Ya se envío toda la información",Toast.LENGTH_SHORT).show();
+                    statusTV.setText("Datos enviados");
                 }
                 btnEnviar.setEnabled(false);
                 btnEnviar.setVisibility(View.INVISIBLE);
@@ -142,6 +143,37 @@ public class MainActivity extends AppCompatActivity {
         });
 
         Log.e("mainactivity","init app");
+        boolean isNetworkAvailable = isOnline();
+        String networkStatus = isNetworkAvailable ? "Establecida" : "Desconectada";
+        Log.e("MAIN",networkStatus);
+        //Toast.makeText(getApplicationContext(), networkStatus, Toast.LENGTH_SHORT).show();
+        Snackbar.make(findViewById(R.id.activity_main), "Conexión: " + networkStatus, Snackbar.LENGTH_LONG).show();
+        if(isNetworkAvailable){
+            //obtener usuario
+            obtenerUser();
+            if(UserComanda!=null){
+                boolean res = revisarEnvio();
+                if(!UserComanda.isEmpty() && res){
+                    getProducts();
+                    getFotos(UserComanda);
+                    if(!LISTAP.isEmpty() || !LISTADOC.isEmpty()){
+                        btnEnviar.setEnabled(true);
+                        btnEnviar.setVisibility(View.VISIBLE);
+                    }else{
+                        btnEnviar.setEnabled(false);
+                        btnEnviar.setVisibility(View.INVISIBLE);
+                    }
+                }else{
+                    btnEnviar.setEnabled(false);
+                    btnEnviar.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        }
+        else{
+            btnEnviar.setEnabled(false);
+            btnEnviar.setVisibility(View.INVISIBLE);
+        }
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -448,6 +480,8 @@ public class MainActivity extends AppCompatActivity {
         try {
             Log.e(tag, "get productos");
             datos.getDb().beginTransaction();
+            LISTAP.clear();
+            LISTAF.clear();
             Cursor entrega = datos.obtenerEntregas(UserComanda);
             if(entrega!=null){
                 //Nos aseguramos de que existe al menos un registro
@@ -472,9 +506,11 @@ public class MainActivity extends AppCompatActivity {
                                         int columna = cursor1.getColumnIndex("producto");
                                         p.producto = cursor1.getString(columna);
                                         int columna2 = cursor1.getColumnIndex("estado");
-                                        p.cantidad = cursor1.getString(columna2);
+                                        p.estado = cursor1.getString(columna2);
                                         int columna3 = cursor1.getColumnIndex("faltante");
-                                        p.cantidad = cursor1.getString(columna3);
+                                        p.faltante = cursor1.getString(columna3);
+                                        int columna4 = cursor1.getColumnIndex("Usuario_nombre");
+                                        p.usuario_nombre = cursor1.getString(columna4);
                                         p.entrega_folio=f;
                                         LISTAP.add(p);
                                     } while(cursor1.moveToNext());
@@ -489,7 +525,7 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             datos.getDb().endTransaction();
         }
-        //DatabaseUtils.dumpCursor(datos.obtenerProductos(UserComanda));
+        DatabaseUtils.dumpCursor(datos.obtenerProductos());
         Log.d(tag, "Tam List: "+LISTAP.size());
         Log.d(tag, "Tam List E-F: "+LISTAF.size());
     }
@@ -498,6 +534,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             Log.e(tag, "get fotos");
             datos.getDb().beginTransaction();
+            LISTADOC.clear();
             Cursor cursor1 =datos.obtenerDocumentos(user);
             if(cursor1!=null){
                 //Nos aseguramos de que existe al menos un registro
@@ -512,6 +549,7 @@ public class MainActivity extends AppCompatActivity {
                         int columna4 = cursor1.getColumnIndex("firma");
                         int columna5 = cursor1.getColumnIndex("comentarios");
                         int columna6 = cursor1.getColumnIndex("status");
+                        int columna7 = cursor1.getColumnIndex("Entrega_folio");
                         String t1 = cursor1.getString(columna);
                         String t2 = cursor1.getString(columna2);
                         String t3 = cursor1.getString(columna3);
@@ -523,6 +561,8 @@ public class MainActivity extends AppCompatActivity {
                             d.foto3 = cursor1.getString(columna3);
                             d.firma = cursor1.getString(columna4);
                             d.iddocumentos = cursor1.getString(columna0);
+                            d.entrega_folio = cursor1.getString(columna7);
+                            d.usuario_nombre=user;
                             comentarioComanda = cursor1.getString(columna5);
                             String estatus = cursor1.getString(columna6);
                             if(estatus.equals("Entregada")){
@@ -548,7 +588,8 @@ public class MainActivity extends AppCompatActivity {
         } finally {
             datos.getDb().endTransaction();
         }
-        DatabaseUtils.dumpCursor(datos.obtenerDocumentos(user));
+        Log.d("MAIN", "GETFOTOS: ");
+        DatabaseUtils.dumpCursor(datos.obtenerDocumentos());
     }
 
     public String obtenerUbicaciones(String folioT){
@@ -607,10 +648,11 @@ public class MainActivity extends AppCompatActivity {
                 String f2 = convert64(LISTADOC.get(i).foto2);
                 String f3 = convert64(LISTADOC.get(i).foto3);
                 String f4 = convert64(LISTADOC.get(i).firma);
-                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f1,"Foto1");Log.d("CICL0 ws", "0 "+status);
-                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f2,"Foto2");Log.d("CICL0 ws", "1 "+status);
-                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f3,"Foto3");Log.d("CICL0 ws", "2 "+status);
-                status = WebService.invokeImagenWS(LISTADOC.get(i).entrega_folio,f4,"Firma");Log.d("CICL0 ws", "3 "+status);
+                String folio = LISTADOC.get(i).entrega_folio;
+                status = WebService.invokeImagenWS(folio,f1,"Foto1");Log.d("CICL0 ws", "0 "+status);
+                status = WebService.invokeImagenWS(folio,f2,"Foto2");Log.d("CICL0 ws", "1 "+status);
+                status = WebService.invokeImagenWS(folio,f3,"Foto3");Log.d("CICL0 ws", "2 "+status);
+                status = WebService.invokeImagenWS(folio,f4,"Firma");Log.d("CICL0 ws", "3 "+status);
                 //reenviar
                 Log.d("Doc ws", "0 " + status);
             }
